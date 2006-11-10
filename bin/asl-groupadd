@@ -1,0 +1,62 @@
+#!/usr/bin/env ruby
+
+require 'active_samba_ldap'
+require 'active_samba_ldap/command'
+
+argv, opts, options = ActiveSambaLdap::Command.parse_options do |opts, options|
+  options.gid = nil
+  options.group_type = "domain"
+  options.print_gid_number = false
+
+  opts.banner += " GROUP_NAME"
+
+  opts.on("-g", "--gid=GID", Integer, "GID number") {|options.gid|}
+  opts.on("-t", "--type=TYPE",
+          "group type (#{options.group_type})") {|options.group_type|}
+  opts.on("-p", "--[no-]print-gid-number",
+          "print the gid number to stdout",
+          "(#{options.print_gid_number})") {|options.print_gid_number|}
+end
+
+name = nil
+if argv.size == 1
+  name = argv.first
+else
+  puts opts
+  exit 1
+end
+
+unless Process.uid.zero?
+  puts "need root authority."
+  exit 1
+end
+
+ActiveSambaLdap::Base.establish_connection({}, true)
+
+class Group < ActiveSambaLdap::Group
+  ldap_mapping
+end
+
+class UnixIdPool < ActiveSambaLdap::UnixIdPool
+  ldap_mapping
+end
+
+if Group.exists?(name)
+  puts "group '#{name}' already exists."
+  exit 1
+end
+
+create_options = {
+  :gid_number => options.gid,
+  :pool_class => UnixIdPool,
+  :group_type => options.group_type,
+}
+group = Group.create(name, create_options)
+
+if options.print_gid_number
+  puts group.gidNumber(true)
+end
+
+ActiveSambaLdap::Base.restart_nscd
+
+ActiveSambaLdap::Base.close

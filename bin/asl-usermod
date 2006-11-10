@@ -1,0 +1,314 @@
+#!/usr/bin/env ruby
+
+require 'time'
+require 'fileutils'
+
+require 'active_samba_ldap'
+require 'active_samba_ldap/command'
+
+argv, opts, options = ActiveSambaLdap::Command.parse_options do |opts, options|
+  options.gecos = nil
+  options.home_directory = nil
+  options.move_home_directory = false
+  # options.inactive_days = nil
+  options.new_user_name = nil
+  options.uid = nil
+  options.allow_non_unique_uid_number = false
+  options.gid = nil
+  options.merge_groups = true
+  options.supplementary_groups = nil
+  options.shell = nil
+  options.given_name = nil
+  options.canonical_name = nil
+  options.surname = nil
+
+  options.expire_date = nil
+  options.can_change_password = nil
+  options.must_change_password = nil
+  options.samba_home_path = nil
+  options.samba_home_drive = nil
+  options.samba_logon_script = nil
+  options.samba_profile_path = nil
+  options.samba_account_flags = nil
+  options.enable = nil
+  options.mail_addresses = nil
+  options.mail_to_addresses = nil
+
+
+  opts.banner += " USER_NAME"
+
+  opts.on("--gecos=GECOS", "gecos") {|options.gecos|}
+  opts.on("-d", "--home-directory=HOME_DIR",
+          "home directory") {|options.home_directory|}
+  opts.on("-m", "--[no-]move-home-directory",
+          "move home directory (#{options.move_home_directory})") do |bool|
+    options.move_home_directory = bool
+  end
+  opts.on("-r", "--rename=NEW_NAME",
+          "new user name (cn and dn are updated)") do |name|
+    options.new_user_name = name
+  end
+  opts.on("-u", "--uid=UID", Integer, "uid") {|options.uid|}
+  opts.on("--[no-]allow-non-unique-uid",
+          "uid can be non unique " +
+          "(#{options.allow_non_unique_uid_number})") do |bool|
+    options.allow_non_unique_uid_number = bool
+  end
+  opts.on("-g", "--gid=GID", "gid") {|options.gid|}
+  opts.on("-G", "--groups=GID1,GID2,GID3", Array,
+          "supplementary groups (comma separated)") do |groups|
+    options.supplementary_groups = groups
+  end
+  opts.on("--no-merge-groups",
+          "replace supplementary groups " +
+          "(#{!options.merge_groups})") {|options.merge_groups|}
+  opts.on("-s", "--shell=SHELL", "shell") {|options.shell|}
+  opts.on("--given-name=NAME", "given name") {|options.given_name|}
+  opts.on("-N", "--canonical-name=NAME",
+          "canonical name") {|options.canonical_name|}
+  opts.on("-S", "--surname=NAME", "surname") {|options.surname|}
+
+  opts.separator("")
+  opts.separator("For samba users:")
+
+  opts.on("-e", "--expire-date=DATE", "expire date") do |date|
+    options.expire_date = Time.parse(date)
+  end
+  opts.on("-C", "--[no-]can-change-password",
+          "can change password") do |bool|
+    options.can_change_password = bool
+  end
+  opts.on("-M", "--[no-]must-change-password",
+          "must change password") do |bool|
+    options.must_change_password = bool
+  end
+  opts.on("--samba-home-path=PATH",
+          "sambaHomePath",
+          "(SMB home share, like '\\\\PDC\\user'") do |path|
+    options.samba_home_path = path
+  end
+  opts.on("--samba-home-drive=DRIVE",
+          "sambaHomeDrive",
+          "(letter associated with home share,",
+          " like 'H:')") do |drive|
+    options.samba_home_drive = drive
+  end
+  opts.on("--samba-logon-script=SCRIPT",
+          "sambaLogonScript",
+          "(DOS script to execute on login)") do |script|
+    options.samba_logon_script = script
+  end
+  opts.on("--samba-profile-path=PATH",
+          "sambaProfilePath",
+          "(profile directory,",
+          " like '\\\\PDC\\profiles\\user')") do |path|
+    options.samba_profile_path = path
+  end
+  opts.on("--samba-account-flags=FLAGS",
+          "sambaAcctFlags",
+          "(samba account control bits,",
+          " like '[NDHTUMWSLXI]')") {|options.samba_account_flags|}
+  opts.on("-D", "--[no-]disable-user", "disable an user") do |bool|
+    options.enable = !bool
+  end
+  opts.on("-E", "--[no-]enable-user", "enable an user") do |bool|
+    options.enable = bool
+  end
+#   opts.on("--mail-addresses=ADDRESS1,ADDRESS2,ADDRESS3",
+#           Array,
+#           "mailAddresses (comma separated)") {|options.mail_addresses|}
+#   opts.on("--mail-to-addresses=ADDRESS1,ADDRESS2,ADDRESS3",
+#           Array,
+#           "mailToAddresses (forward address)",
+#           "(comma separated)") do |addresses|
+#     options.mail_to_addresses = addresses
+#   end
+end
+
+name = nil
+if argv.size == 1
+  name = argv.first
+else
+  puts opts
+  exit 1
+end
+
+ActiveSambaLdap::Base.establish_connection({}, true)
+
+class User < ActiveSambaLdap::User
+  ldap_mapping
+end
+
+class Group < ActiveSambaLdap::Group
+  ldap_mapping
+end
+
+user = User.new(name)
+unless user.exists?
+  puts "user '#{name}' doesn't exist."
+  exit 1
+end
+
+unless Process.uid.zero?
+  password = ActiveSambaLdap::Command.read_password("Enter your password: ")
+
+  ActiveSambaLdap::Base.close
+  begin
+    ActiveSambaLdap::Base.establish_connection({:bind_format => user.dn,
+                                                 :password => password,
+                                                 :allow_anonymous => false},
+                                               false)
+  rescue LDAP::InvalidCredentials
+    puts "password isn't match"
+    exit 1
+  end
+end
+
+ActiveSambaLdap::Base.close
+ActiveSambaLdap::Config.reinit
+ActiveSambaLdap::Base.establish_connection({}, false)
+
+if options.uid
+  begin
+    user.change_uid_number(options.uid, options.allow_non_unique_uid_number)
+  rescue ActiveSambaLdap::UidNumberAlreadyExists
+    puts $!.message
+    exit 1
+  end
+end
+
+if options.gid
+  begin
+    user.change_group(options.gid)
+  rescue ActiveSambaLdap::Error
+    puts $!.message
+    exit 1
+  end
+end
+
+if options.shell
+  user.loginShell = options.shell
+end
+
+if options.gecos
+  user.gecos = options.gecos
+  user.description = options.gecos
+  user.displayName = options.gecos
+end
+
+if options.home_directory
+  if options.move_home_directory and !File.exist?(options.home_directory)
+    FileUtils.mv(user.homeDirectory(true), options.home_directory)
+  end
+  user.homeDirectory = options.home_directory
+end
+
+if options.canonical_name
+  user.cn = options.canonical_name
+end
+
+if options.surname
+  user.sn = options.surname
+end
+
+if options.given_name
+  user.givenName = options.given_name
+end
+
+if options.mail_addresses
+  raise "not implemented"
+end
+
+if options.mail_to_addresses
+  raise "not implemented"
+end
+
+if options.supplementary_groups
+  unless options.merge_groups
+    user.groups(true).each do |group|
+      group.remove_member(user)
+    end
+  end
+  options.supplementary_groups.each do |group|
+    begin
+      Group.find_by_name_or_gid_number(group).add_member(user)
+    rescue ActiveSambaLdap::GidNumberDoesNotExist
+      puts $!
+      exit 1
+    end
+  end
+end
+
+if options.expire_date
+  user.sambaKickoffTime = options.expire_date.to_i.to_s
+end
+
+if options.samba_account_flags
+  user.sambaAcctFlags = options.samba_account_flags
+end
+
+unless options.can_change_password.nil?
+  if options.can_change_password
+    user.enable_password_change
+  else
+    user.disable_password_change
+  end
+end
+
+unless options.must_change_password.nil?
+  if options.must_change_password
+    user.enable_forcing_password_change
+  else
+    user.disable_forcing_password_change
+  end
+end
+
+if options.samba_home_path
+  user.sambaHomePath = options.samba_home_path
+end
+
+if options.samba_home_drive
+  user.sambaHomeDrive = options.samba_home_drive.sub(/([^:])$/, "\\1:")
+end
+
+if options.samba_logon_script
+  user.sambaLogonScript = options.samba_logon_script
+end
+
+if options.samba_profile_path
+  user.sambaProfilePath = options.samba_profile_path
+end
+
+unless options.enable.nil?
+  if options.enable
+    user.enable
+  else
+    user.disable
+  end
+end
+
+user.save!
+
+if options.new_user_name
+  new_user = User.new(options.new_user_name)
+  if new_user.exists?
+    puts "user '#{options.new_user_name}' always exists."
+    exit 1
+  end
+
+  new_user.cn = options.new_user_name
+  new_user.attributes = user.attributes.reject do |key, value|
+    %w(dn cn uid).include?(key)
+  end
+  new_user.save!
+  user.groups(true).each do |group|
+    group.remove_user(user)
+    group.add_user(new_user)
+  end
+
+  user.destroy
+end
+
+ActiveSambaLdap::Base.restart_nscd
+
+ActiveSambaLdap::Base.close

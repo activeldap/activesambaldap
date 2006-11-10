@@ -1,0 +1,91 @@
+#!/usr/bin/env ruby
+
+require 'etc'
+
+require 'active_samba_ldap'
+require 'active_samba_ldap/command'
+
+argv, opts, options = ActiveSambaLdap::Command.parse_options do |opts, options|
+  options.update_samba_password = true
+  options.update_unix_password = true
+
+  opts.banner += " [USER_NAME]"
+
+  opts.on("-s", "--[no-]samba-password",
+          "update samba password (#{options.update_samba_password})") do |bool|
+    options.update_samba_password = bool
+  end
+
+  opts.on("-u", "--[no-]unix-password",
+          "update UNIX password (#{options.update_unix_password})") do |bool|
+    options.update_unix_password = bool
+  end
+end
+
+name = nil
+case argv.size
+when 0
+  name = Etc.getpwuid(Process.uid).name
+when 1
+  name = argv.first
+else
+  puts opts
+  exit 1
+end
+
+if !options.update_samba_password and !options.update_unix_password
+  puts "do nothing"
+  exit
+end
+
+ActiveSambaLdap::Base.establish_connection({}, true)
+
+class User < ActiveSambaLdap::User
+  ldap_mapping
+end
+
+user = User.new(name)
+unless user.exists?
+  puts "user '#{name}' doesn't exist."
+  exit 1
+end
+
+unless Process.uid.zero?
+  prompt = "Enter your current password: "
+  old_password = ActiveSambaLdap::Command.read_password(prompt)
+
+  ActiveSambaLdap::Base.close
+  begin
+    ActiveSambaLdap::Base.establish_connection({:bind_format => user.dn,
+                                                 :password => old_password,
+                                                 :allow_anonymous => false},
+                                               false)
+  rescue LDAP::InvalidCredentials
+    puts "password isn't match"
+    exit 1
+  end
+end
+
+password = ActiveSambaLdap::Command.read_password("New password: ")
+password2 = ActiveSambaLdap::Command.read_password("Retype new password: ")
+
+unless password == password2
+  puts "New passwords don't match."
+  exit 1
+end
+
+changed = false
+
+if options.update_unix_password
+  user.change_password(password)
+  changed = true
+end
+
+if options.update_samba_password
+  user.change_samba_password(password)
+  changed = true
+end
+
+user.save! if changed
+
+ActiveSambaLdap::Base.close

@@ -1,0 +1,29 @@
+#!/usr/bin/env ruby
+
+require 'active_samba_ldap'
+require 'active_samba_ldap/command'
+
+argv, opts, options = ActiveSambaLdap::Command.parse_options do |opts, options|
+  opts.banner += " USER_NAME"
+end
+
+name = nil
+if argv.size == 1
+  name = argv.first
+else
+  puts opts
+  exit 1
+end
+
+ActiveSambaLdap::Base.establish_connection({}, true)
+
+class User < ActiveSambaLdap::User
+  ldap_mapping
+end
+
+user = User.new(name)
+unless user.exists?
+  puts "user '#{name}' doesn't exist."
+  exit 1
+end
+puts user

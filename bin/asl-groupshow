@@ -1,0 +1,29 @@
+#!/usr/bin/env ruby
+
+require 'active_samba_ldap'
+require 'active_samba_ldap/command'
+
+argv, opts, options = ActiveSambaLdap::Command.parse_options do |opts, options|
+  opts.banner += " GROUP_NAME"
+end
+
+name = nil
+if argv.size == 1
+  name = argv.first
+else
+  puts opts
+  exit 1
+end
+
+ActiveSambaLdap::Base.establish_connection({}, true)
+
+class Group < ActiveSambaLdap::Group
+  ldap_mapping
+end
+
+group = Group.new(name)
+unless group.exists?
+  puts "group '#{name}' doesn't exist."
+  exit 1
+end
+puts group

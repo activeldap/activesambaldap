@@ -1,0 +1,58 @@
+#!/usr/bin/env ruby
+
+require 'active_samba_ldap'
+require 'active_samba_ldap/command'
+
+argv, opts, options = ActiveSambaLdap::Command.parse_options do |opts, options|
+  options.remove_home_directory = false
+  options.interactive = false
+
+  opts.banner += " USER_NAME"
+
+  opts.on("-r", "--[no-]remove-home-directory",
+          "remove home directory (#{options.remove_home_directory})") do |bool|
+    options.remove_home_directory = bool
+  end
+
+  opts.on("-i", "--[no-]interactive",
+          "do interactively (#{options.interactive})") do |bool|
+    options.interactive = bool
+  end
+end
+
+name = nil
+if argv.size == 1
+  name = argv.first
+else
+  puts opts
+  exit 1
+end
+
+unless Process.uid.zero?
+  puts "need root authority."
+  exit 1
+end
+
+ActiveSambaLdap::Base.establish_connection({}, false)
+
+class User < ActiveSambaLdap::User
+  ldap_mapping
+end
+
+class Group < ActiveSambaLdap::Group
+  ldap_mapping
+end
+
+user = User.new(name)
+unless user.exists?
+  puts "user '#{name}' doesn't exist."
+  exit 1
+end
+
+user.destroy(:removed_from_group => true,
+             :remove_home_directory => options.remove_home_directory,
+             :remove_home_directory_interactive => options.interactive)
+
+ActiveSambaLdap::Base.restart_nscd
+
+ActiveSambaLdap::Base.close

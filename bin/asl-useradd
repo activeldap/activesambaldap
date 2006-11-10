@@ -1,0 +1,405 @@
+#!/usr/bin/env ruby
+
+require 'fileutils'
+require 'time'
+
+require 'active_samba_ldap'
+require 'active_samba_ldap/command'
+
+argv, opts, options = ActiveSambaLdap::Command.parse_options do |opts, options|
+  options.ou = nil
+  options.computer_account = false
+  options.uid = nil
+  options.gid = nil
+  options.supplementary_groups = []
+  options.create_group = true
+  options.home_directory = nil
+  options.shell = nil
+  options.comment = nil
+  options.setup_home_directory = true
+  options.skeleton_directory = nil
+  options.time = 0
+
+  options.expire_date = nil
+  options.can_change_password = nil
+  options.must_change_password = nil
+  options.samba_home_path = nil
+  options.samba_home_drive = nil
+  options.samba_logon_script = nil
+  options.samba_profile_path = nil
+  options.samba_account_flags = nil
+  options.canonical_name = nil
+  options.given_name = nil
+  options.surname = nil
+  options.mail_addresses = nil
+  options.mail_to_addresses = nil
+
+  opts.banner += " USER_NAME"
+
+  opts.on("-o", "--ou=OU",
+          "add the user in the organizational unit OU",
+          "(relative to the user suffix)") do |ou|
+    if /^ou=/ =~ ou
+      options.ou = ou
+    else
+      options.ou = "ou=#{ou}"
+    end
+  end
+  opts.on("-c", "--[no-]computer-account",
+          "is a Windows Workstation",
+          "(otherwise, Windows user)",
+          "(#{options.computer_account})") {|options.computer_account|}
+  opts.on("-u", "--uid=UID", Integer, "uid") {|options.uid|}
+  opts.on("-g", "--gid=GID", "gid") {|options.gid|}
+  opts.on("-G", "--groups=GID1,GID2,GID3", Array,
+          "supplementary groups (comma separated)") do |groups|
+    options.supplementary_groups = groups
+  end
+  opts.on("--[no-]create-group",
+          "create a group for the user",
+          "(#{options.create_group})") {|options.create_group|}
+  opts.on("-c", "--comment=COMMENT",
+          "set the GECOS field for the new user account") {|options.comment|}
+  opts.on("-s", "--shell=SHELL", "shell") {|options.shell|}
+  opts.on("-G", "--given-name=NAME", "given name") {|options.given_name|}
+  opts.on("-N", "--canonical-name=NAME",
+          "canonical name") {|options.canonical_name|}
+  opts.on("-S", "--surname=NAME", "surname") {|options.surname|}
+
+  opts.on("-d", "--home-directory=HOME_DIR",
+          "home directory") {|options.home_directory|}
+  opts.on("--[no-]setup-home-directory",
+          "setup home directory",
+          "(#{options.setup_home_directory}") {|options.setup_home_directory|}
+  opts.on("-k", "--skel=DIR", "--skeleton-directory=DIR",
+          "skeleton directory") {|options.skeleton_directory|}
+
+  opts.on("--time=TIME", Integer,
+          "wait TIME seconds before exiting",
+          "(#{options.time})") {|options.time|}
+
+  opts.separator("")
+  opts.separator("For samba accounts:")
+
+  opts.on("-e", "--expire-date=DATE", "expire date") do |date|
+    options.expire_date = Time.parse(date)
+  end
+  opts.on("-C", "--[no-]can-change-password",
+          "can change password") do |bool|
+    options.can_change_password = bool
+  end
+  opts.on("-M", "--[no-]must-change-password",
+          "must change password") do |bool|
+    options.must_change_password = bool
+  end
+  opts.on("--samba-home-path=PATH",
+          "sambaHomePath",
+          "(SMB home share, like '\\\\PDC\\user'") do |path|
+    options.samba_home_path = path
+  end
+  opts.on("--samba-home-drive=DRIVE",
+          "sambaHomeDrive",
+          "(letter associated with home share,",
+          " like 'H:')") do |drive|
+    options.samba_home_drive = drive
+  end
+  opts.on("--samba-logon-script=SCRIPT",
+          "sambaLogonScript",
+          "(DOS script to execute on login)") do |script|
+    options.samba_logon_script = script
+  end
+  opts.on("--samba-profile-path=PATH",
+          "sambaProfilePath",
+          "(profile directory,",
+          " like '\\\\PDC\\profiles\\user')") do |path|
+    options.samba_profile_path = path
+  end
+  opts.on("--samba-account-flags=FLAGS",
+          "sambaAcctFlags",
+          "(samba account control bits,",
+          " like '[NDHTUMWSLXI]')") {|options.samba_account_flags|}
+
+#   opts.on("--mail-addresses=ADDRESS1,ADDRESS2,ADDRESS3",
+#           Array,
+#           "mailAddresses (comma separated)") {|options.mail_addresses|}
+#   opts.on("--mail-to-addresses=ADDRESS1,ADDRESS2,ADDRESS3",
+#           Array,
+#           "mailToAddresses (forward address)",
+#           "(comma separated)") do |addresses|
+#     options.mail_to_addresses = addresses
+#   end
+end
+
+name = nil
+if argv.size == 1
+  name = argv.first
+else
+  puts opts
+  exit 1
+end
+
+unless Process.uid.zero?
+  puts "need root authority."
+  exit 1
+end
+
+def get_value(options, key, default_key=nil)
+  value = options.__send__(key)
+  value ||= ActiveSambaLdap::Config[default_key || key]
+  value
+end
+
+def substitute_member(value, member)
+  value.gsub(/%U/, member.uid(true))
+end
+
+ActiveSambaLdap::Base.establish_connection({}, true)
+
+
+if options.computer_account
+  class Computer < ActiveSambaLdap::Computer
+    ldap_mapping
+  end
+  member_class = Computer
+else
+  class User < ActiveSambaLdap::User
+    ldap_mapping
+  end
+  member_class = User
+end
+
+member_type = member_class.name.downcase
+member_base_re = /,#{Regexp.escape(ActiveSambaLdap::Base.base)}$/
+member_prefix = member_class.base.sub(member_base_re, '')
+opts = {}
+if options.ou
+  opts[:prefix] = "#{options.ou},#{member_prefix}"
+  member_class.ldap_mapping(opts)
+end
+
+if options.computer_account
+  name = name.chomp("$") + "$"
+end
+
+unless member_class.valid_name?(name)
+  puts "'#{name}' is illegal #{member_type} name"
+  exit 1
+end
+
+if options.ou
+  prefixes = [member_prefix]
+  options.ou.split(/\s*,\s*/).reverse_each do |entry|
+    _, value = entry.split(/\s*=\s*/, 2).collect {|x| x.strip}
+    ou_class = Class.new(ActiveSambaLdap::Ou)
+    ou_class.ldap_mapping :prefix => prefixes.join(',')
+    ou = ou_class.new(value)
+    ou.save! unless ou.exists?
+    prefixes.unshift(entry)
+  end
+end
+
+member = member_class.new(name)
+if member.exists?
+  puts "#{member_type} '#{name}' already exists."
+  exit 1
+end
+
+class UnixIdPool < ActiveSambaLdap::UnixIdPool
+  ldap_mapping
+end
+def make_pool
+  UnixIdPool.new(ActiveSambaLdap::Config[:samba_domain])
+end
+pool = nil
+
+if options.uid
+  uid_number = options.uid
+else
+  pool = make_pool
+  uid_number = member_class.find_available_uid_number(pool)
+end
+member.change_uid_number(uid_number)
+
+uid_number = Integer(member.uidNumber(true))
+unless member_class.find(:attribute => "uidNumber",
+                         :value => uid_number.to_s).nil?
+  puts "UID '#{uid_number}' already exists"
+  exit 1
+end
+
+class Group < ActiveSambaLdap::Group
+  ldap_mapping
+end
+
+group = nil
+if options.gid
+  gid_number = options.gid
+else
+  if options.create_group
+    pool ||= make_pool
+    gid_number = Group.find_available_gid_number(pool)
+    group = Group.new(member.uid.sub(/\$\z/, ''))
+    unless group.exists?
+      group.change_gid_number(gid_number)
+      group.change_type("domain")
+      group.displayName = group.cn
+      group.save!
+    end
+  else
+    if options.computer_account
+      ActiveSambaLdap::Config.required_variables :default_computer_gid
+      gid_number = ActiveSambaLdap::Config.default_computer_gid
+    else
+      ActiveSambaLdap::Config.required_variables :default_user_gid
+      gid_number = ActiveSambaLdap::Config.default_user_gid
+    end
+  end
+end
+
+begin
+  member.change_group(gid_number)
+rescue ActiveSambaLdap::GidNumberDoesNotExist,
+  ActiveSambaLdap::GroupDoesNotExist,
+  ActiveSambaLdap::GroupDoesNotHaveSambaSID
+  puts $!
+  exit 1
+end
+
+home_directory = options.home_directory
+if home_directory.nil?
+  if options.computer_account
+    home_directory = "/nonexistent"
+  else
+    ActiveSambaLdap::Config.required_variables :user_home
+    home_directory = ActiveSambaLdap::Config.user_home
+  end
+end
+home_directory = substitute_member(home_directory, member)
+home_directory = home_directory.gsub(/\/{2,}/, "/")
+member.homeDirectory = home_directory
+
+
+login_shell = options.shell
+if options.computer_account
+  login_shell ||= "/bin/false"
+else
+  ActiveSambaLdap::Config.required_variables :user_login_shell
+  login_shell ||= ActiveSambaLdap::Config.user_login_shell
+end
+member.loginShell = login_shell
+
+if options.computer_account
+  member.description = "Computer"
+end
+
+member.givenName = options.given_name || member.uid
+member.sn = options.surname || member.uid
+if options.canonical_name
+  member.cn = options.canonical_name
+elsif options.given_name and options.surname
+  member.cn = "#{options.given_name} #{options.surname}"
+else
+  member.cn = member.uid
+end
+
+gecos = options.comment
+if options.computer_account
+  gecos ||= "Computer"
+else
+  gecos ||= ActiveSambaLdap::Config.user_gecos
+end
+
+if gecos
+  member.gecos = substitute_member(gecos, member)
+else
+  member.gecos = member.cn
+end
+
+member.displayName = member.cn
+
+flags = options.samba_account_flags
+if flags.nil?
+  if options.computer_account
+    flags = "[W]"
+  else
+    flags = "[U]"
+  end
+end
+member.sambaAcctFlags = flags
+
+unless options.computer_account
+  member.userPassword = "{crypt}x"
+
+  if options.can_change_password
+    member.enable_password_change
+  else
+    member.disable_password_change
+  end
+
+  if options.must_change_password
+    member.enable_forcing_password_change
+  else
+    member.disable_forcing_password_change
+  end
+
+  member.sambaLogonTime = '0'
+  member.sambaLogoffTime = ActiveSambaLdap::User::FAR_FUTURE_TIME
+  if options.expire_date
+    member.sambaKickoffTime = options.expire_date.to_i.to_s
+  else
+    member.sambaKickoffTime = ActiveSambaLdap::User::FAR_FUTURE_TIME
+  end
+
+  logon_script = get_value(options, :samba_logon_script, :user_script)
+  member.sambaLogonScript = substitute_member(logon_script, member)
+
+  home_path = get_value(options, :samba_home_path, :user_samba_home)
+  member.sambaHomePath = substitute_member(home_path, member)
+
+  home_drive = get_value(options, :samba_home_drive, :user_home_drive)
+  home_drive = substitute_member(home_drive, member)
+  member.sambaHomeDrive = home_drive.sub(/([^:])$/, "\\1:")
+
+  profile_path = get_value(options, :samba_profile_path, :user_profile)
+  member.sambaProfilePath = substitute_member(profile_path, member)
+
+  member.sambaLMPassword = "XXX"
+  member.sambaNTPassword = "XXX"
+  member.sambaPwdLastSet = Time.now.to_i.to_s
+end
+
+member.save!
+
+if pool
+  pool.uidNumber = Integer(member.uidNumber(true)).succ unless options.uid
+  pool.gidNumber = Integer(group.gidNumber(true)).succ if group
+  pool.save!
+end
+
+if options.setup_home_directory
+  dest = member.homeDirectory(true)
+  if dest
+    begin
+      FileUtils.mkdir_p(dest)
+      skel = get_value(options, :skeleton_directory)
+      FileUtils.cp_r(Dir.glob(File.join(skel, ".*")) +
+                     Dir.glob(File.join(skel, "*")) -
+                     [File.join(skel, "."), File.join(skel, "..")],
+                     dest)
+      FileUtils.chown_R(member.uidNumber(true), member.gidNumber(true), dest)
+    rescue SystemCallerror
+      puts $!
+      exit 1
+    end
+  end
+end
+
+group_class = member_class.group_class
+[member.gidNumber(true), *options.supplementary_groups].each do |group|
+  group = group_class.find_by_name_or_gid_number(group)
+  group.add_member(member)
+end
+
+ActiveSambaLdap::Base.restart_nscd
+
+ActiveSambaLdap::Base.close
