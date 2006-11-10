@@ -1,0 +1,95 @@
+#!/usr/bin/env ruby
+
+require 'fileutils'
+require 'etc'
+require 'time'
+
+require 'active_samba_ldap'
+require 'active_samba_ldap/command'
+
+argv, opts, options = ActiveSambaLdap::Command.parse_options do |opts, options|
+  options.start_uid = Integer(ActiveSambaLdap::Config.start_uid)
+  options.start_gid = Integer(ActiveSambaLdap::Config.start_gid)
+  options.administrator = ActiveSambaLdap::User::DOMAIN_ADMIN_NAME
+  admin_rid = ActiveSambaLdap::User::DOMAIN_ADMIN_RID
+  admins_rid = ActiveSambaLdap::Group::DOMAIN_ADMINS_RID
+  guest_rid = ActiveSambaLdap::User::DOMAIN_GUEST_RID
+  guests_rid = ActiveSambaLdap::Group::DOMAIN_GUESTS_RID
+  options.administrator_uid = ActiveSambaLdap::User.rid2uid(admin_rid)
+  options.administrator_gid = ActiveSambaLdap::Group.rid2gid(admins_rid)
+  options.guest = ActiveSambaLdap::User::DOMAIN_GUEST_NAME
+  options.guest_uid = ActiveSambaLdap::User.rid2uid(guest_rid)
+  options.guest_gid = ActiveSambaLdap::Group.rid2gid(guests_rid)
+  options.export_ldif = nil
+  options.import_ldif = nil
+
+  opts.on("-u", "--start-uid=UID", Integer,
+          "first uid number to allocate",
+          "(#{options.start_uid})") {|options.start_uid|}
+  opts.on("-g", "--start-gid=GID", Integer,
+          "first gid number to allocate",
+          "(#{options.start_gid})") {|options.start_gid|}
+  opts.on("-a", "--administrator=NAME",
+          "administrator login name",
+          "(#{options.administrator})") {|options.administrator|}
+  opts.on("--administrator-uid=UID", Integer,
+          "administrator's uid number",
+          "(#{options.administrator_uid})") {|options.administrator_uid|}
+  opts.on("--administrator-gid=GID", Integer,
+          "administrator's gid number",
+          "(#{options.administrator_gid})") {|options.administrator_gid|}
+  opts.on("-g", "--guest=NAME",
+          "guest login name (#{options.guest})") {|options.guest|}
+  opts.on("--guest-uid=UID", Integer,
+          "guest's uid number (#{options.guest_uid})") {|options.guest_uid|}
+  opts.on("--guest-gid=GID", Integer,
+          "guest's gid number (#{options.guest_gid})") {|options.guest_gid|}
+  opts.on("-e", "--export-ldif=LDIF",
+          "export LDIF file") {|options.export_ldif|}
+#   opts.on("-i", "--import-ldif=LDIF",
+#           "import LDIF file") {|options.import_ldif|}
+end
+
+unless Process.uid.zero?
+  puts "need root authority."
+  exit 1
+end
+
+ActiveSambaLdap::Base.establish_connection({}, false)
+
+entries, opts = ActiveSambaLdap::Base.populate(options.marshal_dump)
+
+def init_administrator(opts, entries)
+  admin_name = opts[:administrator]
+  user_class = opts[:user_class]
+  admin = entries.find do |entry|
+    entry.is_a?(user_class) and entry.uid(true) == admin_name
+  end
+  return unless admin.exists?
+
+  prompt = "Password for #{admin_name}: "
+  password = ActiveSambaLdap::Command.read_password(prompt)
+  prompt2 = "Retype password for #{admin_name}: "
+  password2 = ActiveSambaLdap::Command.read_password(prompt2)
+  unless password == password2
+    puts "Passwords don't match."
+    exit 1
+  end
+
+  admin.change_password(password)
+  admin.change_samba_password(password)
+  admin.enable
+  admin.save!
+end
+
+init_administrator(opts, entries)
+
+if options.export_ldif
+  File.open(options.export_ldif, "w") do |out|
+    out.puts(entries.join("\n"))
+  end
+end
+
+ActiveSambaLdap::Base.restart_nscd
+
+ActiveSambaLdap::Base.close

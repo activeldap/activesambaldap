@@ -1,0 +1,58 @@
+#!/usr/bin/env ruby
+
+require 'active_samba_ldap'
+require 'active_samba_ldap/command'
+
+argv, opts, options = ActiveSambaLdap::Command.parse_options do |opts, options|
+  options.force = false
+
+  opts.banner += " GROUP_NAME"
+
+  opts.on("-f", "--[no-]force",
+          "force delete group (#{options.force})") {|options.force|}
+end
+
+name = nil
+if argv.size == 1
+  name = argv.first
+else
+  puts opts
+  exit 1
+end
+
+unless Process.uid.zero?
+  puts "need root authority."
+  exit 1
+end
+
+ActiveSambaLdap::Base.establish_connection({}, false)
+
+class Group < ActiveSambaLdap::Group
+  ldap_mapping
+end
+
+class User < ActiveSambaLdap::User
+  ldap_mapping
+end
+
+class Computer < ActiveSambaLdap::Computer
+  ldap_mapping
+end
+
+group = Group.new(name)
+unless group.exists?
+  puts "group '#{name}' doesn't exist."
+  exit 1
+end
+
+begin
+  group.destroy(:remove_members => true,
+                :force_change_primary_members => options.force)
+rescue ActiveSambaLdap::Error
+  puts $!
+  exit 1
+end
+
+ActiveSambaLdap::Base.restart_nscd
+
+ActiveSambaLdap::Base.close
