@@ -39,11 +39,11 @@ class Computer < ActiveSambaLdap::Computer
   ldap_mapping
 end
 
-group = Group.new(name)
-unless group.exists?
+unless Group.exists?(name)
   puts "group '#{name}' doesn't exist."
   exit 1
 end
+group = Group.find(name)
 
 begin
   group.destroy(:remove_members => true,
@@ -55,4 +55,4 @@ end
 
 ActiveSambaLdap::Base.restart_nscd
 
-ActiveSambaLdap::Base.close
+ActiveSambaLdap::Base.clear_active_connections!

@@ -64,22 +64,18 @@ module ActiveSambaLdap
           next unless name == target_name
           container_class = Class.new(klass)
           prefix = suffixes.reverse.join(",")
-          container_class.ldap_mapping :prefix => prefix
-          if ignore_base
-            container_class.class_eval(<<-EOC, __FILE__, __LINE__ + 1)
-              def self.base
-                #{prefix.dump}
-              end
-            EOC
-          end
-          begin
-            container = container_class.new(value)
-            yield(container) if block_given?
-            container.save!
-            entries << container
-          rescue ActiveLDAP::ConnectionError
-          end
           suffixes << suffix
+          if ignore_base
+            container_class.ldap_mapping :prefix => "", :scope => :base
+            container_class.instance_variable_set("@base", prefix)
+          else
+            container_class.ldap_mapping :prefix => prefix, :scope => :base
+          end
+          next if container_class.exists?(value, :prefix => suffix)
+          container = container_class.new(value)
+          yield(container) if block_given?
+          container.save!
+          entries << container
         end
         entries
       end
@@ -112,9 +108,11 @@ module ActiveSambaLdap
       end
 
       def populate_make_user(user_class, name, uid, gid)
-        user = user_class.new(name)
         group = nil
-        unless user.exists?
+        if user_class.exists?(name)
+          user = user_class.find(name)
+        else
+          user = user_class.new(name)
           group = user.init(uid, gid)
           user.save!
           group.add_member(user)
@@ -149,8 +147,10 @@ module ActiveSambaLdap
       end
 
       def populate_make_group(group_class, name, gid, description=nil, type=nil)
-        group = group_class.new(name)
-        unless group.exists?
+        if group_class.exists?(name)
+          group = group_class.find(name)
+        else
+          group = group_class.new(name)
           group.change_type(type || "domain")
           group.displayName = name
           group.description = name || description

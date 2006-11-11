@@ -21,9 +21,11 @@ class User < ActiveSambaLdap::User
   ldap_mapping
 end
 
-user = User.new(name)
-unless user.exists?
+unless User.exists?(name)
   puts "user '#{name}' doesn't exist."
   exit 1
 end
-puts user
+user = User.find(name)
+puts user.to_ldif
+
+ActiveSambaLdap::Base.clear_active_connections!

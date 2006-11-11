@@ -59,4 +59,4 @@ end
 
 ActiveSambaLdap::Base.restart_nscd
 
-ActiveSambaLdap::Base.close
+ActiveSambaLdap::Base.clear_active_connections!

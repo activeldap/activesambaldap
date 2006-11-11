@@ -2,8 +2,6 @@ require 'time'
 require 'fileutils'
 require 'English'
 
-require 'active_samba_ldap/user_password'
-
 module ActiveSambaLdap
   module Account
     def self.included(base)
@@ -46,10 +44,6 @@ module ActiveSambaLdap
         NAME_RE =~ name ? true : false
       end
 
-      def ldap_scope
-        LDAP::LDAP_SCOPE_SUBTREE
-      end
-
       def group_class
         group_class_name.split(/::/).inject(self) do |ret, name|
           ret.const_get(name)
@@ -60,13 +54,7 @@ module ActiveSambaLdap
         options = {:objects => true}
         attribute = "uidNumber"
         value = Integer(number)
-        if Base::OLD_ACTIVE_LDAP
-          options[:attribute] = attribute
-          options[:value] = value
-        else
-          options[:filter] = "(#{attribute}=#{value})"
-        end
-        find(options)
+        find(:first, :filter => "(#{attribute}=#{value})")
       end
 
       def uid2rid(uid)
@@ -97,10 +85,10 @@ module ActiveSambaLdap
       end
 
       def find_available_uid_number(pool)
-        uid_number = pool.uidNumber(true) || start_uid
+        uid_number = (pool.uidNumber || start_uid).to_s
 
         100.times do |i|
-          if find(:attribute => "uidNumber", :value => uid_number).nil?
+          if find(:first, :attribute => "uidNumber", :value => uid_number).nil?
             return uid_number
           end
           uid_number = uid_number.succ
@@ -142,21 +130,22 @@ module ActiveSambaLdap
 
     def destroy(options={})
       if options[:removed_from_group]
-        groups(true).each do |group|
+        groups.each do |group|
           group.remove_member(self)
         end
       end
-      home_directory = homeDirectory(true)
+      dir = home_directory
+      need_remove_home_directory =
+        options[:remove_home_directory] && !new_entry?
       super()
-      if !exists? and options[:remove_home_directory] and
-          File.directory?(home_directory)
+      if need_remove_home_directory and File.directory?(dir)
         if options[:remove_home_directory_interactive]
-          system("rm", "-r", "-i", home_directory)
+          system("rm", "-r", "-i", dir)
         else
-          FileUtils.rm_r(home_directory)
+          FileUtils.rm_r(dir)
         end
       end
-      exists?
+      new_entry?
     end
 
     def change_uid_number(uid, allow_non_unique=false)
@@ -177,7 +166,7 @@ module ActiveSambaLdap
     end
 
     def rid
-      Integer(sambaSID(true).split(/-/).last)
+      Integer(sambaSID.split(/-/).last)
     end
 
     def change_group(gid)
@@ -186,23 +175,23 @@ module ActiveSambaLdap
       else
         group = self.class.group_class.find_by_name_or_gid_number(gid)
       end
-      gid_number = group.gidNumber(true)
-      samba_sid = group.sambaSID(true)
+      gid_number = group.gid_number
+      samba_sid = group.samba_sid
       if samba_sid.nil? or samba_sid.empty?
         raise GroupDoesNotHaveSambaSID.new(gid_number)
       end
-      if gidNumber(true)
-        old_gid = gidNumber(true)
+      if gid_number
+        old_gid = gid_number
         old_group = self.class.group_class.find_by_name_or_gid_number(old_gid)
         old_group.remove_member(self)
       end
-      self.gidNumber = gid_number
-      self.sambaPrimaryGroupSID = samba_sid
+      self.gid_number = gid_number
+      self.samba_primary_group_sid = samba_sid
       group
     end
 
     def change_password(password)
-      self.userPassword = ActiveSambaLdap::UserPassword.ssha(password)
+      self.userPassword = ActiveLdap::UserPassword.ssha(password)
     end
 
     def change_samba_password(password)
@@ -220,16 +209,15 @@ module ActiveSambaLdap
     end
 
     def can_change_password?
-      sambaPwdCanChange(true).nil? or
-        Time.at(sambaPwdCanChange(true).to_i) <= Time.now
+      sambaPwdCanChange.nil? or Time.at(sambaPwdCanChange.to_i) <= Time.now
     end
 
     def enable_forcing_password_change
       self.sambaPwdMustChange = "0"
-      if /X/ =~ sambaAcctFlags(true).to_s
-        self.sambaAcctFlags = sambaAcctFlags(true).sub(/X/, '')
+      if /X/ =~ sambaAcctFlags.to_s
+        self.sambaAcctFlags = sambaAcctFlags.sub(/X/, '')
       end
-      if sambaPwdLastSet(true).to_i.zero?
+      if sambaPwdLastSet.to_i.zero?
         self.sambaPwdLastSet = FAR_FUTURE_TIME
       end
     end
@@ -239,20 +227,20 @@ module ActiveSambaLdap
     end
 
     def must_change_password?
-      !(/X/ =~ sambaAcctFlags(true).to_s or
-        sambaPwdMustChange(true).nil? or
-        Time.at(sambaPwdMustChange(true).to_i) > Time.now)
+      !(/X/ =~ sambaAcctFlags.to_s or
+        sambaPwdMustChange.nil? or
+        Time.at(sambaPwdMustChange.to_i) > Time.now)
     end
 
     def enable
-      if /D/ =~ sambaAcctFlags(true).to_s
-        self.sambaAcctFlags = sambaAcctFlags(true).gsub(/D/, '')
+      if /D/ =~ sambaAcctFlags.to_s
+        self.sambaAcctFlags = sambaAcctFlags.gsub(/D/, '')
       end
     end
 
     def disable
       flags = ""
-      if ACCOUNT_FLAGS_RE =~ sambaAcctFlags(true).to_s
+      if ACCOUNT_FLAGS_RE =~ sambaAcctFlags.to_s
         flags = $1
         return if /D/ =~ flags
       end
@@ -264,7 +252,7 @@ module ActiveSambaLdap
     end
 
     def disabled?
-      (/D/ =~ sambaAcctFlags(true).to_s) ? true : false
+      (/D/ =~ sambaAcctFlags.to_s) ? true : false
     end
 
     private
@@ -277,7 +265,7 @@ module ActiveSambaLdap
     end
 
     def substitute_template(template)
-      template.gsub(/%U/, uid(true))
+      template.gsub(/%U/, uid)
     end
 
     def substituted_value(key)

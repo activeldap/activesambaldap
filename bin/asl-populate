@@ -63,9 +63,9 @@ def init_administrator(opts, entries)
   admin_name = opts[:administrator]
   user_class = opts[:user_class]
   admin = entries.find do |entry|
-    entry.is_a?(user_class) and entry.uid(true) == admin_name
+    entry.is_a?(user_class) and entry.uid == admin_name
   end
-  return unless admin.exists?
+  return if admin.new_entry?
 
   prompt = "Password for #{admin_name}: "
   password = ActiveSambaLdap::Command.read_password(prompt)
@@ -92,4 +92,4 @@ end
 
 ActiveSambaLdap::Base.restart_nscd
 
-ActiveSambaLdap::Base.close
+ActiveSambaLdap::Base.clear_active_connections!

@@ -3,16 +3,13 @@ module ActiveSambaLdap
     class << self
       def ldap_mapping(options={})
         default_options = {
-          :dnattr => "ou",
+          :dn_attribute => "ou",
           :prefix => "",
           :classes => ["top", "organizationalUnit"],
+          :scope => :sub,
         }
         options = default_options.merge(options)
         super(options)
-      end
-
-      def ldap_scope
-        LDAP::LDAP_SCOPE_SUBTREE
       end
     end
   end

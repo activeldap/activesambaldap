@@ -21,9 +21,11 @@ class Group < ActiveSambaLdap::Group
   ldap_mapping
 end
 
-group = Group.new(name)
-unless group.exists?
+unless Group.exists?(name)
   puts "group '#{name}' doesn't exist."
   exit 1
 end
-puts group
+group = Group.find(name)
+puts group.to_ldif
+
+ActiveSambaLdap::Base.clear_active_connections!

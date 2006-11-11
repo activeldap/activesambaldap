@@ -4,7 +4,7 @@ module ActiveSambaLdap
       def ldap_mapping(options={})
         Config.required_variables :idmap_prefix
         default_options = {
-          :dnattr => "sambaSID",
+          :dn_attribute => "sambaSID",
           :prefix => Config.idmap_prefix,
           :classes => ["top", "sambaIdmapEntry"],
         }

@@ -8,19 +8,20 @@ module ActiveSambaLdap
       def ldap_mapping(options={})
         Config.required_variables :users_prefix, :sid
         default_options = {
-          :dnattr => "uid",
+          :dn_attribute => "uid",
+          :ldap_scope => :sub,
           :prefix => Config.users_prefix,
           :classes => ["top", "inetOrgPerson", "posixAccount",
                        "shadowAccount", "sambaSamAccount"],
-          :group_class_name =>  "Group",
-          :group_foreign_key => "memberUid"
+          :group_class =>  "Group",
+          :groups_many => "memberUid"
         }
         options = default_options.merge(options)
-        super(options)
+        super(extract_ldap_mapping_options(options))
         belongs_to :groups,
-                   :class_name => options[:group_class_name],
-                   :foreign_key => options[:group_foreign_key]
-        self.group_class_name = options[:group_class_name]
+                   :class => options[:group_class],
+                   :many => options[:groups_many]
+        self.group_class_name = options[:group_class]
       end
     end
 

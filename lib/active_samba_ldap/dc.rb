@@ -3,7 +3,7 @@ module ActiveSambaLdap
     class << self
       def ldap_mapping(options={})
         default_options = {
-          :dnattr => "dc",
+          :dn_attribute => "dc",
           :prefix => "",
           :classes => ["top", "dcObject", "organization"],
         }

@@ -43,11 +43,11 @@ class Group < ActiveSambaLdap::Group
   ldap_mapping
 end
 
-user = User.new(name)
-unless user.exists?
+unless User.exists?(name)
   puts "user '#{name}' doesn't exist."
   exit 1
 end
+user = User.find(name)
 
 user.destroy(:removed_from_group => true,
              :remove_home_directory => options.remove_home_directory,
@@ -55,4 +55,4 @@ user.destroy(:removed_from_group => true,
 
 ActiveSambaLdap::Base.restart_nscd
 
-ActiveSambaLdap::Base.close
+ActiveSambaLdap::Base.clear_active_connections!

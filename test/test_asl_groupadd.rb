@@ -1,32 +1,24 @@
-require 'test/unit'
-require 'command_support'
 require 'asl_test_utils'
-require 'fileutils'
-require 'time'
-require 'tmpdir'
-
-require 'active_samba_ldap'
 
 class AslGroupAddTest < Test::Unit::TestCase
-  include CommandSupport
   include AslTestUtils
 
   def setup
     super
-    @asl_groupadd = File.join(@bin_dir, "asl-groupadd")
+    @command = File.join(@bin_dir, "asl-groupadd")
   end
 
   def test_run_as_normal_user
     assert_equal([false, "need root authority.\n"],
-                 run_asl_groupadd_as_normal_user("group-name"))
+                 run_command_as_normal_user("group-name"))
   end
 
   def test_exist_group
     make_dummy_group do |group|
-      assert(@group_class.new(group.cn).exists?)
+      assert(@group_class.exists?(group.cn))
       assert_equal([false, "group '#{group.cn}' already exists.\n"],
-                   run_asl_groupadd(group.cn(true)))
-      assert(@group_class.new(group.cn).exists?)
+                   run_command(group.cn))
+      assert(@group_class.exists?(group.cn))
     end
   end
 
@@ -57,29 +49,21 @@ class AslGroupAddTest < Test::Unit::TestCase
   end
 
   private
-  def run_asl_groupadd(*other_args, &block)
-    run_ruby_with_fakeroot(*[@asl_groupadd, *other_args], &block)
-  end
-
-  def run_asl_groupadd_as_normal_user(*other_args, &block)
-    run_ruby(*[@asl_groupadd, *other_args], &block)
-  end
-
   def assert_asl_groupadd_successfully(name, message=nil, *args)
     _wrap_assertion do
-      assert(!@group_class.new(name).exists?)
+      assert(!@group_class.exists?(name))
       args << name
-      assert_equal([true, "#{message}"], run_asl_groupadd(*args))
-      assert(@group_class.new(name).exists?)
+      assert_equal([true, "#{message}"], run_command(*args))
+      assert(@group_class.exists?(name))
     end
   end
 
   def assert_asl_groupadd_failed(name, message, *args)
     _wrap_assertion do
-      assert(!@group_class.new(name).exists?)
+      assert(!@group_class.exists?(name))
       args << name
-      assert_equal([false, message], run_asl_groupadd(*args))
-      assert(!@group_class.new(name).exists?)
+      assert_equal([false, message], run_command(*args))
+      assert(!@group_class.exists?(name))
     end
   end
 end

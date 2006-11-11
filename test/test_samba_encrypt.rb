@@ -1,4 +1,6 @@
 require 'test/unit'
+require 'test-unit-ext'
+
 require 'stringio'
 
 require 'samba/encrypt'

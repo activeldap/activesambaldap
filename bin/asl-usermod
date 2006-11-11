@@ -133,7 +133,7 @@ else
   exit 1
 end
 
-ActiveSambaLdap::Base.establish_connection({}, true)
+ActiveSambaLdap::Base.establish_connection({}, false)
 
 class User < ActiveSambaLdap::User
   ldap_mapping
@@ -143,30 +143,28 @@ class Group < ActiveSambaLdap::Group
   ldap_mapping
 end
 
-user = User.new(name)
-unless user.exists?
+unless User.exists?(name)
   puts "user '#{name}' doesn't exist."
   exit 1
 end
+user = User.find(name)
 
 unless Process.uid.zero?
   password = ActiveSambaLdap::Command.read_password("Enter your password: ")
 
-  ActiveSambaLdap::Base.close
+  auth_class = Class.new(ActiveSambaLdap::Base)
   begin
-    ActiveSambaLdap::Base.establish_connection({:bind_format => user.dn,
-                                                 :password => password,
-                                                 :allow_anonymous => false},
-                                               false)
-  rescue LDAP::InvalidCredentials
+    auth_class.establish_connection({:bind_format => user.dn,
+                                      :password => password,
+                                      :allow_anonymous => false},
+                                    true)
+  rescue ActiveLdap::AuthenticationError
     puts "password isn't match"
     exit 1
+  ensure
+    auth_class.remove_connection
   end
 end
-
-ActiveSambaLdap::Base.close
-ActiveSambaLdap::Config.reinit
-ActiveSambaLdap::Base.establish_connection({}, false)
 
 if options.uid
   begin
@@ -198,7 +196,7 @@ end
 
 if options.home_directory
   if options.move_home_directory and !File.exist?(options.home_directory)
-    FileUtils.mv(user.homeDirectory(true), options.home_directory)
+    FileUtils.mv(user.homeDirectory, options.home_directory)
   end
   user.homeDirectory = options.home_directory
 end
@@ -290,11 +288,11 @@ end
 user.save!
 
 if options.new_user_name
-  new_user = User.new(options.new_user_name)
-  if new_user.exists?
+  if User.exists?(options.new_user_name)
     puts "user '#{options.new_user_name}' always exists."
     exit 1
   end
+  new_user = User.new(options.new_user_name)
 
   new_user.cn = options.new_user_name
   new_user.attributes = user.attributes.reject do |key, value|
@@ -311,4 +309,4 @@ end
 
 ActiveSambaLdap::Base.restart_nscd
 
-ActiveSambaLdap::Base.close
+ActiveSambaLdap::Base.clear_active_connections!

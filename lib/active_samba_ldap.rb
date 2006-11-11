@@ -1,14 +1,14 @@
-def require_gem_if_need(name, gem_name=nil, *options)
+require_gem_if_need = Proc.new do |library_name, gem_name, *options|
   begin
-    require name
+    require library_name
   rescue LoadError
     require 'rubygems'
-    gem_name ||= name
     require_gem gem_name, *options
+    require library_name
   end
 end
 
-require_gem_if_need("active_record", "activerecord")
+require_gem_if_need.call("active_ldap", "activeldap", ">= 0.8.0")
 
 require 'active_samba_ldap/version'
 begin

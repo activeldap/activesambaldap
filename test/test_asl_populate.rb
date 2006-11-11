@@ -1,27 +1,20 @@
-require 'test/unit'
-require 'command_support'
 require 'asl_test_utils'
-require 'fileutils'
-require 'time'
-
-require 'active_samba_ldap'
 
 class AslPopulateTest < Test::Unit::TestCase
-  include CommandSupport
   include AslTestUtils
 
   def setup
     super
-    @asl_populate = File.join(@bin_dir, "asl-populate")
+    @command = File.join(@bin_dir, "asl-populate")
   end
 
   def test_run_as_normal_user
     assert_equal([false, "need root authority.\n"],
-                 run_asl_populate_as_normal_user)
+                 run_command_as_normal_user)
   end
 
   def test_populate
-    ActiveSambaLdap::Base.destroy_all
+    ActiveSambaLdap::Base.delete_all(nil, :scope => :sub)
     assert_equal([], ActiveSambaLdap::Base.search)
     assert_asl_populate_successfully("Administrator")
     base = ActiveSambaLdap::Base.base
@@ -56,23 +49,15 @@ class AslPopulateTest < Test::Unit::TestCase
                   "cn=Replicators,#{groups_prefix}",
                   "cn=System Operators,#{groups_prefix}",
                  ].collect {|x| [x, base].compact.join(",")}.sort,
-                 results.collect {|result| result["dn"][0]}.sort)
+                 results.collect {|dn, attributes| dn}.sort)
   end
 
   def test_wrong_password
-    ActiveSambaLdap::Base.destroy_all
+    ActiveSambaLdap::Base.delete_all(nil, :scope => :sub)
     assert_asl_populate_miss_match_password
   end
 
   private
-  def run_asl_populate(*other_args, &block)
-    run_ruby_with_fakeroot(*[@asl_populate, *other_args], &block)
-  end
-
-  def run_asl_populate_as_normal_user(*other_args, &block)
-    run_ruby(*[@asl_populate, *other_args], &block)
-  end
-
   def assert_asl_populate_successfully(password, name=nil, *args)
     name ||= ActiveSambaLdap::User::DOMAIN_ADMIN_NAME
     assert_equal([true,
@@ -81,7 +66,7 @@ class AslPopulateTest < Test::Unit::TestCase
                    "Retype password for #{name}: ",
                   ].join("\n") + "\n",
                  ],
-                 run_asl_populate(*args) do |input, output|
+                 run_command(*args) do |input, output|
                    output.puts(password)
                    output.puts(password)
                  end)
@@ -97,7 +82,7 @@ class AslPopulateTest < Test::Unit::TestCase
                    "Passwords don't match.",
                   ].join("\n") + "\n",
                  ],
-                 run_asl_populate(*args) do |input, output|
+                 run_command(*args) do |input, output|
                    output.puts(password)
                    output.puts(password + password.reverse)
                  end)

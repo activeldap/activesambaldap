@@ -53,11 +53,11 @@ class Computer < ActiveSambaLdap::Computer
   ldap_mapping
 end
 
-group = Group.new(name)
-unless group.exists?
+unless Group.exists?(name)
   puts "group '#{name}' doesn't exist."
   exit 1
 end
+group = Group.find(name)
 
 if options.gid
   begin
@@ -93,22 +93,22 @@ end
 group.save!
 
 if options.new_group_name
-  new_group = Group.new(options.new_group_name)
-  if new_group.exists?
+  if Group.exists?(options.new_group_name)
     puts "group '#{options.new_group_name}' always exists."
     exit 1
   end
 
+  new_group = Group.new(options.new_group_name)
   new_group.attributes = group.attributes.reject do |key, value|
     %w(cn).include?(key)
   end
   new_group.save!
-  group.primary_members(true).each do |member|
-    member.change_group(new_group.gidNumber(true))
+  group.primary_members.each do |member|
+    member.change_group(new_group.gidNumber)
   end
   group.destroy(:remove_members => true)
 end
 
 ActiveSambaLdap::Base.restart_nscd
 
-ActiveSambaLdap::Base.close
+ActiveSambaLdap::Base.clear_active_connections!

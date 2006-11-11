@@ -1,25 +1,16 @@
-require 'test/unit'
-require 'command_support'
 require 'asl_test_utils'
 
-require 'active_samba_ldap'
-
 class AslPasswdTest < Test::Unit::TestCase
-  include CommandSupport
   include AslTestUtils
 
   def setup
     super
-    @asl_passwd = File.join(@bin_dir, "asl-passwd")
-  end
-
-  def teardown
-    ActiveSambaLdap::Base.close
+    @command = File.join(@bin_dir, "asl-passwd")
   end
 
   def test_unknown_user
     assert_equal([false, "user 'unknown' doesn't exist.\n"],
-                 run_asl_passwd("unknown"))
+                 run_command("unknown"))
   end
 
   def test_change_password
@@ -28,18 +19,18 @@ class AslPasswdTest < Test::Unit::TestCase
 
       assert_samba_password(user, password)
 
-      assert_change_password_successfully(user.uid(true),
+      assert_change_password_successfully(user.uid,
                                           password, new_password)
 
-      user = @user_class.new(user.uid(true))
+      user.reload
       assert_samba_password(user, new_password)
 
-      assert_change_password_with_wrong_current_password(user.uid(true),
+      assert_change_password_with_wrong_current_password(user.uid,
                                                          password)
 
-      assert_change_password_successfully(user.uid(true),
+      assert_change_password_successfully(user.uid,
                                           new_password, password)
-      user = @user_class.new(user.uid(true))
+      user.reload
       assert_samba_password(user, password)
     end
   end
@@ -51,18 +42,18 @@ class AslPasswdTest < Test::Unit::TestCase
 
       assert_samba_password(user, password)
 
-      assert_change_password_successfully(user.uid(true),
+      assert_change_password_successfully(user.uid,
                                           password, new_password,
                                           *args)
-      user = @user_class.new(user.uid(true))
+      user.reload
       assert_samba_password(user, password)
 
-      assert_change_password_with_wrong_current_password(user.uid(true),
+      assert_change_password_with_wrong_current_password(user.uid,
                                                          password, *args)
 
-      assert_change_password_successfully(user.uid(true),
+      assert_change_password_successfully(user.uid,
                                           new_password, password, *args)
-      user = @user_class.new(user.uid(true))
+      user.reload
       assert_samba_password(user, password)
     end
   end
@@ -74,28 +65,24 @@ class AslPasswdTest < Test::Unit::TestCase
 
       assert_samba_password(user, password)
 
-      assert_change_password_successfully(user.uid(true),
+      assert_change_password_successfully(user.uid,
                                           password, new_password, *args)
-      user = @user_class.new(user.uid(true))
+      user.reload
       assert_samba_password(user, new_password)
 
-      assert_change_password_with_wrong_current_password(user.uid(true),
+      assert_change_password_with_wrong_current_password(user.uid,
                                                          new_password, *args)
 
-      assert_change_password_successfully(user.uid(true), password, password,
+      assert_change_password_successfully(user.uid, password, password,
                                           *args)
-      user = @user_class.new(user.uid(true))
+      user.reload
       assert_samba_password(user, password)
     end
   end
 
   private
-  def run_asl_passwd(*other_args, &block)
-    run_ruby(*[@asl_passwd, *other_args], &block)
-  end
-
   def change_password(name, old_password, new_password, *args)
-    run_asl_passwd(name, *args) do |input, output|
+    run_command_as_normal_user(name, *args) do |input, output|
       output.puts(old_password)
       output.puts(new_password)
       output.puts(new_password)
@@ -106,9 +93,9 @@ class AslPasswdTest < Test::Unit::TestCase
   def assert_samba_password(user, password)
     _wrap_assertion do
       assert_equal(Samba::Encrypt.lm_hash(password),
-                   user.sambaLMPassword(true))
+                   user.sambaLMPassword)
       assert_equal(Samba::Encrypt.ntlm_hash(password),
-                   user.sambaNTPassword(true))
+                   user.sambaNTPassword)
     end
   end
 
@@ -131,7 +118,7 @@ class AslPasswdTest < Test::Unit::TestCase
                    "password isn't match",
                   ].join("\n") + "\n",
                  ],
-                 run_asl_passwd(name, *args) do |input, output|
+                 run_command_as_normal_user(name, *args) do |input, output|
                    output.puts(password)
                    output.flush
                  end)
