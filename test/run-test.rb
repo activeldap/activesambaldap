@@ -6,7 +6,10 @@ top_dir = File.join(File.dirname(__FILE__), "..")
 # $LOAD_PATH.unshift(File.join(top_dir, "..", "ldap", "lib"))
 # $LOAD_PATH.unshift(File.join(top_dir, "..", "ldap"))
 $LOAD_PATH.unshift(File.join(top_dir, "..", "activeldap", "lib"))
-$LOAD_PATH.unshift(File.join(top_dir, "..", "activesambaldap", "lib"))
+$LOAD_PATH.unshift(File.join(top_dir, "lib"))
+$LOAD_PATH.unshift(File.join(top_dir, "test"))
+
+require 'test-unit-ext'
 
 # ARGV.unshift("-tAslGroupModTest")
 # ARGV.unshift("-tSambaEncryptTest")
