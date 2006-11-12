@@ -7,25 +7,20 @@ module ActiveSambaLdap
       def ldap_mapping(options={})
         Config.required_variables :computers_prefix
         default_options = {
-          :dn_attribute => "uid",
-          :ldap_scope => :sub,
           :prefix => Config.computers_prefix,
           :classes => ["top", "inetOrgPerson", "posixAccount",
                        "sambaSamAccount"],
-          :group_class => "Group",
-          :groups_many => "memberUid",
         }
-        options = default_options.merge(options)
-        super(extract_ldap_mapping_options(options))
-        belongs_to :groups,
-                   :class => options[:group_class],
-                   :many => options[:groups_many]
-        self.group_class_name = options[:group_class]
+        super(default_options.merge(options))
       end
 
       def valid_name?(name)
         /\$\Z/ =~ name and User.valid_name?($PREMATCH)
       end
+    end
+
+    def remove_from_group(group)
+      group.computers.delete(self)
     end
 
     private

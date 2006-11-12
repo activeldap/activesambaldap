@@ -56,13 +56,13 @@ module ActiveSambaLdap
           :classes => ["posixGroup", "sambaGroupMapping"],
 
           :members_wrap => "memberUid",
-          :user_members_class => "User",
-          :computer_members_class => "Computer",
+          :users_class => "User",
+          :computers_class => "Computer",
 
           :primary_members_foreign_key => "gidNumber",
           :primary_members_primary_key => "gidNumber",
-          :primary_user_members_class => "User",
-          :primary_computer_members_class => "Computer",
+          :primary_users_class => "User",
+          :primary_computers_class => "Computer",
         }
         options = default_options.merge(options)
         super(extract_ldap_mapping_options(options))
@@ -97,7 +97,6 @@ module ActiveSambaLdap
       end
 
       def find_by_gid_number(number)
-        options = {:objects => true}
         attribute = "gidNumber"
         value = Integer(number).to_s
         find(:first, :filter => "(#{attribute}=#{value})")
@@ -148,27 +147,26 @@ module ActiveSambaLdap
         association_options = {}
         options.each do |key, value|
           case key.to_s
-          when /^((?:primary_)?(?:(?:user|computer)_)?members)_/
+          when /^((?:primary_)?(?:(?:user|computer|member)s))_/
             association_options[$1] ||= {}
             association_options[$1][$POSTMATCH.to_sym] = value
           end
         end
 
         members_opts = association_options["members"] || {}
-        user_members_opts = association_options["user_members"] || {}
-        computer_members_opts = association_options["computer_members"] || {}
-        has_many :user_members, members_opts.merge(user_members_opts)
-        has_many :computer_members,
-                 members_opts.merge(computer_members_opts)
+        user_members_opts = association_options["users"] || {}
+        computer_members_opts = association_options["computers"] || {}
+        has_many :users, members_opts.merge(user_members_opts)
+        has_many :computers, members_opts.merge(computer_members_opts)
 
         primary_members_opts = association_options["primary_members"] || {}
         primary_user_members_opts =
-          association_options["primary_user_members"] || {}
+          association_options["primary_users"] || {}
         primary_computer_members_opts =
-          association_options["primary_computer_members"] || {}
-        has_many :primary_user_members,
+          association_options["primary_computers"] || {}
+        has_many :primary_users,
                  primary_members_opts.merge(primary_user_members_opts)
-        has_many :primary_computer_members,
+        has_many :primary_computers,
                  primary_members_opts.merge(primary_computer_members_opts)
       end
 
@@ -186,21 +184,21 @@ module ActiveSambaLdap
     end
 
     def members
-      user_members.to_ary + computer_members.to_ary
+      users.to_ary + computers.to_ary
     end
 
     def reload_members
-      user_members.reload
-      computer_members.reload
+      users.reload
+      computers.reload
     end
 
     def primary_members
-      primary_user_members.to_ary + primary_computer_members.to_ary
+      primary_users.to_ary + primary_computers.to_ary
     end
 
     def reload_primary_members
-      primary_user_members.reload
-      primary_computer_members.reload
+      primary_users.reload
+      primary_computers.reload
     end
 
     def change_gid_number(gid, allow_non_unique=false)
@@ -211,7 +209,7 @@ module ActiveSambaLdap
     end
 
     def change_gid_number_by_rid(rid, allow_non_unique=false)
-      change_uid_number(self.class.rid2gid(rid), allow_non_unique)
+      change_gid_number(self.class.rid2gid(rid), allow_non_unique)
     end
 
     def change_sid(rid, allow_non_unique=false)
@@ -236,37 +234,18 @@ module ActiveSambaLdap
       self.samba_group_type = type.to_s
     end
 
-    def remove_member(member_or_uid)
-      uid = ensure_uid(member_or_uid)
-      new_member_uid = member_uid(true)
-      unless new_member_uid.reject! {|_uid| uid == _uid}.nil?
-        self.member_uid = new_member_uid
-        save!
-      end
-    end
-
-    def add_member(member_or_uid)
-      uid = ensure_uid(member_or_uid)
-      unless member_uid(true).find {|_uid| uid == _uid}
-        self.member_uid = (member_uid(true) + [uid]).sort
-        save!
-      end
-    end
-
     def destroy(options={})
       if options[:remove_members]
         if options[:force_change_primary_members]
           change_primary_members(options)
-          reload_primary_members
         end
-        pr_members = primary_members
-        unless pr_members.empty?
-          not_destroyed_members = pr_members.collect {|x| x.uid}
+        reload_primary_members
+        unless primary_members.empty?
+          not_destroyed_members = primary_members.collect {|x| x.uid}
           raise PrimaryGroupCanNotBeDestroyed.new(cn, not_destroyed_members)
         end
-        members.each do |member|
-          remove_member(member)
-        end
+        self.users = []
+        self.computers = []
       end
       super()
     end
@@ -304,7 +283,7 @@ module ActiveSambaLdap
 
       pr_members.each do |member|
         new_group = member.groups.find {|gr| gr.cn != name}
-        member.change_group(new_group.gidNumber)
+        member.primary_group = new_group
         member.save!
       end
     end

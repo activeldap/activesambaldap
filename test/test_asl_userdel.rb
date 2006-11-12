@@ -30,7 +30,7 @@ class AslUserDelTest < Test::Unit::TestCase
     make_dummy_user do |user, password|
       assert(File.exist?(user.home_directory))
       make_dummy_group do |group|
-        group.add_member(user)
+        group.users << user
         assert_equal([true, ""], run_command(user.uid))
       end
       assert(File.exist?(user.home_directory))

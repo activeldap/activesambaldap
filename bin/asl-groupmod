@@ -79,15 +79,31 @@ if options.members_to_add and options.members_to_delete
 end
 
 if options.members_to_add
+  users = []
+  computers = []
   options.members_to_add.each do |member|
-    group.add_member(member)
+    if /\$$/ =~ member
+      computers << Computer.find(member)
+    else
+      users << User.find(member)
+    end
   end
+  group.users.concat(users)
+  group.computers.concat(computers)
 end
 
 if options.members_to_delete
+  users = []
+  computers = []
   options.members_to_delete.each do |member|
-    group.remove_member(member)
+    if /\$$/ =~ member
+      computers << Computer.find(member)
+    else
+      users << User.find(member)
+    end
   end
+  group.users -= users
+  group.computers -= computers
 end
 
 group.save!
@@ -102,9 +118,12 @@ if options.new_group_name
   new_group.attributes = group.attributes.reject do |key, value|
     %w(cn).include?(key)
   end
+  primary_members = group.primary_members
+  group.gid_number = nil
   new_group.save!
-  group.primary_members.each do |member|
-    member.change_group(new_group.gid_number)
+  primary_members.each do |member|
+    member.primary_group = new_group
+    member.save!
   end
   group.destroy(:remove_members => true)
 end

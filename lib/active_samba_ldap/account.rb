@@ -7,13 +7,6 @@ module ActiveSambaLdap
     def self.included(base)
       super
       base.extend(ClassMethods)
-      base.class_eval(<<-EOC, __FILE__, __LINE__ + 1)
-        cattr_accessor :group_class_name
-        cattr_writer :group_class
-        def self.group_class
-          @@group_class || super
-        end
-      EOC
     end
 
     # from source/include/rpc_misc.c in Samba
@@ -40,14 +33,30 @@ module ActiveSambaLdap
     NAME_RE = /\A(?!\d)[\w @_\-\.]+\z/
 
     module ClassMethods
-      def valid_name?(name)
-        NAME_RE =~ name ? true : false
+      def ldap_mapping(options={})
+        default_options = {
+          :dn_attribute => "uid",
+          :ldap_scope => :sub,
+          :primary_group_class => "Group",
+          :primary_group_foreign_key => "gidNumber",
+          :primary_group_primary_key => "gidNumber",
+          :groups_class => "Group",
+          :groups_many => "memberUid",
+        }
+        options = default_options.merge(options)
+        super(extract_ldap_mapping_options(options))
+        belongs_to :primary_group,
+                   :class => options[:primary_group_class],
+                   :foreign_key => options[:primary_group_foreign_key],
+                   :primary_key => options[:primary_group_primary_key],
+                   :extend => PrimaryGroupProxy
+        belongs_to :groups,
+                   :class => options[:groups_class],
+                   :many => options[:groups_many]
       end
 
-      def group_class
-        group_class_name.split(/::/).inject(self) do |ret, name|
-          ret.const_get(name)
-        end
+      def valid_name?(name)
+        NAME_RE =~ name ? true : false
       end
 
       def find_by_uid_number(number)
@@ -96,9 +105,24 @@ module ActiveSambaLdap
 
         nil
       end
+
+      module PrimaryGroupProxy
+        def replace(entry)
+          super
+          if @target
+            if @target.samba_sid.to_s.empty?
+              raise GroupDoesNotHaveSambaSID.new(@target.gid_number)
+            end
+            @owner.samba_primary_group_sid = @target.samba_sid
+          else
+            @owner.samba_primary_group_sid = nil
+          end
+          entry
+        end
+      end
     end
 
-    def init(uid_number, gid_number)
+    def init(uid_number, group)
       self.cn = uid
       self.sn = uid
       self.gecos = uid
@@ -114,7 +138,7 @@ module ActiveSambaLdap
       self.samba_acct_flags = default_account_flags
 
       self.change_uid_number(uid_number)
-      group = self.change_group(gid_number)
+      self.primary_group = group
 
       self.user_password = "{crypt}x"
       self.samba_lm_password = "XXX"
@@ -125,13 +149,13 @@ module ActiveSambaLdap
 
       self.disable
 
-      group
+      self
     end
 
     def destroy(options={})
       if options[:removed_from_group]
         groups.each do |group|
-          group.remove_member(self)
+          remove_from_group(group)
         end
       end
       dir = home_directory
@@ -167,27 +191,6 @@ module ActiveSambaLdap
 
     def rid
       Integer(samba_sid.split(/-/).last)
-    end
-
-    def change_group(gid)
-      if self.class.group_class === gid
-        group = gid
-      else
-        group = self.class.group_class.find_by_name_or_gid_number(gid)
-      end
-      gid_number = group.gid_number
-      samba_sid = group.samba_sid
-      if samba_sid.nil? or samba_sid.empty?
-        raise GroupDoesNotHaveSambaSID.new(gid_number)
-      end
-      if gid_number
-        old_gid = gid_number
-        old_group = self.class.group_class.find_by_name_or_gid_number(old_gid)
-        old_group.remove_member(self)
-      end
-      self.gid_number = gid_number
-      self.samba_primary_group_sid = samba_sid
-      group
     end
 
     def change_password(password)

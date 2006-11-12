@@ -32,14 +32,20 @@ module ActiveSambaLdap
         options[:unix_id_pool_class] = id_pool_class = Class.new(UnixIdPool)
 
         user_class.ldap_mapping
-        user_class.instance_variable_set("@group_class", group_class)
-        def user_class.group_class
-          @group_class
-        end
         group_class.ldap_mapping
         computer_class.ldap_mapping
         idmap_class.ldap_mapping
         id_pool_class.ldap_mapping
+
+        user_class.set_associated_class(:primary_group, group_class)
+        computer_class.set_associated_class(:primary_group, group_class)
+        user_class.set_associated_class(:groups, group_class)
+        computer_class.set_associated_class(:groups, group_class)
+
+        group_class.set_associated_class(:users, user_class)
+        group_class.set_associated_class(:computers, computer_class)
+        group_class.set_associated_class(:primary_users, user_class)
+        group_class.set_associated_class(:primary_computers, computer_class)
       end
 
       def populate_init_options(options)
@@ -107,15 +113,15 @@ module ActiveSambaLdap
         populate_ensure_ou_base(options[:idmap_class].prefix)
       end
 
-      def populate_make_user(user_class, name, uid, gid)
-        group = nil
+      def populate_make_user(user_class, name, uid, group)
         if user_class.exists?(name)
           user = user_class.find(name)
+          group = nil
         else
           user = user_class.new(name)
-          group = user.init(uid, gid)
+          user.init(uid, group)
           user.save!
-          group.add_member(user)
+          group.users << user
         end
         [user, group]
       end
@@ -129,7 +135,8 @@ module ActiveSambaLdap
           options[:administrator_gid]],
          [options[:guest], options[:guest_uid], options[:guest_gid]],
         ].each do |name, uid, gid|
-          user, group = populate_make_user(user_class, name, uid, gid)
+          user, group = populate_make_user(user_class, name, uid,
+                                           group_class.find_by_gid_number(gid))
           entries << user
           if group
             old_group = entries.find do |entry|

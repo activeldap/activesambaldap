@@ -27,7 +27,7 @@ class AslGroupDelTest < Test::Unit::TestCase
   def test_user_is_belonged_to
     make_dummy_group do |group|
       make_dummy_user do |user, password|
-        group.add_member(user)
+        group.users << user
         assert_equal([true, ""], run_command(group.cn))
       end
     end
@@ -59,7 +59,7 @@ class AslGroupDelTest < Test::Unit::TestCase
     make_dummy_group do |group|
       make_dummy_user(:gid_number => group.gid_number) do |user, password|
         make_dummy_group do |group2|
-          group2.add_member(user)
+          group2.users << user
           assert_equal(group.gid_number, user.gid_number)
           assert_equal([true, ""], run_command(group.cn, "--force"))
           user.reload
@@ -73,7 +73,7 @@ class AslGroupDelTest < Test::Unit::TestCase
     make_dummy_group do |group|
       make_dummy_user(:gid_number => group.gid_number) do |user, password|
         make_dummy_group do |group2|
-          group2.add_member(user)
+          group2.users << user
           assert_equal(group.gid_number, user.gid_number)
           message = "cannot destroy group '#{group.cn}' due to members "
           message << "who belong to the group as primary group"

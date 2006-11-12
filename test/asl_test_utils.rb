@@ -78,8 +78,15 @@ module AslTestUtils
       @group_class = Class.new(ActiveSambaLdap::Group)
       @group_class.ldap_mapping
 
-      @user_class.group_class = @group_class
-      @computer_class.group_class = @group_class
+      @user_class.set_associated_class(:primary_group, @group_class)
+      @computer_class.set_associated_class(:primary_group, @group_class)
+      @user_class.set_associated_class(:groups, @group_class)
+      @computer_class.set_associated_class(:groups, @group_class)
+
+      @group_class.set_associated_class(:users, @user_class)
+      @group_class.set_associated_class(:computers, @computer_class)
+      @group_class.set_associated_class(:primary_users, @user_class)
+      @group_class.set_associated_class(:primary_computers, @computer_class)
 
       @user_index = 0
       @computer_index = 0
@@ -98,7 +105,7 @@ module AslTestUtils
         _wrap_assertion do
           assert(!@user_class.exists?(name))
           user = @user_class.new(name)
-          user.init(uid_number, gid_number)
+          user.init(uid_number, @group_class.find_by_gid_number(gid_number))
           user.home_directory = home_directory
           user.change_password(password)
           user.change_samba_password(password)
@@ -116,11 +123,7 @@ module AslTestUtils
       FileUtils.rm_rf(home) if home
       if @user_class.exists?(uid)
         user = @user_class.find(uid)
-        @group_class.find(:all,
-                          :attribute => "memberUid",
-                          :value => user.uid).each do |group|
-          group.remove_member(user)
-        end
+        user.groups = []
         user.destroy
       end
     end
@@ -137,7 +140,7 @@ module AslTestUtils
         _wrap_assertion do
           assert(!@computer_class.exists?(name))
           computer = @computer_class.new(name)
-          computer.init(uid_number, gid_number)
+          computer.init(uid_number, @group_class.find_by_gid_number(gid_number))
           if password
             computer.change_password(password)
             computer.change_samba_password(password)
@@ -156,11 +159,7 @@ module AslTestUtils
       FileUtils.rm_rf(home) if home
       if @computer_class.exists?(uid)
         computer = @computer_class.find(uid)
-        @group_class.find(:all,
-                          :attribute => "memberUid",
-                          :value => computer.uid).each do |group|
-          group.remove_member(computer)
-        end
+        computer.groups = []
         computer.destroy
       end
     end

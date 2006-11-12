@@ -8,21 +8,16 @@ module ActiveSambaLdap
       def ldap_mapping(options={})
         Config.required_variables :users_prefix, :sid
         default_options = {
-          :dn_attribute => "uid",
-          :ldap_scope => :sub,
           :prefix => Config.users_prefix,
           :classes => ["top", "inetOrgPerson", "posixAccount",
-                       "shadowAccount", "sambaSamAccount"],
-          :group_class =>  "Group",
-          :groups_many => "memberUid"
+                       "sambaSamAccount"],
         }
-        options = default_options.merge(options)
-        super(extract_ldap_mapping_options(options))
-        belongs_to :groups,
-                   :class => options[:group_class],
-                   :many => options[:groups_many]
-        self.group_class_name = options[:group_class]
+        super(default_options.merge(options))
       end
+    end
+
+    def remove_from_group(group)
+      group.users.delete(self)
     end
 
     private

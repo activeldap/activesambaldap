@@ -156,17 +156,15 @@ end
 ActiveSambaLdap::Base.establish_connection({}, true)
 
 
-if options.computer_account
-  class Computer < ActiveSambaLdap::Computer
-    ldap_mapping
-  end
-  member_class = Computer
-else
-  class User < ActiveSambaLdap::User
-    ldap_mapping
-  end
-  member_class = User
+class Computer < ActiveSambaLdap::Computer
+  ldap_mapping
 end
+
+class User < ActiveSambaLdap::User
+  ldap_mapping
+end
+
+member_class = options.computer_account ? Computer : User
 
 member_type = member_class.name.downcase
 member_base_re = /,#{Regexp.escape(ActiveSambaLdap::Base.base)}$/
@@ -260,7 +258,7 @@ else
 end
 
 begin
-  member.change_group(gid_number)
+  member.primary_group = Group.find_by_gid_number(gid_number)
 rescue ActiveSambaLdap::GidNumberDoesNotExist,
   ActiveSambaLdap::GroupDoesNotExist,
   ActiveSambaLdap::GroupDoesNotHaveSambaSID
@@ -397,10 +395,13 @@ if options.setup_home_directory
   end
 end
 
-group_class = member_class.group_class
 [member.gid_number, *options.supplementary_groups].each do |group|
-  group = group_class.find_by_name_or_gid_number(group)
-  group.add_member(member)
+  group = Group.find_by_name_or_gid_number(group)
+  if options.computer_account
+    group.computers << member
+  else
+    group.users << member
+  end
 end
 
 ActiveSambaLdap::Base.restart_nscd

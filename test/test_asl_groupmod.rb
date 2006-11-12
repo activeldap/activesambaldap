@@ -33,8 +33,7 @@ class AslGroupModTest < Test::Unit::TestCase
     make_dummy_user do |user1, password1|
       make_dummy_user do |user2, password2|
         make_dummy_group do |group|
-          group.add_member(user1)
-          group.add_member(user2)
+          group.users.concat(user1, user2)
 
           old_cn = group.cn
           new_cn = "#{old_cn}-new"
@@ -66,8 +65,10 @@ class AslGroupModTest < Test::Unit::TestCase
     make_dummy_user do |user1, password1|
       make_dummy_user do |user2, password2|
         make_dummy_group do |group|
-          user1.change_group(group)
-          user2.change_group(group)
+          user1.primary_group = group
+          assert(user1.save)
+          user2.primary_group = group
+          assert(user2.save)
 
           old_cn = group.cn
           new_cn = "#{old_cn}-new"
@@ -178,9 +179,7 @@ class AslGroupModTest < Test::Unit::TestCase
       make_dummy_user do |user1, password1|
         make_dummy_user do |user2, password2|
           make_dummy_user do |user3, password3|
-            group.add_member(user1)
-            group.add_member(user2)
-            group.add_member(user3)
+            group.users.concat(user1, user2, user3)
 
             old_member_uids = group.member_uid(true)
 
@@ -204,7 +203,7 @@ class AslGroupModTest < Test::Unit::TestCase
       make_dummy_user do |user1, password1|
         make_dummy_user do |user2, password2|
           make_dummy_user do |user3, password3|
-            group.add_member(user1)
+            group.users << user1
 
             old_member_uids = group.member_uid(true)
 

@@ -177,7 +177,7 @@ end
 
 if options.gid
   begin
-    user.change_group(options.gid)
+    user.primary_group = Group.find_by_name_or_gid_number(options.gid)
   rescue ActiveSambaLdap::Error
     puts $!.message
     exit 1
@@ -222,14 +222,10 @@ if options.mail_to_addresses
 end
 
 if options.supplementary_groups
-  unless options.merge_groups
-    user.groups(true).each do |group|
-      group.remove_member(user)
-    end
-  end
-  options.supplementary_groups.each do |group|
+  user.groups = [] unless options.merge_groups
+  user.groups = options.supplementary_groups.collect do |group|
     begin
-      Group.find_by_name_or_gid_number(group).add_member(user)
+      Group.find_by_name_or_gid_number(group)
     rescue ActiveSambaLdap::GidNumberDoesNotExist
       puts $!
       exit 1
@@ -300,8 +296,8 @@ if options.new_user_name
   end
   new_user.save!
   user.groups(true).each do |group|
-    group.remove_user(user)
-    group.add_user(new_user)
+    group.users -= [user]
+    group.users << new_user
   end
 
   user.destroy
