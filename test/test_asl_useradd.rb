@@ -1,4 +1,4 @@
-require 'asl_test_utils'
+require 'asl-test-utils'
 
 class AslUserAddTest < Test::Unit::TestCase
   include AslTestUtils
