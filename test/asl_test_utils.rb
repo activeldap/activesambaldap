@@ -99,7 +99,7 @@ module AslTestUtils
           assert(!@user_class.exists?(name))
           user = @user_class.new(name)
           user.init(uid_number, gid_number)
-          user.homeDirectory = home_directory
+          user.home_directory = home_directory
           user.change_password(password)
           user.change_samba_password(password)
           user.save!

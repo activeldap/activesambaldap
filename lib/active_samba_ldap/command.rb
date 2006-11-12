@@ -31,13 +31,13 @@ module ActiveSambaLdap
       [argv, opts, options]
     end
 
-    def read_password(prompt, input=STDIN, output=STDOUT)
+    def read_password(prompt, input=$stdin, output=$stdout)
       output.print prompt
       system "/bin/stty -echo" if input.tty?
-      password = input.gets.chomp
+      input.gets.chomp
+    ensure
       system "/bin/stty echo" if input.tty?
       output.puts
-      password
     end
   end
 end

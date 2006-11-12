@@ -93,9 +93,9 @@ class AslPasswdTest < Test::Unit::TestCase
   def assert_samba_password(user, password)
     _wrap_assertion do
       assert_equal(Samba::Encrypt.lm_hash(password),
-                   user.sambaLMPassword)
+                   user.samba_lm_password)
       assert_equal(Samba::Encrypt.ntlm_hash(password),
-                   user.sambaNTPassword)
+                   user.samba_nt_password)
     end
   end
 

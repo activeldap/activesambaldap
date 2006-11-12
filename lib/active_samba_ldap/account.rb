@@ -85,7 +85,7 @@ module ActiveSambaLdap
       end
 
       def find_available_uid_number(pool)
-        uid_number = (pool.uidNumber || start_uid).to_s
+        uid_number = (pool.uid_number || start_uid).to_s
 
         100.times do |i|
           if find(:first, :attribute => "uidNumber", :value => uid_number).nil?
@@ -102,24 +102,24 @@ module ActiveSambaLdap
       self.cn = uid
       self.sn = uid
       self.gecos = uid
-      self.homeDirectory = substituted_value(:user_home) {"/nonexistent"}
-      self.loginShell = substituted_value(:user_login_shell) {"/bin/false"}
-      self.sambaHomePath = substituted_value(:user_samba_home)
-      self.sambaHomeDrive = substituted_value(:user_home_drive)
-      self.sambaProfilePath = substituted_value(:user_profile)
-      self.sambaLogonScript = substituted_value(:user_script)
-      self.sambaLogonTime = "0"
-      self.sambaLogoffTime = FAR_FUTURE_TIME
-      self.sambaKickoffTime = FAR_FUTURE_TIME
-      self.sambaAcctFlags = default_account_flags
+      self.home_directory = substituted_value(:user_home) {"/nonexistent"}
+      self.login_shell = substituted_value(:user_login_shell) {"/bin/false"}
+      self.samba_home_path = substituted_value(:user_samba_home)
+      self.samba_home_drive = substituted_value(:user_home_drive)
+      self.samba_profile_path = substituted_value(:user_profile)
+      self.samba_logon_script = substituted_value(:user_script)
+      self.samba_logon_time = "0"
+      self.samba_logoff_time = FAR_FUTURE_TIME
+      self.samba_kickoff_time = FAR_FUTURE_TIME
+      self.samba_acct_flags = default_account_flags
 
       self.change_uid_number(uid_number)
       group = self.change_group(gid_number)
 
-      self.userPassword = "{crypt}x"
-      self.sambaLMPassword = "XXX"
-      self.sambaNTPassword = "XXX"
-      self.sambaPwdLastSet = "0"
+      self.user_password = "{crypt}x"
+      self.samba_lm_password = "XXX"
+      self.samba_nt_password = "XXX"
+      self.samba_pwd_last_set = "0"
       self.enable_password_change
       self.disable_forcing_password_change
 
@@ -151,7 +151,7 @@ module ActiveSambaLdap
     def change_uid_number(uid, allow_non_unique=false)
       check_unique_uid_number(uid) unless allow_non_unique
       rid = self.class.uid2rid(uid)
-      self.uidNumber = Integer(uid).to_s
+      self.uid_number = Integer(uid).to_s
       change_sid(rid, allow_non_unique)
     end
 
@@ -162,11 +162,11 @@ module ActiveSambaLdap
     def change_sid(rid, allow_non_unique=false)
       sid = "#{ActiveSambaLdap::Config.sid}-#{rid}"
       # check_unique_sid_number(sid) unless allow_non_unique
-      self.sambaSID = sid
+      self.samba_sid = sid
     end
 
     def rid
-      Integer(sambaSID.split(/-/).last)
+      Integer(samba_sid.split(/-/).last)
     end
 
     def change_group(gid)
@@ -191,60 +191,61 @@ module ActiveSambaLdap
     end
 
     def change_password(password)
-      self.userPassword = ActiveLdap::UserPassword.ssha(password)
+      self.user_password = ActiveLdap::UserPassword.ssha(password)
     end
 
     def change_samba_password(password)
-      self.sambaLMPassword = Samba::Encrypt.lm_hash(password)
-      self.sambaNTPassword = Samba::Encrypt.ntlm_hash(password)
-      self.sambaPwdLastSet = Time.now.to_i.to_s
+      self.samba_lm_password = Samba::Encrypt.lm_hash(password)
+      self.samba_nt_password = Samba::Encrypt.ntlm_hash(password)
+      self.samba_pwd_last_set = Time.now.to_i.to_s
     end
 
     def enable_password_change
-      self.sambaPwdCanChange = "0"
+      self.samba_pwd_can_change = "0"
     end
 
     def disable_password_change
-      self.sambaPwdCanChange = FAR_FUTURE_TIME
+      self.samba_pwd_can_change = FAR_FUTURE_TIME
     end
 
     def can_change_password?
-      sambaPwdCanChange.nil? or Time.at(sambaPwdCanChange.to_i) <= Time.now
+      samba_pwd_can_change.nil? or
+        Time.at(samba_pwd_can_change.to_i) <= Time.now
     end
 
     def enable_forcing_password_change
-      self.sambaPwdMustChange = "0"
-      if /X/ =~ sambaAcctFlags.to_s
-        self.sambaAcctFlags = sambaAcctFlags.sub(/X/, '')
+      self.samba_pwd_must_change = "0"
+      if /X/ =~ samba_acct_flags.to_s
+        self.samba_acct_flags = samba_acct_flags.sub(/X/, '')
       end
-      if sambaPwdLastSet.to_i.zero?
-        self.sambaPwdLastSet = FAR_FUTURE_TIME
+      if samba_pwd_last_set.to_i.zero?
+        self.samba_pwd_last_set = FAR_FUTURE_TIME
       end
     end
 
     def disable_forcing_password_change
-      self.sambaPwdMustChange = FAR_FUTURE_TIME
+      self.samba_pwd_must_change = FAR_FUTURE_TIME
     end
 
     def must_change_password?
-      !(/X/ =~ sambaAcctFlags.to_s or
-        sambaPwdMustChange.nil? or
-        Time.at(sambaPwdMustChange.to_i) > Time.now)
+      !(/X/ =~ samba_acct_flags.to_s or
+        samba_pwd_must_change.nil? or
+        Time.at(samba_pwd_must_change.to_i) > Time.now)
     end
 
     def enable
-      if /D/ =~ sambaAcctFlags.to_s
-        self.sambaAcctFlags = sambaAcctFlags.gsub(/D/, '')
+      if /D/ =~ samba_acct_flags.to_s
+        self.samba_acct_flags = samba_acct_flags.gsub(/D/, '')
       end
     end
 
     def disable
       flags = ""
-      if ACCOUNT_FLAGS_RE =~ sambaAcctFlags.to_s
+      if ACCOUNT_FLAGS_RE =~ samba_acct_flags.to_s
         flags = $1
         return if /D/ =~ flags
       end
-      self.sambaAcctFlags = "[D#{flags}]"
+      self.samba_acct_flags = "[D#{flags}]"
     end
 
     def enabled?
@@ -252,7 +253,7 @@ module ActiveSambaLdap
     end
 
     def disabled?
-      (/D/ =~ sambaAcctFlags.to_s) ? true : false
+      (/D/ =~ samba_acct_flags.to_s) ? true : false
     end
 
     private

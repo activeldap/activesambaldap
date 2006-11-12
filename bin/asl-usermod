@@ -185,20 +185,20 @@ if options.gid
 end
 
 if options.shell
-  user.loginShell = options.shell
+  user.login_shell = options.shell
 end
 
 if options.gecos
   user.gecos = options.gecos
   user.description = options.gecos
-  user.displayName = options.gecos
+  user.display_name = options.gecos
 end
 
 if options.home_directory
   if options.move_home_directory and !File.exist?(options.home_directory)
-    FileUtils.mv(user.homeDirectory, options.home_directory)
+    FileUtils.mv(user.home_directory, options.home_directory)
   end
-  user.homeDirectory = options.home_directory
+  user.home_directory = options.home_directory
 end
 
 if options.canonical_name
@@ -210,7 +210,7 @@ if options.surname
 end
 
 if options.given_name
-  user.givenName = options.given_name
+  user.given_name = options.given_name
 end
 
 if options.mail_addresses
@@ -238,11 +238,11 @@ if options.supplementary_groups
 end
 
 if options.expire_date
-  user.sambaKickoffTime = options.expire_date.to_i.to_s
+  user.samba_kickoff_time = options.expire_date.to_i.to_s
 end
 
 if options.samba_account_flags
-  user.sambaAcctFlags = options.samba_account_flags
+  user.samba_acct_flags = options.samba_account_flags
 end
 
 unless options.can_change_password.nil?
@@ -262,19 +262,19 @@ unless options.must_change_password.nil?
 end
 
 if options.samba_home_path
-  user.sambaHomePath = options.samba_home_path
+  user.samba_home_path = options.samba_home_path
 end
 
 if options.samba_home_drive
-  user.sambaHomeDrive = options.samba_home_drive.sub(/([^:])$/, "\\1:")
+  user.samba_home_drive = options.samba_home_drive.sub(/([^:])$/, "\\1:")
 end
 
 if options.samba_logon_script
-  user.sambaLogonScript = options.samba_logon_script
+  user.samba_logon_script = options.samba_logon_script
 end
 
 if options.samba_profile_path
-  user.sambaProfilePath = options.samba_profile_path
+  user.samba_profile_path = options.samba_profile_path
 end
 
 unless options.enable.nil?

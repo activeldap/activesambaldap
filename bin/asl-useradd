@@ -245,7 +245,7 @@ else
       group = Group.new(name)
       group.change_gid_number(gid_number)
       group.change_type("domain")
-      group.displayName = group.cn
+      group.display_name = group.cn
       group.save!
     end
   else
@@ -279,7 +279,7 @@ if home_directory.nil?
 end
 home_directory = substitute_member(home_directory, member)
 home_directory = home_directory.gsub(/\/{2,}/, "/")
-member.homeDirectory = home_directory
+member.home_directory = home_directory
 
 
 login_shell = options.shell
@@ -289,13 +289,13 @@ else
   ActiveSambaLdap::Config.required_variables :user_login_shell
   login_shell ||= ActiveSambaLdap::Config.user_login_shell
 end
-member.loginShell = login_shell
+member.login_shell = login_shell
 
 if options.computer_account
   member.description = "Computer"
 end
 
-member.givenName = options.given_name || member.uid
+member.given_name = options.given_name || member.uid
 member.sn = options.surname || member.uid
 if options.canonical_name
   member.cn = options.canonical_name
@@ -318,7 +318,7 @@ else
   member.gecos = member.cn
 end
 
-member.displayName = member.cn
+member.display_name = member.cn
 
 flags = options.samba_account_flags
 if flags.nil?
@@ -328,10 +328,10 @@ if flags.nil?
     flags = "[U]"
   end
 end
-member.sambaAcctFlags = flags
+member.samba_acct_flags = flags
 
 unless options.computer_account
-  member.userPassword = "{crypt}x"
+  member.user_password = "{crypt}x"
 
   if options.can_change_password
     member.enable_password_change
@@ -345,42 +345,42 @@ unless options.computer_account
     member.disable_forcing_password_change
   end
 
-  member.sambaLogonTime = '0'
-  member.sambaLogoffTime = ActiveSambaLdap::User::FAR_FUTURE_TIME
+  member.samba_logon_time = '0'
+  member.samba_logoff_time = ActiveSambaLdap::User::FAR_FUTURE_TIME
   if options.expire_date
-    member.sambaKickoffTime = options.expire_date.to_i.to_s
+    member.samba_kickoff_time = options.expire_date.to_i.to_s
   else
-    member.sambaKickoffTime = ActiveSambaLdap::User::FAR_FUTURE_TIME
+    member.samba_kickoff_time = ActiveSambaLdap::User::FAR_FUTURE_TIME
   end
 
   logon_script = get_value(options, :samba_logon_script, :user_script)
-  member.sambaLogonScript = substitute_member(logon_script, member)
+  member.samba_logon_script = substitute_member(logon_script, member)
 
   home_path = get_value(options, :samba_home_path, :user_samba_home)
-  member.sambaHomePath = substitute_member(home_path, member)
+  member.samba_home_path = substitute_member(home_path, member)
 
   home_drive = get_value(options, :samba_home_drive, :user_home_drive)
   home_drive = substitute_member(home_drive, member)
-  member.sambaHomeDrive = home_drive.sub(/([^:])$/, "\\1:")
+  member.samba_home_drive = home_drive.sub(/([^:])$/, "\\1:")
 
   profile_path = get_value(options, :samba_profile_path, :user_profile)
-  member.sambaProfilePath = substitute_member(profile_path, member)
+  member.samba_profile_path = substitute_member(profile_path, member)
 
-  member.sambaLMPassword = "XXX"
-  member.sambaNTPassword = "XXX"
-  member.sambaPwdLastSet = Time.now.to_i.to_s
+  member.samba_lm_password = "XXX"
+  member.samba_nt_password = "XXX"
+  member.samba_pwd_last_set = Time.now.to_i.to_s
 end
 
 member.save!
 
 if pool
-  pool.uidNumber = Integer(member.uidNumber).succ unless options.uid
-  pool.gidNumber = Integer(group.gidNumber).succ if group
+  pool.uid_number = Integer(member.uid_number).succ unless options.uid
+  pool.gid_number = Integer(group.gid_number).succ if group
   pool.save!
 end
 
 if options.setup_home_directory
-  dest = member.homeDirectory
+  dest = member.home_directory
   if dest
     begin
       FileUtils.mkdir_p(dest)
@@ -389,7 +389,7 @@ if options.setup_home_directory
                      Dir.glob(File.join(skel, "*")) -
                      [File.join(skel, "."), File.join(skel, "..")],
                      dest)
-      FileUtils.chown_R(member.uidNumber, member.gidNumber, dest)
+      FileUtils.chown_R(member.uid_number, member.gid_number, dest)
     rescue SystemCallerror
       puts $!
       exit 1
@@ -398,7 +398,7 @@ if options.setup_home_directory
 end
 
 group_class = member_class.group_class
-[member.gidNumber, *options.supplementary_groups].each do |group|
+[member.gid_number, *options.supplementary_groups].each do |group|
   group = group_class.find_by_name_or_gid_number(group)
   group.add_member(member)
 end

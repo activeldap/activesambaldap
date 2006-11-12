@@ -20,28 +20,28 @@ class AslUserDelTest < Test::Unit::TestCase
 
   def test_exist_user
     make_dummy_user do |user, password|
-      assert(File.exist?(user.homeDirectory))
+      assert(File.exist?(user.home_directory))
       assert_equal([true, ""], run_command(user.uid))
-      assert(File.exist?(user.homeDirectory))
+      assert(File.exist?(user.home_directory))
     end
   end
 
-  def test_belong_to_group
+  def test_belongs_to_group
     make_dummy_user do |user, password|
-      assert(File.exist?(user.homeDirectory))
+      assert(File.exist?(user.home_directory))
       make_dummy_group do |group|
         group.add_member(user)
         assert_equal([true, ""], run_command(user.uid))
       end
-      assert(File.exist?(user.homeDirectory))
+      assert(File.exist?(user.home_directory))
     end
   end
 
   def test_remove_home_directory
     make_dummy_user do |user, password|
-      assert(File.exist?(user.homeDirectory))
+      assert(File.exist?(user.home_directory))
       assert_equal([true, ""], run_command("-r", user.uid))
-      assert(!File.exist?(user.homeDirectory))
+      assert(!File.exist?(user.home_directory))
     end
   end
 end

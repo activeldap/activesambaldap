@@ -152,7 +152,7 @@ module ActiveSambaLdap
         else
           group = group_class.new(name)
           group.change_type(type || "domain")
-          group.displayName = name
+          group.display_name = name
           group.description = name || description
           group.change_gid_number(gid)
 
@@ -197,9 +197,9 @@ module ActiveSambaLdap
       def populate_make_pool(options)
         Config.required_variables :samba_domain, :sid
         pool = options[:unix_id_pool_class].new(Config.samba_domain)
-        pool.sambaSID = Config.sid
-        pool.uidNumber = options[:start_uid]
-        pool.gidNumber = options[:start_gid]
+        pool.samba_sid = Config.sid
+        pool.uid_number = options[:start_uid]
+        pool.gid_number = options[:start_gid]
         pool.save!
         [pool]
       end

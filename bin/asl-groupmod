@@ -104,7 +104,7 @@ if options.new_group_name
   end
   new_group.save!
   group.primary_members.each do |member|
-    member.change_group(new_group.gidNumber)
+    member.change_group(new_group.gid_number)
   end
   group.destroy(:remove_members => true)
 end

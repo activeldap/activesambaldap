@@ -49,7 +49,7 @@ class AslGroupModTest < Test::Unit::TestCase
 
             members = []
             new_group = @group_class.find(new_cn)
-            new_group.memberUid(true).each do |uid|
+            new_group.member_uid(true).each do |uid|
               members.concat(@user_class.find(:all,
                                               :attribute => "uid",
                                               :value => uid))
@@ -81,8 +81,8 @@ class AslGroupModTest < Test::Unit::TestCase
             assert(@group_class.exists?(new_cn))
 
             new_group = @group_class.find(new_cn)
-            assert_equal(new_group.gidNumber, user1.gidNumber)
-            assert_equal(new_group.gidNumber, user2.gidNumber)
+            assert_equal(new_group.gid_number, user1.gid_number)
+            assert_equal(new_group.gid_number, user2.gid_number)
           end
         end
       end
@@ -91,8 +91,8 @@ class AslGroupModTest < Test::Unit::TestCase
 
   def test_gid_number
     make_dummy_group do |group|
-      old_gid_number = group.gidNumber
-      old_samba_sid = group.sambaSID
+      old_gid_number = group.gid_number
+      old_samba_sid = group.samba_sid
       new_gid_number = old_gid_number.succ
 
       old_rid = (2 * Integer(old_gid_number) + 1001).to_s
@@ -103,18 +103,18 @@ class AslGroupModTest < Test::Unit::TestCase
       assert_asl_groupmod_successfully(group.cn, *args)
 
       new_group = @group_class.find(group.cn)
-      assert_equal(new_gid_number, new_group.gidNumber)
-      assert_equal(new_samba_sid, new_group.sambaSID)
+      assert_equal(new_gid_number, new_group.gid_number)
+      assert_equal(new_samba_sid, new_group.samba_sid)
     end
   end
 
   def test_gid_number_non_unique
     make_dummy_group do |group|
-      old_gid_number = group.gidNumber
+      old_gid_number = group.gid_number
       make_dummy_group do |group2|
-        new_gid_number = group2.gidNumber
+        new_gid_number = group2.gid_number
 
-        old_samba_sid = group.sambaSID
+        old_samba_sid = group.samba_sid
         old_rid = (2 * Integer(old_gid_number) + 1001).to_s
         new_rid = (2 * Integer(new_gid_number) + 1001).to_s
         new_samba_sid = old_samba_sid.sub(/#{Regexp.escape(old_rid)}$/, new_rid)
@@ -124,19 +124,19 @@ class AslGroupModTest < Test::Unit::TestCase
         assert_asl_groupmod_failed(group.cn, message, *args)
 
         new_group = @group_class.find(group.cn)
-        assert_equal(old_gid_number, new_group.gidNumber)
-        assert_equal(old_samba_sid, new_group.sambaSID)
+        assert_equal(old_gid_number, new_group.gid_number)
+        assert_equal(old_samba_sid, new_group.samba_sid)
       end
     end
   end
 
   def test_gid_number_allow_non_unique
     make_dummy_group do |group|
-      old_gid_number = group.gidNumber
+      old_gid_number = group.gid_number
       make_dummy_group do |group2|
-        new_gid_number = group2.gidNumber
+        new_gid_number = group2.gid_number
 
-        old_samba_sid = group.sambaSID
+        old_samba_sid = group.samba_sid
         old_rid = (2 * Integer(old_gid_number) + 1001).to_s
         new_rid = (2 * Integer(new_gid_number) + 1001).to_s
         new_samba_sid = old_samba_sid.sub(/#{Regexp.escape(old_rid)}$/, new_rid)
@@ -145,8 +145,8 @@ class AslGroupModTest < Test::Unit::TestCase
         assert_asl_groupmod_successfully(group.cn, *args)
 
         new_group = @group_class.find(group.cn)
-        assert_equal(new_gid_number, new_group.gidNumber)
-        assert_equal(new_samba_sid, new_group.sambaSID)
+        assert_equal(new_gid_number, new_group.gid_number)
+        assert_equal(new_samba_sid, new_group.samba_sid)
       end
     end
   end
@@ -156,14 +156,14 @@ class AslGroupModTest < Test::Unit::TestCase
       make_dummy_user do |user1, password1|
         make_dummy_user do |user2, password2|
           make_dummy_user do |user3, password3|
-            old_member_uids = group.memberUid(true)
+            old_member_uids = group.member_uid(true)
 
             new_members = [user1.uid, user2.uid]
             args = ["--add-members", new_members.join(",")]
             assert_asl_groupmod_successfully(group.cn, *args)
 
             new_group = @group_class.find(group.cn)
-            new_member_uids = new_group.memberUid(true)
+            new_member_uids = new_group.member_uid(true)
 
             assert_equal(new_members.sort,
                          (new_member_uids - old_member_uids).sort)
@@ -182,14 +182,14 @@ class AslGroupModTest < Test::Unit::TestCase
             group.add_member(user2)
             group.add_member(user3)
 
-            old_member_uids = group.memberUid(true)
+            old_member_uids = group.member_uid(true)
 
             members_to_delete = [user1.uid, user2.uid]
             args = ["--delete-members", members_to_delete.join(",")]
             assert_asl_groupmod_successfully(group.cn, *args)
 
             new_group = @group_class.find(group.cn)
-            new_member_uids = new_group.memberUid(true)
+            new_member_uids = new_group.member_uid(true)
 
             assert_equal(members_to_delete.sort,
                          (old_member_uids - new_member_uids).sort)
@@ -206,7 +206,7 @@ class AslGroupModTest < Test::Unit::TestCase
           make_dummy_user do |user3, password3|
             group.add_member(user1)
 
-            old_member_uids = group.memberUid(true)
+            old_member_uids = group.member_uid(true)
 
             new_members = [user2.uid, user3.uid]
             args = ["--add-members", new_members.join(","),
@@ -214,7 +214,7 @@ class AslGroupModTest < Test::Unit::TestCase
             assert_asl_groupmod_successfully(group.cn, *args)
 
             new_group = @group_class.find(group.cn)
-            new_member_uids = new_group.memberUid(true)
+            new_member_uids = new_group.member_uid(true)
 
             assert_equal(new_members.sort,
                          (new_member_uids - old_member_uids).sort)

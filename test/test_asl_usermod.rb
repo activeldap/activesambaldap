@@ -23,31 +23,31 @@ class AslUserModTest < Test::Unit::TestCase
       new_user = @user_class.find(user.uid)
       assert_equal(new_gecos, new_user.gecos)
       assert_equal(new_gecos, new_user.description)
-      assert_equal(new_gecos, new_user.displayName)
+      assert_equal(new_gecos, new_user.display_name)
     end
   end
 
   def test_home_directory
     make_dummy_user do |user, password|
-      old_home_directory = user.homeDirectory
+      old_home_directory = user.home_directory
       new_home_directory = "#{old_home_directory}.new"
       args = ["--home-directory", new_home_directory]
       assert_asl_usermod_successfully(user.uid, password, *args)
       new_user = @user_class.find(user.uid)
-      assert_equal(new_home_directory, new_user.homeDirectory)
+      assert_equal(new_home_directory, new_user.home_directory)
     end
   end
 
   def test_move_home_directory
     make_dummy_user do |user, password|
       begin
-        old_home_directory = user.homeDirectory
+        old_home_directory = user.home_directory
         new_home_directory = "#{old_home_directory}.new"
         assert(!File.exist?(new_home_directory))
         args = ["--home-directory", new_home_directory, "--move-home-directory"]
         assert_asl_usermod_successfully(user.uid, password, *args)
         new_user = @user_class.find(user.uid)
-        assert_equal(new_home_directory, new_user.homeDirectory)
+        assert_equal(new_home_directory, new_user.home_directory)
         assert(File.exist?(new_home_directory))
       ensure
         FileUtils.rm_rf(new_home_directory)
@@ -78,8 +78,8 @@ class AslUserModTest < Test::Unit::TestCase
 
   def test_uid_number
     make_dummy_user do |user, password|
-      old_uid_number = user.uidNumber
-      old_samba_sid = user.sambaSID
+      old_uid_number = user.uid_number
+      old_samba_sid = user.samba_sid
       new_uid_number = old_uid_number.succ
 
       old_rid = (2 * Integer(old_uid_number) + 1000).to_s
@@ -90,18 +90,18 @@ class AslUserModTest < Test::Unit::TestCase
       assert_asl_usermod_successfully(user.uid, password, *args)
 
       new_user = @user_class.find(user.uid)
-      assert_equal(new_uid_number, new_user.uidNumber)
-      assert_equal(new_samba_sid, new_user.sambaSID)
+      assert_equal(new_uid_number, new_user.uid_number)
+      assert_equal(new_samba_sid, new_user.samba_sid)
     end
   end
 
   def test_uid_number_non_unique
     make_dummy_user do |user, password|
-      old_uid_number = user.uidNumber
+      old_uid_number = user.uid_number
       new_uid_number = old_uid_number.succ
       make_dummy_user(:name => "#{user.uid}2",
                       :uid_number => new_uid_number) do |user2, password2|
-        old_samba_sid = user.sambaSID
+        old_samba_sid = user.samba_sid
         old_rid = (2 * Integer(old_uid_number) + 1000).to_s
         new_rid = (2 * Integer(new_uid_number) + 1000).to_s
         new_samba_sid = old_samba_sid.sub(/#{Regexp.escape(old_rid)}$/, new_rid)
@@ -111,19 +111,19 @@ class AslUserModTest < Test::Unit::TestCase
         assert_asl_usermod_failed(user.uid, password, message, *args)
 
         new_user = @user_class.find(user.uid)
-        assert_equal(old_uid_number, new_user.uidNumber)
-        assert_equal(old_samba_sid, new_user.sambaSID)
+        assert_equal(old_uid_number, new_user.uid_number)
+        assert_equal(old_samba_sid, new_user.samba_sid)
       end
     end
   end
 
   def test_uid_number_allow_non_unique
     make_dummy_user do |user, password|
-      old_uid_number = user.uidNumber
+      old_uid_number = user.uid_number
       new_uid_number = old_uid_number.succ
       make_dummy_user(:name => "#{user.uid}2",
                       :uid_number => new_uid_number) do |user2, password2|
-        old_samba_sid = user.sambaSID
+        old_samba_sid = user.samba_sid
         old_rid = (2 * Integer(old_uid_number) + 1000).to_s
         new_rid = (2 * Integer(new_uid_number) + 1000).to_s
         new_samba_sid = old_samba_sid.sub(/#{Regexp.escape(old_rid)}$/, new_rid)
@@ -132,23 +132,23 @@ class AslUserModTest < Test::Unit::TestCase
         assert_asl_usermod_successfully(user.uid, password, *args)
 
         new_user = @user_class.find(user.uid)
-        assert_equal(new_uid_number, new_user.uidNumber)
-        assert_equal(new_samba_sid, new_user.sambaSID)
+        assert_equal(new_uid_number, new_user.uid_number)
+        assert_equal(new_samba_sid, new_user.samba_sid)
       end
     end
   end
 
   def test_gid_number
     make_dummy_group do |group|
-      make_dummy_user(:gid_number => group.gidNumber) do |user, password|
+      make_dummy_user(:gid_number => group.gid_number) do |user, password|
         make_dummy_group do |new_group|
-          args = ["--gid", new_group.gidNumber]
+          args = ["--gid", new_group.gid_number]
           assert_asl_usermod_successfully(user.uid, password, *args)
 
           new_user = @user_class.find(user.uid)
-          assert_equal(new_group.gidNumber, new_user.gidNumber)
-          assert_equal(new_group.sambaSID,
-                       new_user.sambaPrimaryGroupSID)
+          assert_equal(new_group.gid_number, new_user.gid_number)
+          assert_equal(new_group.samba_sid,
+                       new_user.samba_primary_group_sid)
         end
       end
     end
@@ -157,9 +157,9 @@ class AslUserModTest < Test::Unit::TestCase
   def test_gid_number_not_exist
     make_dummy_user do |user, password|
       make_dummy_group do |group|
-        old_gid_number = user.gidNumber
-        new_gid_number = group.gidNumber
-        old_samba_primary_group_sid = user.sambaPrimaryGroupSID
+        old_gid_number = user.gid_number
+        new_gid_number = group.gid_number
+        old_samba_primary_group_sid = user.samba_primary_group_sid
 
         group.destroy
         args = ["--gid", new_gid_number]
@@ -167,9 +167,9 @@ class AslUserModTest < Test::Unit::TestCase
         assert_asl_usermod_failed(user.uid, password, message, *args)
 
         new_user = @user_class.find(user.uid)
-        assert_equal(old_gid_number, new_user.gidNumber)
+        assert_equal(old_gid_number, new_user.gid_number)
         assert_equal(old_samba_primary_group_sid,
-                     new_user.sambaPrimaryGroupSID)
+                     new_user.samba_primary_group_sid)
       end
     end
   end
@@ -178,13 +178,13 @@ class AslUserModTest < Test::Unit::TestCase
     make_dummy_group do |group1|
       make_dummy_group do |group2|
         make_dummy_group do |group3|
-          new_gid_number1 = group1.gidNumber
-          new_gid_number2 = group2.gidNumber
-          new_gid_number3 = group3.gidNumber
+          new_gid_number1 = group1.gid_number
+          new_gid_number2 = group2.gid_number
+          new_gid_number3 = group3.gid_number
           new_gid_numbers = [new_gid_number1, new_gid_number2, new_gid_number3]
 
           make_dummy_user do |user, password|
-            old_gid_number = user.gidNumber
+            old_gid_number = user.gid_number
             old_groups = @group_class.find(:all,
                                            :attribute => "memberUid",
                                            :value => user.uid)
@@ -212,12 +212,12 @@ class AslUserModTest < Test::Unit::TestCase
     make_dummy_group do |group1|
       make_dummy_group do |group2|
         make_dummy_group do |group3|
-          new_gid_number1 = group1.gidNumber
-          new_gid_number2 = group2.gidNumber
-          new_gid_number3 = group3.gidNumber
+          new_gid_number1 = group1.gid_number
+          new_gid_number2 = group2.gid_number
+          new_gid_number3 = group3.gid_number
           new_gid_numbers = [new_gid_number1, new_gid_number2, new_gid_number3]
           make_dummy_user do |user, password|
-            old_gid_number = user.gidNumber
+            old_gid_number = user.gid_number
             old_groups = @group_class.find(:all,
                                            :attribute => "memberUid",
                                            :value => user.uid)
@@ -253,15 +253,15 @@ class AslUserModTest < Test::Unit::TestCase
   def test_groups_not_exist
     make_dummy_group do |group1|
       make_dummy_group do |group2|
-        new_gid_number1 = group1.gidNumber
-        new_gid_number2 = group2.gidNumber
+        new_gid_number1 = group1.gid_number
+        new_gid_number2 = group2.gid_number
         new_gid_numbers = [new_gid_number1, new_gid_number2]
 
         group1.destroy
         group2.destroy
 
         make_dummy_user do |user, password|
-          old_gid_number = user.gidNumber
+          old_gid_number = user.gid_number
 
           assert(!@group_class.exists?(group1.cn))
 
@@ -286,7 +286,7 @@ class AslUserModTest < Test::Unit::TestCase
 
   def test_shell
     make_dummy_user do |user, password|
-      old_shell = user.loginShell
+      old_shell = user.login_shell
       new_shell = "/bin/zsh"
 
       assert_not_equal(old_shell, new_shell)
@@ -295,7 +295,7 @@ class AslUserModTest < Test::Unit::TestCase
       assert_asl_usermod_successfully(user.uid, password, *args)
 
       new_user = @user_class.find(user.uid)
-      assert_equal(new_shell, new_user.loginShell)
+      assert_equal(new_shell, new_user.login_shell)
     end
   end
 
@@ -327,20 +327,20 @@ class AslUserModTest < Test::Unit::TestCase
 
   def test_given_name
     make_dummy_user do |user, password|
-      old_given_name = user.givenName
+      old_given_name = user.given_name
       new_given_name = "new-#{old_given_name}"
 
       args = ["--given-name", new_given_name]
       assert_asl_usermod_successfully(user.uid, password, *args)
 
       new_user = @user_class.find(user.uid)
-      assert_equal(new_given_name, new_user.givenName)
+      assert_equal(new_given_name, new_user.given_name)
     end
   end
 
   def test_expire_date
     make_dummy_user do |user, password|
-      old_expire_date = user.sambaKickoffTime
+      old_expire_date = user.samba_kickoff_time
       new_expire_date = Time.now + 60 * 24
 
       unless old_expire_date.nil?
@@ -351,7 +351,7 @@ class AslUserModTest < Test::Unit::TestCase
       assert_asl_usermod_successfully(user.uid, password, *args)
 
       new_user = @user_class.find(user.uid)
-      assert_equal(new_expire_date.to_i.to_s, new_user.sambaKickoffTime)
+      assert_equal(new_expire_date.to_i.to_s, new_user.samba_kickoff_time)
     end
   end
 
@@ -399,7 +399,7 @@ class AslUserModTest < Test::Unit::TestCase
 
   def test_samba_home_path
     make_dummy_user do |user, password|
-      old_samba_home_path = user.sambaHomePath
+      old_samba_home_path = user.samba_home_path
       new_samba_home_path = "//PDC/NEW-HOME"
 
       assert_not_equal(old_samba_home_path, new_samba_home_path)
@@ -408,13 +408,13 @@ class AslUserModTest < Test::Unit::TestCase
       assert_asl_usermod_successfully(user.uid, password, *args)
 
       new_user = @user_class.find(user.uid)
-      assert_equal(new_samba_home_path, new_user.sambaHomePath)
+      assert_equal(new_samba_home_path, new_user.samba_home_path)
     end
   end
 
   def test_samba_home_drive
     make_dummy_user do |user, password|
-      old_samba_home_drive = user.sambaHomeDrive
+      old_samba_home_drive = user.samba_home_drive
       new_samba_home_drive = "X:"
 
       assert_not_equal(old_samba_home_drive, new_samba_home_drive)
@@ -423,13 +423,13 @@ class AslUserModTest < Test::Unit::TestCase
       assert_asl_usermod_successfully(user.uid, password, *args)
 
       new_user = @user_class.find(user.uid)
-      assert_equal(new_samba_home_drive, new_user.sambaHomeDrive)
+      assert_equal(new_samba_home_drive, new_user.samba_home_drive)
     end
   end
 
   def test_samba_logon_script
     make_dummy_user do |user, password|
-      old_samba_logon_script = user.sambaLogonScript
+      old_samba_logon_script = user.samba_logon_script
       new_samba_logon_script = "\\\\PDC\\scripts\\logon-new.bat"
 
       assert_not_equal(old_samba_logon_script, new_samba_logon_script)
@@ -438,13 +438,13 @@ class AslUserModTest < Test::Unit::TestCase
       assert_asl_usermod_successfully(user.uid, password, *args)
 
       new_user = @user_class.find(user.uid)
-      assert_equal(new_samba_logon_script, new_user.sambaLogonScript)
+      assert_equal(new_samba_logon_script, new_user.samba_logon_script)
     end
   end
 
   def test_samba_profile_path
     make_dummy_user do |user, password|
-      old_samba_profile_path = user.sambaProfilePath
+      old_samba_profile_path = user.samba_profile_path
       new_samba_profile_path = "\\\\PDC\\profiles\\new-profile"
 
       assert_not_equal(old_samba_profile_path, new_samba_profile_path)
@@ -453,13 +453,13 @@ class AslUserModTest < Test::Unit::TestCase
       assert_asl_usermod_successfully(user.uid, password, *args)
 
       new_user = @user_class.find(user.uid)
-      assert_equal(new_samba_profile_path, new_user.sambaProfilePath)
+      assert_equal(new_samba_profile_path, new_user.samba_profile_path)
     end
   end
 
   def test_samba_account_flags
     make_dummy_user do |user, password|
-      old_samba_account_flags = user.sambaAcctFlags
+      old_samba_account_flags = user.samba_acct_flags
       new_samba_account_flags = "[UX]"
 
       assert_not_equal(old_samba_account_flags, new_samba_account_flags)
@@ -468,7 +468,7 @@ class AslUserModTest < Test::Unit::TestCase
       assert_asl_usermod_successfully(user.uid, password, *args)
 
       new_user = @user_class.find(user.uid)
-      assert_equal(new_samba_account_flags, new_user.sambaAcctFlags)
+      assert_equal(new_samba_account_flags, new_user.samba_acct_flags)
     end
   end
 

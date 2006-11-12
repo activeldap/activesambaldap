@@ -75,9 +75,9 @@ module ActiveSambaLdap
         group.change_gid_number(gid_number)
         group.change_type(options[:group_type] || "domain")
         group.description = options[:description] || name
-        group.displayName = options[:display_name] || name
+        group.display_name = options[:display_name] || name
         if group.save and pool
-          pool.gidNumber = Integer(group.gidNumber).succ
+          pool.gid_number = Integer(group.gid_number).succ
           pool.save!
         end
         group
@@ -206,7 +206,7 @@ module ActiveSambaLdap
     def change_gid_number(gid, allow_non_unique=false)
       check_unique_gid_number(gid) unless allow_non_unique
       rid = self.class.gid2rid(gid)
-      self.gidNumber = gid.to_s
+      self.gid_number = gid.to_s
       change_sid(rid, allow_non_unique)
     end
 
@@ -217,11 +217,11 @@ module ActiveSambaLdap
     def change_sid(rid, allow_non_unique=false)
       sid = "#{ActiveSambaLdap::Config.sid}-#{rid}"
       # check_unique_sid_number(sid) unless allow_non_unique
-      self.sambaSID = sid
+      self.samba_sid = sid
     end
 
     def rid
-      Integer(sambaSID.split(/-/).last)
+      Integer(samba_sid.split(/-/).last)
     end
 
     def change_type(type)
@@ -233,7 +233,7 @@ module ActiveSambaLdap
       else
         raise ArgumentError, "invalid type: #{type}"
       end
-      self.sambaGroupType = type.to_s
+      self.samba_group_type = type.to_s
     end
 
     def remove_member(member_or_uid)

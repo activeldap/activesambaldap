@@ -102,7 +102,7 @@ class AslUserAddTest < Test::Unit::TestCase
       uid_number = Integer(next_uid_number) + 10
       assert_asl_useradd_successfully(uid, "--uid", uid_number)
       user = @user_class.find(uid)
-      assert_equal(uid_number, user.uidNumber.to_i)
+      assert_equal(uid_number, user.uid_number.to_i)
     end
 
     ensure_delete_computer("test-computer$") do |uid,|
@@ -110,25 +110,25 @@ class AslUserAddTest < Test::Unit::TestCase
       assert_asl_useradd_successfully(uid, "--computer-account",
                                       "--uid", uid_number)
       computer = @computer_class.find(uid)
-      assert_equal(uid_number, computer.uidNumber.to_i)
+      assert_equal(uid_number, computer.uid_number.to_i)
     end
   end
 
   def test_gid_number
     make_dummy_group("test-group") do |group|
-      gid_number = group.gidNumber
+      gid_number = group.gid_number
 
       ensure_delete_user("test-user") do |uid,|
         assert_asl_useradd_successfully(uid, "--gid", gid_number)
         user = @user_class.find(uid)
-        assert_equal(gid_number, user.gidNumber)
+        assert_equal(gid_number, user.gid_number)
       end
 
       ensure_delete_computer("test-computer") do |uid,|
         assert_asl_useradd_successfully(uid, "--computer-account",
                                         "--gid", gid_number)
         computer = @computer_class.find(uid)
-        assert_equal(gid_number, computer.gidNumber)
+        assert_equal(gid_number, computer.gid_number)
       end
     end
   end
@@ -137,9 +137,9 @@ class AslUserAddTest < Test::Unit::TestCase
     make_dummy_group do |group1|
       make_dummy_group do |group2|
         make_dummy_group do |group3|
-          gid_numbers = [group1.gidNumber,
-                         group2.gidNumber,
-                         group3.gidNumber]
+          gid_numbers = [group1.gid_number,
+                         group2.gid_number,
+                         group3.gid_number]
 
           ensure_delete_user("test-user") do |uid,|
             args = ["--groups", gid_numbers.join(",")]
@@ -148,7 +148,7 @@ class AslUserAddTest < Test::Unit::TestCase
             user = @user_class.find(uid)
             primary_group = @group_class.find(:first,
                                               :attribute => "gidNumber",
-                                              :value => user.gidNumber)
+                                              :value => user.gid_number)
             groups = @group_class.find(:all,
                                        :attribute => "memberUid",
                                        :value => uid)
@@ -166,7 +166,7 @@ class AslUserAddTest < Test::Unit::TestCase
             computer = @computer_class.find(uid)
             primary_group = @group_class.find(:first,
                                               :attribute => "gidNumber",
-                                              :value => computer.gidNumber)
+                                              :value => computer.gid_number)
             groups = @group_class.find(:all,
                                        :attribute => "memberUid",
                                        :value => uid)
@@ -191,7 +191,7 @@ class AslUserAddTest < Test::Unit::TestCase
 
         user = @user_class.find(uid)
         group = @group_class.find(gid)
-        assert_equal(group.gidNumber, user.gidNumber)
+        assert_equal(group.gid_number, user.gid_number)
       end
     end
   end
@@ -207,7 +207,7 @@ class AslUserAddTest < Test::Unit::TestCase
 
         computer = @computer_class.find(uid)
         group = @group_class.find(gid)
-        assert_equal(group.gidNumber, computer.gidNumber)
+        assert_equal(group.gid_number, computer.gid_number)
       end
     end
   end
@@ -236,7 +236,7 @@ class AslUserAddTest < Test::Unit::TestCase
       shell = "/bin/zsh"
       assert_asl_useradd_successfully(uid, "--shell", shell)
       user = @user_class.find(uid)
-      assert_equal(shell, user.loginShell)
+      assert_equal(shell, user.login_shell)
     end
   end
 
@@ -246,7 +246,7 @@ class AslUserAddTest < Test::Unit::TestCase
       assert_asl_useradd_successfully(uid, "--computer-account",
                                       "--shell", shell)
       computer = @computer_class.find(uid)
-      assert_equal(shell, computer.loginShell)
+      assert_equal(shell, computer.login_shell)
     end
   end
 
@@ -255,7 +255,7 @@ class AslUserAddTest < Test::Unit::TestCase
       cn = "John Kennedy"
       assert_asl_useradd_successfully(uid, "--canonical-name", cn)
       user = @user_class.find(uid)
-      assert_equal(uid, user.givenName)
+      assert_equal(uid, user.given_name)
       assert_equal(uid, user.surname)
       assert_equal(cn, user.cn)
     end
@@ -267,7 +267,7 @@ class AslUserAddTest < Test::Unit::TestCase
       assert_asl_useradd_successfully(uid, "--computer-account",
                                       "--canonical-name", cn)
       computer = @computer_class.find(uid)
-      assert_equal(uid, computer.givenName)
+      assert_equal(uid, computer.given_name)
       assert_equal(uid, computer.surname)
       assert_equal(cn, computer.cn)
     end
@@ -278,7 +278,7 @@ class AslUserAddTest < Test::Unit::TestCase
       given_name = "John"
       assert_asl_useradd_successfully(uid, "--given-name", given_name)
       user = @user_class.find(uid)
-      assert_equal(given_name, user.givenName)
+      assert_equal(given_name, user.given_name)
       assert_equal(uid, user.cn)
     end
   end
@@ -289,7 +289,7 @@ class AslUserAddTest < Test::Unit::TestCase
       assert_asl_useradd_successfully(uid, "--computer-account",
                                       "--given-name", given_name)
       computer = @computer_class.find(uid)
-      assert_equal(given_name, computer.givenName)
+      assert_equal(given_name, computer.given_name)
       assert_equal(uid, computer.cn)
     end
   end
@@ -323,7 +323,7 @@ class AslUserAddTest < Test::Unit::TestCase
                                       "--given-name", given_name,
                                       "--surname", surname)
       user = @user_class.find(uid)
-      assert_equal(given_name, user.givenName)
+      assert_equal(given_name, user.given_name)
       assert_equal(surname, user.surname)
       assert_equal("#{given_name} #{surname}", user.cn)
     end
@@ -338,7 +338,7 @@ class AslUserAddTest < Test::Unit::TestCase
                                       "--given-name", given_name,
                                       "--surname", surname)
       computer = @computer_class.find(uid)
-      assert_equal(given_name, computer.givenName)
+      assert_equal(given_name, computer.given_name)
       assert_equal(surname, computer.surname)
       assert_equal("#{given_name} #{surname}", computer.cn)
     end
@@ -421,7 +421,7 @@ class AslUserAddTest < Test::Unit::TestCase
       expire_date = Time.now + 60 * 24
       assert_asl_useradd_successfully(uid, "--expire-date", expire_date.iso8601)
       user = @user_class.find(uid)
-      assert_equal(expire_date.to_i.to_s, user.sambaKickoffTime)
+      assert_equal(expire_date.to_i.to_s, user.samba_kickoff_time)
     end
   end
 
@@ -431,7 +431,7 @@ class AslUserAddTest < Test::Unit::TestCase
       assert_asl_useradd_successfully(uid, "--computer-account",
                                       "--expire-date", expire_date.iso8601)
       computer = @computer_class.find(uid)
-      assert_nil(computer.sambaKickoffTime)
+      assert_nil(computer.samba_kickoff_time)
     end
   end
 
@@ -528,7 +528,7 @@ class AslUserAddTest < Test::Unit::TestCase
       home_path = "\\\\ANYWHERE\\here\\%U"
       assert_asl_useradd_successfully(uid, "--samba-home-path", home_path)
       user = @user_class.find(uid)
-      assert_equal(home_path.gsub(/%U/, uid), user.sambaHomePath)
+      assert_equal(home_path.gsub(/%U/, uid), user.samba_home_path)
     end
   end
 
@@ -538,7 +538,7 @@ class AslUserAddTest < Test::Unit::TestCase
       assert_asl_useradd_successfully(uid, "--computer-account",
                                       "--samba-home-path", home_path)
       computer = @computer_class.find(uid)
-      assert_nil(computer.sambaHomePath)
+      assert_nil(computer.samba_home_path)
     end
   end
 
@@ -547,7 +547,7 @@ class AslUserAddTest < Test::Unit::TestCase
       home_drive = "X:"
       assert_asl_useradd_successfully(uid, "--samba-home-drive", home_drive)
       user = @user_class.find(uid)
-      assert_equal(home_drive, user.sambaHomeDrive)
+      assert_equal(home_drive, user.samba_home_drive)
     end
   end
 
@@ -557,7 +557,7 @@ class AslUserAddTest < Test::Unit::TestCase
       assert_asl_useradd_successfully(uid, "--computer-account",
                                       "--samba-home-drive", home_drive)
       computer = @computer_class.find(uid)
-      assert_nil(computer.sambaHomeDrive)
+      assert_nil(computer.samba_home_drive)
     end
   end
 
@@ -566,7 +566,7 @@ class AslUserAddTest < Test::Unit::TestCase
       home_drive = "X"
       assert_asl_useradd_successfully(uid, "--samba-home-drive", home_drive)
       user = @user_class.find(uid)
-      assert_equal("#{home_drive}:", user.sambaHomeDrive)
+      assert_equal("#{home_drive}:", user.samba_home_drive)
     end
   end
 
@@ -576,7 +576,7 @@ class AslUserAddTest < Test::Unit::TestCase
       assert_asl_useradd_successfully(uid, "--computer-account",
                                       "--samba-home-drive", home_drive)
       computer = @computer_class.find(uid)
-      assert_nil(computer.sambaHomeDrive)
+      assert_nil(computer.samba_home_drive)
     end
   end
 
@@ -585,7 +585,7 @@ class AslUserAddTest < Test::Unit::TestCase
       script = "%U-logon.bat"
       assert_asl_useradd_successfully(uid, "--samba-logon-script", script)
       user = @user_class.find(uid)
-      assert_equal(script.gsub(/%U/, uid), user.sambaLogonScript)
+      assert_equal(script.gsub(/%U/, uid), user.samba_logon_script)
     end
   end
 
@@ -595,7 +595,7 @@ class AslUserAddTest < Test::Unit::TestCase
       assert_asl_useradd_successfully(uid, "--computer-account",
                                       "--samba-logon-script", script)
       computer = @computer_class.find(uid)
-      assert_nil(computer.sambaLogonScript)
+      assert_nil(computer.samba_logon_script)
     end
   end
 
@@ -604,7 +604,7 @@ class AslUserAddTest < Test::Unit::TestCase
       profile = "\\\\ANYWHERE\\profiles\\profile-%U"
       assert_asl_useradd_successfully(uid, "--samba-profile-path", profile)
       user = @user_class.find(uid)
-      assert_equal(profile.gsub(/%U/, uid), user.sambaProfilePath)
+      assert_equal(profile.gsub(/%U/, uid), user.samba_profile_path)
     end
   end
 
@@ -614,7 +614,7 @@ class AslUserAddTest < Test::Unit::TestCase
       assert_asl_useradd_successfully(uid, "--computer-account",
                                       "--samba-profile-path", profile)
       computer = @computer_class.find(uid)
-      assert_nil(computer.sambaProfilePath)
+      assert_nil(computer.samba_profile_path)
     end
   end
 
@@ -623,7 +623,7 @@ class AslUserAddTest < Test::Unit::TestCase
       flags = "[UX]"
       assert_asl_useradd_successfully(uid, "--samba-account-flags", flags)
       user = @user_class.find(uid)
-      assert_equal(flags, user.sambaAcctFlags)
+      assert_equal(flags, user.samba_acct_flags)
     end
   end
 
@@ -633,7 +633,7 @@ class AslUserAddTest < Test::Unit::TestCase
       assert_asl_useradd_successfully(uid, "--computer-account",
                                       "--samba-account-flags", flags)
       computer = @computer_class.find(uid)
-      assert_equal(flags, computer.sambaAcctFlags)
+      assert_equal(flags, computer.samba_acct_flags)
     end
   end
 

@@ -43,16 +43,12 @@ module ActiveSambaLdap
     class << self
       def read(path)
         if File.exist?(path)
-          mod = Module.new
-          def mod._binding
-            binding
-          end
-          _binding = mod._binding
-          eval(File.read(path), _binding, path, 0)
-          eval("local_variables", _binding).each do |name|
+          anonymous_binding = Module.new.__send__(:binding)
+          eval(File.read(path), anonymous_binding, path, 0)
+          eval("local_variables", anonymous_binding).each do |name|
             setter = "#{name}="
             if self.respond_to?(setter)
-              self.__send__(setter, eval(name, _binding))
+              self.__send__(setter, eval(name, anonymous_binding))
             end
           end
         end
