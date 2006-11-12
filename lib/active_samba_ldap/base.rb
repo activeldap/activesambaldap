@@ -73,8 +73,6 @@ module ActiveSambaLdap
   end
 
   class Base < ActiveLdap::Base
-    include Reloadable::Subclasses
-
     class << self
       def establish_connection(config={}, reference_only=true)
         Config.init
