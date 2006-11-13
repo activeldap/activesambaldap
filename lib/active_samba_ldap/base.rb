@@ -10,6 +10,14 @@ module ActiveSambaLdap
     end
   end
 
+  class RequiredVariablesAreNotSet < RequiredVariableIsNotSet
+    attr_reader :names
+    def initialize(names)
+      @names = names
+      super("required variables '#{names.join(', ')}' are not set")
+    end
+  end
+
   class UidNumberAlreadyExists < Error
     attr_reader :number
     def initialize(number)
@@ -72,46 +80,25 @@ module ActiveSambaLdap
     end
   end
 
+  class InvalidConfigurationFormatError < Error
+    attr_reader :file, :location, :detail
+    def initialize(file, location, detail)
+      @file = file
+      @location = location
+      @detail = detail
+      super("found invalid configuration format at #{@file}:#{@location}" +
+            ": #{@detail}")
+    end
+  end
+
   class Base < ActiveLdap::Base
     class << self
-      def establish_connection(config={}, reference_only=true)
-        Config.init
-        Config.required_variables :suffix
-        default_config = {:base => Config.suffix}
-        if reference_only
-          Config.required_variables :reference_host, :reference_port
-          default_config[:host] = Config.reference_host
-          default_config[:port] = Config.reference_port
-          default_config[:bind_format] = Config.reference_bind_format
-          default_config[:user] = Config.reference_user
-          default_config[:password] = Config.reference_password
-          default_config[:method] = :tls if Config.reference_use_tls
-          default_config[:allow_anonymous] = Config.reference_allow_anonymous
-        else
-          Config.required_variables :update_host, :update_port
-          default_config[:host] = Config.update_host
-          default_config[:port] = Config.update_port
-          default_config[:bind_format] = Config.update_bind_format
-          default_config[:user] = Config.update_user
-          default_config[:password] = Config.update_password
-          default_config[:method] = :tls if Config.update_use_tls
-          default_config[:allow_anonymous] = Config.update_allow_anonymous
-        end
-        default_config.each do |key, value|
-          default_config.delete(key) if value.nil?
-        end
-        super(default_config.merge(config))
-      end
-
       def restart_nscd
-        if system("/etc/init.d/nscd status >/dev/null 2>&1")
-          system("/etc/init.d/nscd stop >/dev/null 2>&1")
-          begin
-            yield if block_given?
-          ensure
-            system("/etc/init.d/nscd start >/dev/null 2>&1")
-          end
-        end
+        nscd_working = system("/etc/init.d/nscd status >/dev/null 2>&1")
+        system("/etc/init.d/nscd stop >/dev/null 2>&1") if nscd_working
+        yield if block_given?
+      ensure
+        system("/etc/init.d/nscd start >/dev/null 2>&1") if nscd_working
       end
 
       private

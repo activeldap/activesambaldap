@@ -12,7 +12,7 @@ require 'active_samba_ldap'
 module AslTestUtils
   def self.included(base)
     base.class_eval do
-      include Config
+      include Configuration
       include Connection
       include Populate
       include TemporaryEntry
@@ -20,31 +20,45 @@ module AslTestUtils
     end
   end
 
-  module Config
+  module Configuration
     def setup
       super
       @test_dir = File.expand_path(File.dirname(__FILE__))
       @top_dir = File.expand_path(File.join(@test_dir, ".."))
       @parent_dir = File.expand_path(File.join(@top_dir, ".."))
-      @config_file = File.join(@test_dir, "activesambaldap.conf")
-      ActiveSambaLdap::DefaultConfig::FILES << @config_file
+      @config_file = File.join(@test_dir, "config.yml")
+      ActiveSambaLdap::Base.configurations = read_config
     end
 
     def teardown
       super
-      ActiveSambaLdap::DefaultConfig::FILES.reject! {|x| x == @config_file}
+    end
+
+    def reference_configuration
+      ActiveSambaLdap::Base.configurations["reference"]
+    end
+
+    def update_configuration
+      ActiveSambaLdap::Base.configurations["update"]
+    end
+
+    def read_config
+      unless File.exist?(@config_file)
+        raise "config file for testing doesn't exist: #{@config_file}"
+      end
+      ActiveSambaLdap::Configuration.read(@config_file)
     end
   end
 
   module Connection
     def setup
       super
-      ActiveSambaLdap::Base.establish_connection({}, false)
+      ActiveSambaLdap::Base.establish_connection(update_configuration)
     end
 
     def teardown
       super
-      ActiveLdap::Base.clear_active_connections!
+      ActiveSambaLdap::Base.clear_active_connections!
     end
   end
 
@@ -62,7 +76,7 @@ module AslTestUtils
 
     def teardown
       super
-      ActiveSambaLdap::Base.establish_connection({}, false)
+      ActiveSambaLdap::Base.establish_connection(update_configuration)
       ActiveSambaLdap::Base.delete_all(nil, :scope => :sub)
       ActiveSambaLdap::Base.load(@dumped_data)
     end
@@ -100,7 +114,7 @@ module AslTestUtils
       ensure_delete_user(name, home_directory) do
         password = config[:password] || "password"
         uid_number = config[:uid_number] || "100000#{@user_index}"
-        default_user_gid = ActiveSambaLdap::Config.default_user_gid
+        default_user_gid = @user_class.configuration[:default_user_gid]
         gid_number = config[:gid_number] || default_user_gid
         _wrap_assertion do
           assert(!@user_class.exists?(name))
@@ -135,7 +149,8 @@ module AslTestUtils
       ensure_delete_computer(name, home_directory) do |name, home_directory|
         password = config[:password]
         uid_number = config[:uid_number] || "100000#{@computer_index}"
-        default_computer_gid = ActiveSambaLdap::Config.default_computer_gid
+        default_computer_gid =
+          @computer_class.configuration[:default_computer_gid]
         gid_number = config[:gid_number] || default_computer_gid
         _wrap_assertion do
           assert(!@computer_class.exists?(name))
@@ -199,8 +214,8 @@ module AslTestUtils
     def pool
       pool_class = Class.new(ActiveSambaLdap::UnixIdPool)
       pool_class.ldap_mapping
-      ActiveSambaLdap::Config.required_variables :samba_domain
-      pool_class.new(ActiveSambaLdap::Config.samba_domain)
+      pool_class.required_configuration_variables :samba_domain
+      pool_class.new(pool_class.configuration[:samba_domain])
     end
 
     def next_uid_number

@@ -133,7 +133,7 @@ else
   exit 1
 end
 
-ActiveSambaLdap::Base.establish_connection({}, false)
+ActiveSambaLdap::Base.establish_connection("update")
 
 class User < ActiveSambaLdap::User
   ldap_mapping
@@ -153,11 +153,11 @@ unless Process.uid.zero?
   password = ActiveSambaLdap::Command.read_password("Enter your password: ")
 
   auth_class = Class.new(ActiveSambaLdap::Base)
+  config = ActiveSambaLdap::Base.configurations["reference"]
   begin
-    auth_class.establish_connection({:bind_format => user.dn,
-                                      :password => password,
-                                      :allow_anonymous => false},
-                                    true)
+    auth_class.establish_connection(config.merge(:bind_dn => user.dn,
+                                                 :password => password,
+                                                 :allow_anonymous => false))
   rescue ActiveLdap::AuthenticationError
     puts "password isn't match"
     exit 1

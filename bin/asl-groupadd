@@ -31,7 +31,7 @@ unless Process.uid.zero?
   exit 1
 end
 
-ActiveSambaLdap::Base.establish_connection({}, true)
+ActiveSambaLdap::Base.establish_connection("update")
 
 class Group < ActiveSambaLdap::Group
   ldap_mapping

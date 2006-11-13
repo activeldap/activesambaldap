@@ -38,7 +38,7 @@ if !options.update_samba_password and !options.update_unix_password
   exit
 end
 
-ActiveSambaLdap::Base.establish_connection({}, false)
+ActiveSambaLdap::Base.establish_connection("update")
 
 class User < ActiveSambaLdap::User
   ldap_mapping
@@ -55,11 +55,11 @@ unless Process.uid.zero?
   old_password = ActiveSambaLdap::Command.read_password(prompt)
 
   auth_class = Class.new(ActiveSambaLdap::Base)
+  config = ActiveSambaLdap::Base.configurations["reference"].symbolize_keys
   begin
-    auth_class.establish_connection({:bind_format => user.dn,
-                                      :password => old_password,
-                                      :allow_anonymous => false},
-                                    true)
+    auth_class.establish_connection(config.merge(:bind_dn => user.dn,
+                                                 :password => old_password,
+                                                 :allow_anonymous => false))
   rescue ActiveLdap::AuthenticationError
     puts "password isn't match"
     exit 1
@@ -67,6 +67,7 @@ unless Process.uid.zero?
     auth_class.remove_connection
   end
 end
+
 password = ActiveSambaLdap::Command.read_password("New password: ")
 password2 = ActiveSambaLdap::Command.read_password("Retype new password: ")
 

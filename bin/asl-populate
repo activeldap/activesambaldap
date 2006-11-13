@@ -8,8 +8,9 @@ require 'active_samba_ldap'
 require 'active_samba_ldap/command'
 
 argv, opts, options = ActiveSambaLdap::Command.parse_options do |opts, options|
-  options.start_uid = Integer(ActiveSambaLdap::Config.start_uid)
-  options.start_gid = Integer(ActiveSambaLdap::Config.start_gid)
+  default = ActiveSambaLdap::Configuration::ClassMethods::Private.new({})
+  options.start_uid = Integer(default.start_uid)
+  options.start_gid = Integer(default.start_gid)
   options.administrator = ActiveSambaLdap::User::DOMAIN_ADMIN_NAME
   admin_rid = ActiveSambaLdap::User::DOMAIN_ADMIN_RID
   admins_rid = ActiveSambaLdap::Group::DOMAIN_ADMINS_RID
@@ -55,7 +56,7 @@ unless Process.uid.zero?
   exit 1
 end
 
-ActiveSambaLdap::Base.establish_connection({}, false)
+ActiveSambaLdap::Base.establish_connection("update")
 
 entries, opts = ActiveSambaLdap::Base.populate(options.marshal_dump)
 

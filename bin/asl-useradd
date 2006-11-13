@@ -145,7 +145,7 @@ end
 
 def get_value(options, key, default_key=nil)
   value = options.__send__(key)
-  value ||= ActiveSambaLdap::Config[default_key || key]
+  value ||= ActiveSambaLdap::Base.configuration[(default_key || key).to_sym]
   value
 end
 
@@ -153,7 +153,7 @@ def substitute_member(value, member)
   value.gsub(/%U/, member.uid)
 end
 
-ActiveSambaLdap::Base.establish_connection({}, true)
+ActiveSambaLdap::Base.establish_connection("update")
 
 
 class Computer < ActiveSambaLdap::Computer
@@ -207,7 +207,7 @@ class UnixIdPool < ActiveSambaLdap::UnixIdPool
   ldap_mapping
 end
 def make_pool
-  UnixIdPool.find(ActiveSambaLdap::Config[:samba_domain])
+  UnixIdPool.find(UnixIdPool.configuration[:samba_domain])
 end
 pool = nil
 
@@ -248,11 +248,9 @@ else
     end
   else
     if options.computer_account
-      ActiveSambaLdap::Config.required_variables :default_computer_gid
-      gid_number = ActiveSambaLdap::Config.default_computer_gid
+      gid_number = member_class.configuration[:default_computer_gid]
     else
-      ActiveSambaLdap::Config.required_variables :default_user_gid
-      gid_number = ActiveSambaLdap::Config.default_user_gid
+      gid_number = member_class.configuration[:default_user_gid]
     end
   end
 end
@@ -271,8 +269,7 @@ if home_directory.nil?
   if options.computer_account
     home_directory = "/nonexistent"
   else
-    ActiveSambaLdap::Config.required_variables :user_home
-    home_directory = ActiveSambaLdap::Config.user_home
+    home_directory = member_class.configuration[:user_home]
   end
 end
 home_directory = substitute_member(home_directory, member)
@@ -284,8 +281,7 @@ login_shell = options.shell
 if options.computer_account
   login_shell ||= "/bin/false"
 else
-  ActiveSambaLdap::Config.required_variables :user_login_shell
-  login_shell ||= ActiveSambaLdap::Config.user_login_shell
+  login_shell ||= member_class.configuration[:user_login_shell]
 end
 member.login_shell = login_shell
 
@@ -307,7 +303,7 @@ gecos = options.comment
 if options.computer_account
   gecos ||= "Computer"
 else
-  gecos ||= ActiveSambaLdap::Config.user_gecos
+  gecos ||= member_class.configuration[:user_gecos]
 end
 
 if gecos

@@ -5,9 +5,8 @@ module ActiveSambaLdap
     include Account
     class << self
       def ldap_mapping(options={})
-        Config.required_variables :computers_prefix
         default_options = {
-          :prefix => Config.computers_prefix,
+          :prefix => configuration[:computers_prefix],
           :classes => ["top", "inetOrgPerson", "posixAccount",
                        "sambaSamAccount"],
         }

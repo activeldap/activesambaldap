@@ -42,11 +42,10 @@ module Command
       pid = fork do
         $VERBOSE = verbose
         detach_io
-        out = STDERR.dup
-        STDIN.reopen(in_r)
+        $stdin.reopen(in_r)
         in_r.close
-        STDOUT.reopen(out_w)
-        STDERR.reopen(out_w)
+        $stdout.reopen(out_w)
+        $stderr.reopen(out_w)
         out_w.close
         exec(cmd, *args.collect {|arg| arg.to_s})
         exit!(-1)

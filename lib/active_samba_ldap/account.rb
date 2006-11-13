@@ -85,8 +85,7 @@ module ActiveSambaLdap
       end
 
       def start_uid
-        ActiveSambaLdap::Config.required_variables :start_uid
-        Integer(ActiveSambaLdap::Config.start_uid)
+        Integer(configuration[:start_uid])
       end
 
       def start_rid
@@ -184,7 +183,7 @@ module ActiveSambaLdap
     end
 
     def change_sid(rid, allow_non_unique=false)
-      sid = "#{ActiveSambaLdap::Config.sid}-#{rid}"
+      sid = "#{self.class.configuration[:sid]}-#{rid}"
       # check_unique_sid_number(sid) unless allow_non_unique
       self.samba_sid = sid
     end
@@ -273,16 +272,16 @@ module ActiveSambaLdap
     end
 
     def substituted_value(key)
+      config = self.class.configuration
       if block_given?
-        value = ActiveSambaLdap::Config.__send__(key)
+        value = config[key.to_sym]
         if value
           substitute_template(value)
         else
           yield
         end
       else
-        ActiveSambaLdap::Config.required_variables key
-        substitute_template(ActiveSambaLdap::Config.__send__(key))
+        substitute_template(config[key.to_sym])
       end
     end
   end

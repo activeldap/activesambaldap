@@ -19,14 +19,14 @@ class AslPasswdTest < Test::Unit::TestCase
 
       assert_samba_password(user, password)
 
-      assert_change_password_successfully(user.uid,
-                                          password, new_password)
+      assert_change_password_successfully(user.uid, password, new_password)
 
       user.reload
       assert_samba_password(user, new_password)
 
-      assert_change_password_with_wrong_current_password(user.uid,
-                                                         password)
+      assert_change_password_with_wrong_current_password(user.uid, password)
+      user.reload
+      assert_samba_password(user, new_password)
 
       assert_change_password_successfully(user.uid,
                                           new_password, password)

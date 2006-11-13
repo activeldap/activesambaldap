@@ -49,10 +49,9 @@ module ActiveSambaLdap
 
     class << self
       def ldap_mapping(options={})
-        Config.required_variables :groups_prefix
         default_options = {
           :dn_attribute => "cn",
-          :prefix => Config.groups_prefix,
+          :prefix => configuration[:groups_prefix],
           :classes => ["posixGroup", "sambaGroupMapping"],
 
           :members_wrap => "memberUid",
@@ -121,8 +120,7 @@ module ActiveSambaLdap
       end
 
       def start_gid
-        ActiveSambaLdap::Config.required_variables :start_gid
-        Integer(ActiveSambaLdap::Config.start_gid)
+        Integer(configuration[:start_gid])
       end
 
       def start_rid
@@ -175,7 +173,8 @@ module ActiveSambaLdap
         pool = nil
         unless gid_number
           pool_class = options[:pool_class] || Class.new(UnixIdPool)
-          samba_domain = options[:samba_domain] || Config[:samba_domain]
+          samba_domain = options[:samba_domain]
+          samba_domain ||= pool_class.configuration[:samba_domain]
           pool = pool_class.find(samba_domain)
           gid_number = find_available_gid_number(pool)
         end
@@ -213,7 +212,7 @@ module ActiveSambaLdap
     end
 
     def change_sid(rid, allow_non_unique=false)
-      sid = "#{ActiveSambaLdap::Config.sid}-#{rid}"
+      sid = "#{self.class.configuration[:sid]}-#{rid}"
       # check_unique_sid_number(sid) unless allow_non_unique
       self.samba_sid = sid
     end

@@ -41,7 +41,7 @@ class AslGroupAddTest < Test::Unit::TestCase
     ensure_delete_group("test-group") do |cn|
       pool_class = Class.new(ActiveSambaLdap::UnixIdPool)
       pool_class.ldap_mapping
-      pool = pool_class.new(ActiveSambaLdap::Config.samba_domain)
+      pool = pool_class.new(pool_class.configuration[:samba_domain])
       next_gid = @group_class.find_available_gid_number(pool)
       assert_asl_groupadd_successfully(cn, "#{next_gid}\n",
                                        "--print-gid-number")

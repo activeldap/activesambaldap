@@ -1,0 +1,17 @@
+common:
+  sid: S-1-5-21-915876905-2926214379-2876160357
+  user_home: /home/%U
+  user_login_shell: /bin/sh
+
+update:
+  base: dc=test,dc=local,dc=net
+  host: 127.0.0.1
+#  method: :tls
+  bind_dn: cn=admin,dc=local,dc=net
+  password: secret
+
+reference:
+  base: dc=test,dc=local,dc=net
+  host: 127.0.0.1
+#  method: :tls
+  allow_anonymous: true

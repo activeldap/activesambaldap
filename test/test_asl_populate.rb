@@ -21,11 +21,12 @@ class AslPopulateTest < Test::Unit::TestCase
 
     results = ActiveSambaLdap::Base.search
 
-    users_prefix = ActiveSambaLdap::Config.users_prefix
-    groups_prefix = ActiveSambaLdap::Config.groups_prefix
-    computers_prefix = ActiveSambaLdap::Config.computers_prefix
-    idmap_prefix = ActiveSambaLdap::Config.idmap_prefix
-    domain = ActiveSambaLdap::Config.samba_domain
+    config = ActiveSambaLdap::Base.configuration
+    users_prefix = config[:users_prefix]
+    groups_prefix = config[:groups_prefix]
+    computers_prefix = config[:computers_prefix]
+    idmap_prefix = config[:idmap_prefix]
+    domain = config[:samba_domain]
     assert_equal([
                   nil,
                   users_prefix,
