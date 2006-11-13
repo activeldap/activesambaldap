@@ -1,0 +1,37 @@
+# -*- rd -*-
+
+= README.en
+
+$Id$
+
+== Name
+
+ActiveSambaLdap
+
+== What's this?
+
+ActiveSambaLdap is a library and a management tool for Samba
++ LDAP environment.
+
+ActiveSambaLdap provides object-oriented API to manipulate
+LDAP entry for Samba. ActiveSambaLdap also provides
+command-line tools to replace smbldap-tools written by Perl.
+
+
+== Author
+
+Kouhei Sutou <kou@cozmixng.org>
+
+== Licence
+
+Ruby's.
+
+== Mailing list
+
+asl-devel@rubyforge.org
+
+== Usage
+
+...
+
+== Thanks

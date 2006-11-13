@@ -1,0 +1,33 @@
+# -*- rd -*-
+
+= README.ja
+
+$Id$
+
+== 名前
+
+ActiveSambaLdap
+
+== なにこれ？
+
+ActiveSambaLdapはSamba用LDAPエントリを管理するための
+ActiveRecord風なライブラリです．また，smbldap-toolsのような
+管理用コマンドラインツールも提供します．
+
+== 作者
+
+Kouhei Sutou <kou@cozmixng.org>
+
+== ライセンス
+
+Ruby's.
+
+== メーリングリスト
+
+asl-devel@rubyforge.org
+
+== 使用法
+
+...
+
+== 感謝
