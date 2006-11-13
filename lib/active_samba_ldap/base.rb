@@ -93,6 +93,10 @@ module ActiveSambaLdap
 
   class Base < ActiveLdap::Base
     class << self
+      def reloadable?
+        false
+      end
+
       def restart_nscd
         nscd_working = system("/etc/init.d/nscd status >/dev/null 2>&1")
         system("/etc/init.d/nscd stop >/dev/null 2>&1") if nscd_working

@@ -230,6 +230,14 @@ module ActiveSambaLdap
           netbios_name ? "\\\\#{netbios_name}\\profiles\\%U" : nil
         end
 
+        def user_home
+          "/home/%U"
+        end
+
+        def user_login_shell
+          "/nonexistent"
+        end
+
         def user_home_drive
           "H:"
         end
