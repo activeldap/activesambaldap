@@ -82,7 +82,7 @@ module ActiveSambaLdap
             suffixes << suffix
             if ignore_base
               container_class.ldap_mapping :prefix => "", :scope => :base
-              container_class.instance_variable_set("@base", prefix)
+              container_class.base = prefix
             else
               container_class.ldap_mapping :prefix => prefix, :scope => :base
             end

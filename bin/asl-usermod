@@ -295,7 +295,7 @@ if options.new_user_name
     %w(dn cn uid).include?(key)
   end
   new_user.save!
-  user.groups(true).each do |group|
+  user.groups.each do |group|
     group.users -= [user]
     group.users << new_user
   end
