@@ -22,7 +22,32 @@ class AslUserDelTest < Test::Unit::TestCase
     make_dummy_user do |user, password|
       assert(File.exist?(user.home_directory))
       assert_equal([true, ""], run_command(user.uid))
+      assert(!@user_class.exists?(user.uid))
       assert(File.exist?(user.home_directory))
+    end
+  end
+
+  def test_exist_computer
+    make_dummy_computer do |computer, password|
+      assert(@computer_class.exists?(computer.uid))
+      assert_equal([true, ""], run_command(computer.uid, '--computer-account'))
+      assert(!@computer_class.exists?(computer.uid))
+    end
+  end
+
+  def test_user_as_computer
+    make_dummy_user do |user, password|
+      assert_equal([false, "computer '#{user.uid}$' doesn't exist.\n"],
+                   run_command(user.uid, "--computer-account"))
+      assert(@user_class.exists?(user.uid))
+    end
+  end
+
+  def test_computer_as_user
+    make_dummy_computer do |computer, password|
+      assert_equal([false, "user '#{computer.uid}' doesn't exist.\n"],
+                   run_command(computer.uid))
+      assert(@computer_class.exists?(computer.uid))
     end
   end
 

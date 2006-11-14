@@ -384,7 +384,7 @@ if options.setup_home_directory
                      [File.join(skel, "."), File.join(skel, "..")],
                      dest)
       FileUtils.chown_R(member.uid_number, member.gid_number, dest)
-    rescue SystemCallerror
+    rescue SystemCallError
       puts $!
       exit 1
     end

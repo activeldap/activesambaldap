@@ -59,7 +59,7 @@ argv, opts, options = ActiveSambaLdap::Command.parse_options do |opts, options|
           "supplementary groups (comma separated)") do |groups|
     options.supplementary_groups = groups
   end
-  opts.on("--no-merge-groups",
+  opts.on("--[no-]merge-groups",
           "replace supplementary groups " +
           "(#{!options.merge_groups})") {|options.merge_groups|}
   opts.on("-s", "--shell=SHELL", "shell") {|options.shell|}
