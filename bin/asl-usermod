@@ -7,6 +7,7 @@ require 'active_samba_ldap'
 require 'active_samba_ldap/command'
 
 argv, opts, options = ActiveSambaLdap::Command.parse_options do |opts, options|
+  options.computer_account = false
   options.gecos = nil
   options.home_directory = nil
   options.move_home_directory = false
@@ -36,6 +37,11 @@ argv, opts, options = ActiveSambaLdap::Command.parse_options do |opts, options|
 
 
   opts.banner += " USER_NAME"
+
+  opts.on("-c", "--[no-]computer-account",
+          "is a Windows Workstation",
+          "(otherwise, Windows user)",
+          "(#{options.computer_account})") {|options.computer_account|}
 
   opts.on("--gecos=GECOS", "gecos") {|options.gecos|}
   opts.on("-d", "--home-directory=HOME_DIR",
@@ -139,15 +145,28 @@ class User < ActiveSambaLdap::User
   ldap_mapping
 end
 
+class Computer < ActiveSambaLdap::Computer
+  ldap_mapping
+end
+
 class Group < ActiveSambaLdap::Group
   ldap_mapping
 end
 
-unless User.exists?(name)
-  puts "user '#{name}' doesn't exist."
+options.computer_account = true if /\$$/ =~ name
+
+member_class = options.computer_account ? Computer : User
+member_type = member_class.name.downcase
+
+if options.computer_account
+  name = name.chomp("$") + "$"
+end
+
+unless member_class.exists?(name)
+  puts "#{member_type} '#{name}' doesn't exist."
   exit 1
 end
-user = User.find(name)
+member = member_class.find(name)
 
 unless Process.uid.zero?
   password = ActiveSambaLdap::Command.read_password("Enter your password: ")
@@ -155,7 +174,7 @@ unless Process.uid.zero?
   auth_class = Class.new(ActiveSambaLdap::Base)
   config = ActiveSambaLdap::Base.configurations["reference"]
   begin
-    auth_class.establish_connection(config.merge(:bind_dn => user.dn,
+    auth_class.establish_connection(config.merge(:bind_dn => member.dn,
                                                  :password => password,
                                                  :allow_anonymous => false))
   rescue ActiveLdap::AuthenticationError
@@ -168,7 +187,7 @@ end
 
 if options.uid
   begin
-    user.change_uid_number(options.uid, options.allow_non_unique_uid_number)
+    member.change_uid_number(options.uid, options.allow_non_unique_uid_number)
   rescue ActiveSambaLdap::UidNumberAlreadyExists
     puts $!.message
     exit 1
@@ -177,7 +196,7 @@ end
 
 if options.gid
   begin
-    user.primary_group = Group.find_by_name_or_gid_number(options.gid)
+    member.primary_group = Group.find_by_name_or_gid_number(options.gid)
   rescue ActiveSambaLdap::Error
     puts $!.message
     exit 1
@@ -185,32 +204,32 @@ if options.gid
 end
 
 if options.shell
-  user.login_shell = options.shell
+  member.login_shell = options.shell
 end
 
 if options.gecos
-  user.gecos = options.gecos
-  user.description = options.gecos
-  user.display_name = options.gecos
+  member.gecos = options.gecos
+  member.description = options.gecos
+  member.display_name = options.gecos
 end
 
 if options.home_directory
   if options.move_home_directory and !File.exist?(options.home_directory)
-    FileUtils.mv(user.home_directory, options.home_directory)
+    FileUtils.mv(member.home_directory, options.home_directory)
   end
-  user.home_directory = options.home_directory
+  member.home_directory = options.home_directory
 end
 
 if options.canonical_name
-  user.cn = options.canonical_name
+  member.cn = options.canonical_name
 end
 
 if options.surname
-  user.sn = options.surname
+  member.sn = options.surname
 end
 
 if options.given_name
-  user.given_name = options.given_name
+  member.given_name = options.given_name
 end
 
 if options.mail_addresses
@@ -222,8 +241,8 @@ if options.mail_to_addresses
 end
 
 if options.supplementary_groups
-  user.groups = [] unless options.merge_groups
-  user.groups = options.supplementary_groups.collect do |group|
+  member.groups = [] unless options.merge_groups
+  member.groups = options.supplementary_groups.collect do |group|
     begin
       Group.find_by_name_or_gid_number(group)
     rescue ActiveSambaLdap::GidNumberDoesNotExist
@@ -234,73 +253,81 @@ if options.supplementary_groups
 end
 
 if options.expire_date
-  user.samba_kickoff_time = options.expire_date.to_i.to_s
+  member.samba_kickoff_time = options.expire_date.to_i.to_s
 end
 
 if options.samba_account_flags
-  user.samba_acct_flags = options.samba_account_flags
+  member.samba_acct_flags = options.samba_account_flags
 end
 
 unless options.can_change_password.nil?
   if options.can_change_password
-    user.enable_password_change
+    member.enable_password_change
   else
-    user.disable_password_change
+    member.disable_password_change
   end
 end
 
 unless options.must_change_password.nil?
   if options.must_change_password
-    user.enable_forcing_password_change
+    member.enable_forcing_password_change
   else
-    user.disable_forcing_password_change
+    member.disable_forcing_password_change
   end
 end
 
 if options.samba_home_path
-  user.samba_home_path = options.samba_home_path
+  member.samba_home_path = options.samba_home_path
 end
 
 if options.samba_home_drive
-  user.samba_home_drive = options.samba_home_drive.sub(/([^:])$/, "\\1:")
+  member.samba_home_drive = options.samba_home_drive.sub(/([^:])$/, "\\1:")
 end
 
 if options.samba_logon_script
-  user.samba_logon_script = options.samba_logon_script
+  member.samba_logon_script = options.samba_logon_script
 end
 
 if options.samba_profile_path
-  user.samba_profile_path = options.samba_profile_path
+  member.samba_profile_path = options.samba_profile_path
 end
 
 unless options.enable.nil?
   if options.enable
-    user.enable
+    member.enable
   else
-    user.disable
+    member.disable
   end
 end
 
-user.save!
+member.save!
 
 if options.new_user_name
-  if User.exists?(options.new_user_name)
-    puts "user '#{options.new_user_name}' always exists."
+  if options.computer_account
+    options.new_user_name = options.new_user_name.chomp("$") + "$"
+  end
+  if member_class.exists?(options.new_user_name)
+    puts "#{member_type} '#{options.new_user_name}' always exists."
     exit 1
   end
-  new_user = User.new(options.new_user_name)
+  new_member = member_class.new(options.new_user_name)
 
-  new_user.cn = options.new_user_name
-  new_user.attributes = user.attributes.reject do |key, value|
+  new_member.cn = options.new_user_name
+  new_member.attributes = member.attributes.reject do |key, value|
     %w(dn cn uid).include?(key)
   end
-  new_user.save!
-  user.groups.each do |group|
-    group.users -= [user]
-    group.users << new_user
+  new_member.save!
+  member.groups.each do |group|
+    if options.computer_account
+      group.computers -= [member]
+      group.computers << new_member
+    else
+      group.users -= [member]
+      group.users << new_member
+    end
   end
 
-  user.destroy
+  member.destroy
 end
 
 ActiveSambaLdap::Base.restart_nscd
