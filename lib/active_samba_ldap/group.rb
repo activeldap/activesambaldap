@@ -2,6 +2,8 @@ require 'English'
 
 module ActiveSambaLdap
   class Group < Base
+    extend Unreloadable
+
     # from source/include/rpc_misc.c in Samba
     DOMAIN_ADMINS_RID = 0x00000200
     DOMAIN_USERS_RID = 0x00000201

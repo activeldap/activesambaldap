@@ -7,6 +7,7 @@ module ActiveSambaLdap
     def self.included(base)
       super
       base.extend(ClassMethods)
+      base.extend(Unreloadable)
     end
 
     # from source/include/rpc_misc.c in Samba

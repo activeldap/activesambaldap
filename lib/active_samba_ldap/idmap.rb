@@ -1,5 +1,7 @@
 module ActiveSambaLdap
   class Idmap < Base
+    extend Unreloadable
+
     class << self
       def ldap_mapping(options={})
         default_options = {
