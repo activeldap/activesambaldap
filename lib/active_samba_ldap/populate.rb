@@ -211,11 +211,17 @@ module ActiveSambaLdap
 
         def make_pool
           config = @base.configuration
-          pool = @options[:unix_id_pool_class].new(config[:samba_domain])
-          pool.samba_sid = config[:sid]
-          pool.uid_number = @options[:start_uid]
-          pool.gid_number = @options[:start_gid]
-          pool.save!
+          klass = @options[:unix_id_pool_class]
+          name = config[:samba_domain]
+          if klass.exists?(name)
+            pool = klass.find(name)
+          else
+            pool = klass.new(name)
+            pool.samba_sid = config[:sid]
+            pool.uid_number = @options[:start_uid]
+            pool.gid_number = @options[:start_gid]
+            pool.save!
+          end
           [pool]
         end
       end
