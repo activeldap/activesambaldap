@@ -9,6 +9,10 @@ module ActiveSambaLdap
         Private.new(self, options).populate
       end
 
+      def purge(options={})
+        self.delete_all(nil, {:scope => :sub}.merge(options))
+      end
+
       class Private
         def initialize(base, options)
           @base = base

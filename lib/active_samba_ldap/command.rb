@@ -14,7 +14,10 @@ module ActiveSambaLdap
         opts.separator ""
         opts.separator "Common options:"
 
-        opts.on_tail("--config=CONFIG", "Specify configuration file") do |file|
+        opts.on_tail("--config=CONFIG",
+                     "Specify configuration file",
+                     "Default configuration files:",
+                     *configuration_files.collect {|x| "  #{x}"}) do |file|
           configuration_files << file
         end
 

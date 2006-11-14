@@ -70,14 +70,14 @@ module AslTestUtils
         @dumped_data = ActiveSambaLdap::Base.dump(:scope => :sub)
       rescue ActiveLdap::ConnectionError
       end
-      ActiveSambaLdap::Base.delete_all(nil, :scope => :sub)
+      ActiveSambaLdap::Base.purge
       ActiveSambaLdap::Base.populate
     end
 
     def teardown
       super
       ActiveSambaLdap::Base.establish_connection(update_configuration)
-      ActiveSambaLdap::Base.delete_all(nil, :scope => :sub)
+      ActiveSambaLdap::Base.purge
       ActiveSambaLdap::Base.load(@dumped_data)
     end
   end

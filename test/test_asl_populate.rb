@@ -14,7 +14,7 @@ class AslPopulateTest < Test::Unit::TestCase
   end
 
   def test_populate
-    ActiveSambaLdap::Base.delete_all(nil, :scope => :sub)
+    ActiveSambaLdap::Base.purge
     assert_equal([], ActiveSambaLdap::Base.search)
     assert_asl_populate_successfully("Administrator")
     base = ActiveSambaLdap::Base.base
@@ -54,7 +54,7 @@ class AslPopulateTest < Test::Unit::TestCase
   end
 
   def test_wrong_password
-    ActiveSambaLdap::Base.delete_all(nil, :scope => :sub)
+    ActiveSambaLdap::Base.purge
     assert_asl_populate_miss_match_password
   end
 

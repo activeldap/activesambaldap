@@ -7,6 +7,6 @@ class SambaController < ApplicationController
   end
 
   def purge
-    ActiveSambaLdap::Base.delete_all(nil, :scope => :sub)
+    ActiveSambaLdap::Base.purge
   end
 end
