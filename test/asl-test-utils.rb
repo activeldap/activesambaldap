@@ -26,7 +26,7 @@ module AslTestUtils
       @test_dir = File.expand_path(File.dirname(__FILE__))
       @top_dir = File.expand_path(File.join(@test_dir, ".."))
       @parent_dir = File.expand_path(File.join(@top_dir, ".."))
-      @config_file = File.join(@test_dir, "config.yml")
+      @config_file = File.join(@test_dir, "config.yaml")
       ActiveSambaLdap::Base.configurations = read_config
     end
 
