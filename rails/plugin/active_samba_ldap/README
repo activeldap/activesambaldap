@@ -10,6 +10,7 @@ You need to write RAILS_ROOT/config/ldap.yml like the following:
     base: dc=devel,dc=local,dc=net
     bind_dn: cn=admin,dc=local,dc=net
     password: secret
+    sid: S-1-5-21-915876905-2926214379-2876160357
 
   test:
     host: 127.0.0.1
@@ -17,10 +18,13 @@ You need to write RAILS_ROOT/config/ldap.yml like the following:
     base: dc=test,dc=local,dc=net
     bind_dn: cn=admin,dc=local,dc=net
     password: secret
+    sid: S-1-5-21-915876905-2926214379-2876160357
 
   production:
     host: 127.0.0.1
     port: 389
+    method: :tls
     base: dc=production,dc=local,dc=net
     bind_dn: cn=admin,dc=local,dc=net
     password: secret
+    sid: S-1-5-21-915876905-2926214379-2876160357

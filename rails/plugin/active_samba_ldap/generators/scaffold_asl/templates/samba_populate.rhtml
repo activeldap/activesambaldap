@@ -1,0 +1,15 @@
+<html>
+  <head>
+    <title><%= controller_class_name %>: <%%= controller.action_name %></title>
+  </head>
+  <body>
+    <h1>Samba + LDAP Management</h1>
+    <p>Populated.</p>
+    <ul>
+    <%% @entries.each do |entry| %>
+      <li><%%= h entry.dn %></li>
+    <%% end %>
+    </ul>
+    <%%= link_to "Back", :action => nil %>
+  </body>
+</html>
