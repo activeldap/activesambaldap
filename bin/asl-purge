@@ -1,0 +1,24 @@
+#!/usr/bin/env ruby
+
+require 'fileutils'
+require 'etc'
+require 'time'
+
+require 'active_samba_ldap'
+require 'active_samba_ldap/command'
+
+argv, opts, options = ActiveSambaLdap::Command.parse_options do |opts, options|
+end
+
+unless Process.uid.zero?
+  puts "need root authority."
+  exit 1
+end
+
+ActiveSambaLdap::Base.establish_connection("update")
+
+ActiveSambaLdap::Base.purge
+
+ActiveSambaLdap::Base.restart_nscd
+
+ActiveSambaLdap::Base.clear_active_connections!
