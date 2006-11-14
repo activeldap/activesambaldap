@@ -14,7 +14,8 @@ eval('require_gem_if_need.call("hoe")', _binding)
 
 manifest = File.join(base_dir, "Manifest.txt")
 manifest_contents = []
-excluded_components = %w(.svn .test-result .config Manifest.txt config.yml doc)
+excluded_components = %w(.svn .test-result .config Manifest.txt config.yml doc
+                         pkg setup.rb post-setup.rb)
 excluded_suffixes = %w(.help)
 Find.find(base_dir) do |target|
   target = truncate_base_dir[target]
@@ -26,6 +27,9 @@ end
 
 File.open(manifest, "w") do |f|
   f.puts manifest_contents.sort.join("\n")
+end
+at_exit do
+  FileUtils.rm_f(manifest)
 end
 
 def cleanup_white_space(entry)
