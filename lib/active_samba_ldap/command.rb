@@ -45,14 +45,24 @@ module ActiveSambaLdap
     end
 
     def default_configuration_files
-      files = [
-        "/etc/activesambaldap/config.rb",
-        "/etc/activesambaldap/bind.rb",
-      ]
+      configuration_files = File.join(File.dirname(__FILE__),
+                                      "configuration_files")
+      if File.exists?(configuration_files)
+        files = File.readlines(configuration_files).collect do |line|
+          line.strip
+        end.reject do |line|
+          line.empty? or /^#/ =~ line
+        end
+      else
+        files = [
+          "/etc/activesambaldap/config.yaml",
+          "/etc/activesambaldap/bind.yaml",
+        ]
+      end
       begin
         configuration_files_for_user = [
-          File.expand_path("~/.activesambaldap.conf"),
-          File.expand_path("~/.activesambaldap.bind")
+          File.expand_path(File.join("~", ".activesambaldap.conf")),
+          File.expand_path(File.join("~", ".activesambaldap.bind")),
         ]
         files.concat(configuration_files_for_user)
       rescue ArgumentError
