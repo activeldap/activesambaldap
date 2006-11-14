@@ -26,8 +26,222 @@ Ruby's.
 
 asl-devel-ja@rubyforge.org
 
+== リファレンスマニュアル
+
+((<URL:http://asl.rubyforge.org>))
+
+== 依存ライブラリ
+
+  * ActiveLdap >= 0.8.0: 未リリース
+
 == 使用法
 
-...
+=== Railsと使う
+
+まず，Rails用プラグインをインストールします．以下のURLは
+trunk用ですので，環境にあわせて変更してください．
+
+  % script/plugin install svn://rubyforge.org/var/svn/asl/trunk/rails/plugin/active_samba_ldap
+
+次に，Rails用ActiveSambaLdap環境を構築します．
+
+  % script/generate scaffold_asl
+
+config/ldap.ymlが生成されるので，環境にあわせて編集します．
+指定できるオプションは，以下の「設定ファイルのオプション」の
+項を参考にしてください．
+
+はじめに，Samba + LDAP環境を初期化する必要があります．
+script/serverなどでRailsを起動し，
+http://localhost:3000/sambaにアクセスしてください．
+「Populate Samba + LDAP environment」というリンクがあるので，
+それを使ってSamba + LDAP環境を初期化します．
+
+あとは，ActiveRecordを利用した開発と同じように，
+User/Computer/Groupクラスなどを使用して開発してください．
+
+=== コマンドラインから使う
+
+asl-*というコマンドを使います．
+
+==== 設定
+
+まず，あなたの環境にあわせて設定ファイルを編集します．デフォ
+ルトで読み込まれるファイルは--helpオプションをつけて起動する
+と確認できます．asl-*のどのコマンドでも表示されます．例えば，
+asl-populateを使うとこうなります．
+
+  % asl-populate --help
+  ...
+        --config=CONFIG              Specify configuration file
+                                     Default configuration files:
+                                       /etc/activesambaldap/config.yaml
+                                       /etc/activesambaldap/bind.yaml
+                                       /home/kou/.activesambaldap.conf
+                                       /home/kou/.activesambaldap.bind
+  ...
+
+設定ファイルは上から順に読み込まれていきます．設定内容は後の
+ファイルで上書きされます．上記の例だと，以下の順序で読み込ま
+れていきます．
+
+  * /etc/activesambaldap/config.yaml
+  * /etc/activesambaldap/bind.yaml
+  * /home/kou/.activesambaldap.conf
+  * /home/kou/.activesambaldap.bind
+
+config.yamlや*.confの後にbind.yamlや*.bindを読み込んでいるの
+はセキュリティ上の配慮です．ホスト名などの見られてもよい情報
+はconfig.yamlや*.confに書き，認証情報など見られてはまずい情
+報はbind.yamlや*.bindに書き，適切なパーミッションを設定する
+とよいでしょう．
+
+==== 設定ファイルの書式
+
+YAMLで記述します．三つのセクションからなります．
+
+  update:
+    # LDAPエントリを更新する時の設定
+    ...
+
+  reference:
+    # LDAPエントリを参照する時の設定
+    ...
+
+  common:
+    # 更新時／参照時で共有の設定
+    ...
+
+例えば，以下のようになります．
+
+  common:
+    sid: S-1-5-21-915876905-2926214379-2876160357
+    base: dc=samba,dc=local,dc=net
+    host: localhost
+    method: :tls
+
+  update:
+    bind_dn: cn=admin,dc=local,dc=net
+    password: admin
+
+  reference:
+    allow_anonymous: true
+
+passwordはbind.yamlや*.bindに記述するとよいでしょう．
+
+baseは必ず設定してください．また，sidも設定しておくとよいで
+しょう．sidの値は以下のコマンドで確認できます．
+
+  % sudo net getlocalsid
+
+sidを設定しておかないと，毎回net getlocalsidをするため，効率
+が悪くなります．
+
+==== 設定ファイルのオプション
+
+設定可能なオプションは以下の通りです．
+
+FIXME
+
+: base
+   ActiveLdap::Base.establish_connectionのオプションと同じ．
+: host
+   ActiveLdap::Base.establish_connectionのオプションと同じ．
+: port
+   ActiveLdap::Base.establish_connectionのオプションと同じ．
+: scope
+   ActiveLdap::Base.establish_connectionのオプションと同じ．
+: bind_dn
+   ActiveLdap::Base.establish_connectionのオプションと同じ．
+: password
+   ActiveLdap::Base.establish_connectionのオプションと同じ．
+: method
+   ActiveLdap::Base.establish_connectionのオプションと同じ．
+: allow_anonymous
+   ActiveLdap::Base.establish_connectionのオプションと同じ．
+
+: sid
+   SambaサーバのSID(Security Identifier)．
+: smb_conf
+   Sambaの設定ファイルsmb.confがあるパス．
+: samba_domain
+   Sambaサーバのドメイン
+: samba_netbios_name
+   SambaサーバのNetBIOS名
+: hash_encrypt
+
+: users_prefix
+: groups_prefix
+: computers_prefix
+: idmap_prefix
+
+: start_uid start_gid
+
+: user_login_shell
+: user_home
+: user_home_directory_mode
+
+: user_gecos
+: user_samba_home
+: user_profile
+: user_home_drive
+: user_script
+
+: mail_domain
+
+: skeleton_directory
+
+: default_user_gid
+: default_computer_gid
+: default_max_password_age
+
+==== 初期化
+
+asl-*を用いてSamba + LDAP環境を管理する前に，一度だけ
+asl-populateを起動してLDAPサーバに基本的なエントリを追加しま
+す．
+
+  % sudo asl-populate
+
+もし，root権限が無くても実行できるのであれば以下のようにする
+とよいでしょう((-root権限チェックは必要ないかもしれない-))．
+
+  % fakeroot asl-populate
+
+==== 管理
+
+後はasl-*を使って管理してください．各コマンドの使いかたは--
+helpオプションを参考にしてください．
+
+==== smb.confの設定
+
+設定例．FIXME
+
+  passdb backend = ldapsam:ldap://127.0.0.0
+  ldap admin dn = cn=admin,dc=local,dc=net
+  ldap suffix = dc=samba,dc=local,dc=net
+  ldap user suffix = ou=Users
+  ldap group suffix = ou=Groups
+  ldap machine suffix = ou=Computers
+  ldap idmap suffix = ou=Idmap
+  ldap passwd sync = no
+
+  admin users = "@Domain Admins"
+  add user script = /etc/asl/asl-useradd "%u" --no-windows-account
+  delete user script = /etc/asl/asl-userdel "%u" --remove-home-directory
+  add group script = /etc/asl/asl-groupadd "%g"
+  delete group script = /etc/asl/asl-groupdel "%g"
+  add user to group script = /etc/asl/asl-groupmod "%g" --add-members "%u"
+  delete user from group script = /etc/asl/asl-groupmod "%g" --delete-members "%u"
+  set primary group script = /etc/asl/asl-usermod "%u" --gid "%g"
+  add machine script = /etc/asl/asl-useradd "%u" --computer-account --no-setup-home-directory
+
+Sambaを起動する前に，以下を実行してldap admin dnで指定した
+LDAP管理ユーザのパスワードを設定しておく必要があります．
+
+  % sudo /usr/bin/smbpasswd -W
+
+== トラブルシューティング
+
 
 == 感謝
