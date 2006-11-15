@@ -34,6 +34,7 @@ module Command
     end
     in_r, in_w = IO.pipe
     out_r, out_w = IO.pipe
+    err_r, err_w = IO.pipe
     pid = exit_status = nil
     Thread.exclusive do
       verbose = $VERBOSE
@@ -45,8 +46,9 @@ module Command
         $stdin.reopen(in_r)
         in_r.close
         $stdout.reopen(out_w)
-        $stderr.reopen(out_w)
+        $stderr.reopen(err_w)
         out_w.close
+        err_w.close
         exec(cmd, *args.collect {|arg| arg.to_s})
         exit!(-1)
       end
@@ -55,7 +57,8 @@ module Command
     yield(out_r, in_w) if block_given?
     in_r.close unless in_r.closed?
     out_w.close unless out_w.closed?
+    err_w.close unless err_w.closed?
     pid, status = Process.waitpid2(pid)
-    [status.exited? && status.exitstatus.zero?, out_r.read]
+    [status.exited? && status.exitstatus.zero?, out_r.read, err_r.read]
   end
 end

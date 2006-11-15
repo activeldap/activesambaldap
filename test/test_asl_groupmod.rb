@@ -9,7 +9,7 @@ class AslGroupModTest < Test::Unit::TestCase
   end
 
   def test_not_exist_group
-    assert_equal([false, "group 'not-exist' doesn't exist.\n"],
+    assert_equal([false, "", "group 'not-exist' doesn't exist.\n"],
                  run_command("not-exist"))
   end
 
@@ -246,11 +246,11 @@ class AslGroupModTest < Test::Unit::TestCase
   private
   def assert_asl_groupmod_successfully(name, *args)
     args << name
-    assert_equal([true, ""], run_command(*args))
+    assert_equal([true, "", ""], run_command(*args))
   end
 
   def assert_asl_groupmod_failed(name, message, *args)
     args << name
-    assert_equal([false, message], run_command(*args))
+    assert_equal([false, "", message], run_command(*args))
   end
 end

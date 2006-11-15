@@ -10,12 +10,12 @@ class AslGroupShowTest < Test::Unit::TestCase
 
   def test_exist_group
     make_dummy_group do |group|
-      assert_equal([true, group.to_ldif], run_command(group.cn))
+      assert_equal([true, group.to_ldif, ""], run_command(group.cn))
     end
   end
 
   def test_not_exist_group
-    assert_equal([false, "group 'not-exist' doesn't exist.\n"],
+    assert_equal([false, "", "group 'not-exist' doesn't exist.\n"],
                  run_command("not-exist"))
   end
 end

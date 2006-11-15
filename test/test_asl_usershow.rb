@@ -13,7 +13,7 @@ class AslUserShowTest < Test::Unit::TestCase
       user.class.establish_connection("reference")
       begin
         user = user.class.find(user.uid)
-        assert_equal([true, user.to_ldif], run_command(user.uid))
+        assert_equal([true, user.to_ldif, ""], run_command(user.uid))
       ensure
         user.class.establish_connection("update")
       end
@@ -21,7 +21,7 @@ class AslUserShowTest < Test::Unit::TestCase
   end
 
   def test_not_exist_user
-    assert_equal([false, "user 'not-exist' doesn't exist.\n"],
+    assert_equal([false, "", "user 'not-exist' doesn't exist.\n"],
                  run_command("not-exist"))
   end
 end

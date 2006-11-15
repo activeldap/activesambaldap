@@ -9,9 +9,9 @@ class AslUserAddTest < Test::Unit::TestCase
   end
 
   def test_run_as_normal_user
-    assert_equal([false, "need root authority.\n"],
+    assert_equal([false, "", "need root authority.\n"],
                  run_asl_useradd_as_normal_user("user-name"))
-    assert_equal([false, "need root authority.\n"],
+    assert_equal([false, "", "need root authority.\n"],
                  run_asl_useradd_as_normal_user("computer-name$",
                                                 "--computer-account"))
   end
@@ -19,7 +19,7 @@ class AslUserAddTest < Test::Unit::TestCase
   def test_exist_user
     make_dummy_user do |user, password|
       assert(@user_class.exists?(user.uid))
-      assert_equal([false, "user '#{user.uid}' already exists.\n"],
+      assert_equal([false, "", "user '#{user.uid}' already exists.\n"],
                    run_asl_useradd(user.uid))
       assert(@user_class.exists?(user.uid))
     end
@@ -29,7 +29,7 @@ class AslUserAddTest < Test::Unit::TestCase
     make_dummy_computer do |computer, password|
       uid = computer.uid
       assert(@computer_class.exists?(uid))
-      assert_equal([false, "computer '#{uid}' already exists.\n"],
+      assert_equal([false, "", "computer '#{uid}' already exists.\n"],
                    run_asl_useradd(uid, "--computer-account"))
       assert(@computer_class.exists?(uid))
     end
@@ -62,7 +62,7 @@ class AslUserAddTest < Test::Unit::TestCase
         user_class.ldap_mapping :prefix => "ou=#{ou},#{@user_class.prefix}"
 
         assert(!user_class.exists?(uid))
-        assert_equal([true, ""], run_asl_useradd(uid, "--ou", ou))
+        assert_equal([true, "", ""], run_asl_useradd(uid, "--ou", ou))
         assert(user_class.exists?(uid))
 
         user = user_class.find(uid)
@@ -85,8 +85,8 @@ class AslUserAddTest < Test::Unit::TestCase
                                     "ou=#{ou},#{@computer_class.prefix}"
 
         assert(!computer_class.exists?(uid))
-        assert_equal([true, ""], run_asl_useradd(uid, "--computer-account",
-                                                 "--ou", ou))
+        assert_equal([true, "", ""], run_asl_useradd(uid, "--computer-account",
+                                                     "--ou", ou))
         assert(computer_class.exists?(uid))
 
         computer = computer_class.find(uid)
@@ -669,7 +669,7 @@ class AslUserAddTest < Test::Unit::TestCase
       end
       assert(!member_class.exists?(name))
       args << name
-      assert_equal([true, ""], run_asl_useradd(*args))
+      assert_equal([true, "", ""], run_asl_useradd(*args))
       assert(member_class.exists?(name))
     end
   end
@@ -684,7 +684,7 @@ class AslUserAddTest < Test::Unit::TestCase
       end
       assert(!member_class.exists?(name))
       args << name
-      assert_equal([false, message], run_asl_useradd(*args))
+      assert_equal([false, "", message], run_asl_useradd(*args))
       assert(!member_class.exists?(name))
     end
   end

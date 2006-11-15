@@ -54,7 +54,7 @@ create_options = {
 group = Group.create(name, create_options)
 
 if options.print_gid_number
-  $stderr.puts group.gid_number
+  puts group.gid_number
 end
 
 ActiveSambaLdap::Base.restart_nscd

@@ -9,7 +9,7 @@ class AslUserModTest < Test::Unit::TestCase
   end
 
   def test_not_exist_user
-    assert_equal([false, "user 'not-exist' doesn't exist.\n"],
+    assert_equal([false, "", "user 'not-exist' doesn't exist.\n"],
                  run_command("not-exist"))
   end
 
@@ -523,7 +523,7 @@ class AslUserModTest < Test::Unit::TestCase
   private
   def assert_asl_usermod_successfully(name, password, *args)
     args << name
-    assert_equal([true, "Enter your password: \n"],
+    assert_equal([true, "Enter your password: \n", ""],
                  run_command_as_normal_user(*args) do |input, output|
                    output.puts password
                    output.puts password
@@ -532,7 +532,7 @@ class AslUserModTest < Test::Unit::TestCase
 
   def assert_asl_usermod_failed(name, password, message, *args)
     args << name
-    assert_equal([false, "Enter your password: \n#{message}"],
+    assert_equal([false, "Enter your password: \n", message],
                  run_command_as_normal_user(*args) do |input, output|
                    output.puts password
                    output.puts password
