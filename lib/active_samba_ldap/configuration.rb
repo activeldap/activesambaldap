@@ -183,19 +183,20 @@ module ActiveSambaLdap
         end
 
         def users_prefix
-          "ou=Users"
+          retrieve_value_from_smb_conf(/ldap\s+user\s+suffix/i) || "ou=Users"
         end
 
         def groups_prefix
-          "ou=Groups"
+          retrieve_value_from_smb_conf(/ldap\s+group\s+suffix/i) || "ou=Groups"
         end
 
         def computers_prefix
-          "ou=Computers"
+          retrieve_value_from_smb_conf(/ldap\s+machine\s+suffix/i) ||
+            "ou=Computers"
         end
 
         def idmap_prefix
-          "ou=Idmap"
+          retrieve_value_from_smb_conf(/ldap\s+idmap\s+suffix/i) || "ou=Idmap"
         end
 
         def start_uid
@@ -252,6 +253,23 @@ module ActiveSambaLdap
 
         def bind_dn
           nil
+        end
+
+        private
+        def retrieve_value_from_smb_conf(key)
+          smb_conf = self['smb_conf']
+          if smb_conf and File.readable?(smb_conf)
+            line = File.read(smb_conf).grep(key).reject do |l|
+              /^\s*[#;]/ =~ l
+            end.first
+            if line
+              line.split(/=/, 2)[1].strip
+            else
+              nil
+            end
+          else
+            nil
+          end
         end
       end
     end
