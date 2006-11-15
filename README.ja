@@ -141,8 +141,6 @@ sidを設定しておかないと，毎回net getlocalsidをするため，効�
 
 設定可能なオプションは以下の通りです．
 
-FIXME
-
 : base
    ActiveLdap::Base.establish_connectionのオプションと同じ．
 : host
@@ -168,32 +166,83 @@ FIXME
    Sambaサーバのドメイン
 : samba_netbios_name
    SambaサーバのNetBIOS名
+
 : password_hash_type
+   LDAP上のパスワードをハッシュ化する時に使用するアルゴリズ
+   ム．指定できるのは:crypt, :md5, :smd5, :sha, :sshaで，デ
+   フォルトは:sshaです．
+
+   LDAP上のパスワードはSambaの認証時ではなく，UNIX上のユーザ
+   の認証時に利用されます．
 
 : users_suffix
+   LDAP上のユーザエントリを格納するツリー．baseからの相対パ
+   スを指定する．例: ou=Users
 : groups_suffix
+   LDAP上のグループエントリを格納するツリー．baseからの相対パ
+   スを指定する．例: ou=Groups
 : computers_suffix
+   LDAP上のコンピュータエントリを格納するツリー．baseからの相対パ
+   スを指定する．例: ou=Computers
 : idmap_suffix
+   LDAP上のユーザエントリを格納するツリー．baseからの相対パ
+   スを指定する．例: ou=Idmap
 
-: start_uid start_gid
+: start_uid
+   新しいユーザを作ったときに，はじめに使用するUID(User
+   Identifier)．以降のUIDは1ずつ増えていく．デフォルトは
+   10000．
+
+: start_gid
+   新しいユーザを作ったときに，はじめに使用するGID(Group
+   Identifier)．以降のGIDは1ずつ増えていく．デフォルトは
+   10000．
 
 : user_login_shell
+   新しく作成したユーザのログインシェル．デフォルトは
+   /bin/false．
 : user_home
+   新しく作成したユーザのホームディレクトリ．%Uはユーザ名に
+   置換される．デフォルトは/home/%U．
 : user_home_directory_mode
+   ユーザのホームディレクトリを作成する際に設定するパーミッ
+   ション用のモード．デフォルトは0755（8進数）．
 
 : user_gecos
-: user_samba_home
-: user_profile
-: user_home_drive
-: user_script
+   ユーザのGECOSフィールドの値．%Uはユーザ名に置換される．
 
-: mail_domain
+: user_samba_home
+   Windowsから見たときのユーザのホームへのパス．
+   UNC(Universal Naming Convention)で記述する．%Uはユーザ名
+   に置換される．デフォルトは\\SambaサーバのNetBIOS名\%U．
+
+: user_profile
+   ユーザプロファイルへのパス．
+   UNC(Universal Naming Convention)で記述する．%Uはユーザ名
+   に置換される．デフォルトは\\SambaサーバのNetBIOS名\profiles\%U．
+
+: user_home_drive
+   ユーザのホームを割り当てるドライブ名．デフォルトはH:．
+
+: user_script
+   ユーザがログオンしたときに実行するスクリプトファイル名．
+   デフォルトはlogon.bat．
+
+# : mail_domain
 
 : skeleton_directory
+   ユーザのホームディレクトリを作成する時に雛型とするディレ
+   クトリ．デフォルトは/etc/skel．
 
 : default_user_gid
+   デフォルトでユーザが所属するグループ．デフォルトはDomain
+   Usersグループ．
+
 : default_computer_gid
-: default_max_password_age
+   デフォルトでコンピュータが所属するグループ．デフォルトは
+   Domain Computersグループ．
+
+# : default_max_password_age
 
 ==== 初期化
 
@@ -210,8 +259,8 @@ asl-populateを起動してLDAPサーバに基本的なエントリを追加し�
 
 ==== 管理
 
-後はasl-*を使って管理してください．各コマンドの使いかたは--
-helpオプションを参考にしてください．
+後はasl-*を使って管理してください．各コマンドの使いかたは
+--helpオプションを参考にしてください．
 
 ==== smb.confの設定
 
