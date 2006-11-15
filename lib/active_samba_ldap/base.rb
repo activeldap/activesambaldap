@@ -102,7 +102,7 @@ module ActiveSambaLdap
   end
 
   class Base < ActiveLdap::Base
-    extend Unreloadable
+    include Reloadable::Subclasses
 
     class << self
       def restart_nscd

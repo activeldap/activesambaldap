@@ -1,6 +1,6 @@
 module ActiveSambaLdap
   class Dc < Base
-    extend Unreloadable
+    include Reloadable::Subclasses
 
     class << self
       def ldap_mapping(options={})

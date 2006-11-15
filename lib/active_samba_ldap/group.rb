@@ -2,7 +2,7 @@ require 'English'
 
 module ActiveSambaLdap
   class Group < Base
-    extend Unreloadable
+    include Reloadable::Subclasses
 
     # from librpc/ndr/security.h in Samba
     SID_BUILTIN = "S-1-5-32"

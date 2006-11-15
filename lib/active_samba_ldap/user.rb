@@ -2,6 +2,8 @@ require 'active_samba_ldap/account'
 
 module ActiveSambaLdap
   class User < Base
+    include Reloadable::Subclasses
+
     include Account
 
     class << self

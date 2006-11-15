@@ -1,6 +1,6 @@
 module ActiveSambaLdap
   class Idmap < Base
-    extend Unreloadable
+    include Reloadable::Subclasses
 
     class << self
       def ldap_mapping(options={})

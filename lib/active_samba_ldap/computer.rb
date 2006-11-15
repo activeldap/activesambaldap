@@ -2,7 +2,10 @@ require 'active_samba_ldap/account'
 
 module ActiveSambaLdap
   class Computer < Base
+    include Reloadable::Subclasses
+
     include Account
+
     class << self
       def ldap_mapping(options={})
         default_options = {
