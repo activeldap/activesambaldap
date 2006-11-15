@@ -76,7 +76,7 @@ module ActiveSambaLdap
     def read_configuration_files(files)
       return if files.empty?
       Base.configurations = files.inject({}) do |result, file|
-        if File.exist?(file)
+        if File.readable?(file)
           result.merge(Configuration.read(file))
         else
           result
