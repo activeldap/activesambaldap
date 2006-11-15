@@ -22,33 +22,33 @@ class AslPopulateTest < Test::Unit::TestCase
     results = ActiveSambaLdap::Base.search
 
     config = ActiveSambaLdap::Base.configuration
-    users_prefix = config[:users_prefix]
-    groups_prefix = config[:groups_prefix]
-    computers_prefix = config[:computers_prefix]
-    idmap_prefix = config[:idmap_prefix]
+    users_suffix = config[:users_suffix]
+    groups_suffix = config[:groups_suffix]
+    computers_suffix = config[:computers_suffix]
+    idmap_suffix = config[:idmap_suffix]
     domain = config[:samba_domain]
     assert_equal([
                   nil,
-                  users_prefix,
-                  groups_prefix,
-                  computers_prefix,
-                  idmap_prefix,
+                  users_suffix,
+                  groups_suffix,
+                  computers_suffix,
+                  idmap_suffix,
                   "sambaDomainName=#{domain}",
-                  "uid=Administrator,#{users_prefix}",
-                  "uid=Guest,#{users_prefix}",
-                  "cn=Users,#{groups_prefix}",
-                  "cn=Account Operators,#{groups_prefix}",
-                  "cn=Administrators,#{groups_prefix}",
-                  "cn=Backup Operators,#{groups_prefix}",
-                  "cn=Domain Admins,#{groups_prefix}",
-                  "cn=Domain Computers,#{groups_prefix}",
-                  "cn=Domain Guests,#{groups_prefix}",
-                  "cn=Domain Users,#{groups_prefix}",
-                  "cn=Guests,#{groups_prefix}",
-                  "cn=Power Users,#{groups_prefix}",
-                  "cn=Print Operators,#{groups_prefix}",
-                  "cn=Replicators,#{groups_prefix}",
-                  "cn=System Operators,#{groups_prefix}",
+                  "uid=Administrator,#{users_suffix}",
+                  "uid=Guest,#{users_suffix}",
+                  "cn=Users,#{groups_suffix}",
+                  "cn=Account Operators,#{groups_suffix}",
+                  "cn=Administrators,#{groups_suffix}",
+                  "cn=Backup Operators,#{groups_suffix}",
+                  "cn=Domain Admins,#{groups_suffix}",
+                  "cn=Domain Computers,#{groups_suffix}",
+                  "cn=Domain Guests,#{groups_suffix}",
+                  "cn=Domain Users,#{groups_suffix}",
+                  "cn=Guests,#{groups_suffix}",
+                  "cn=Power Users,#{groups_suffix}",
+                  "cn=Print Operators,#{groups_suffix}",
+                  "cn=Replicators,#{groups_suffix}",
+                  "cn=System Operators,#{groups_suffix}",
                  ].collect {|x| [x, base].compact.join(",")}.sort,
                  results.collect {|dn, attributes| dn}.sort)
   end

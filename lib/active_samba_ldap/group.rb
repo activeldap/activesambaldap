@@ -56,7 +56,7 @@ module ActiveSambaLdap
       def ldap_mapping(options={})
         default_options = {
           :dn_attribute => "cn",
-          :prefix => configuration[:groups_prefix],
+          :prefix => configuration[:groups_suffix],
           :classes => ["posixGroup", "sambaGroupMapping"],
 
           :members_wrap => "memberUid",

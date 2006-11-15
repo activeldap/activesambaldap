@@ -75,8 +75,8 @@ module ActiveSambaLdap
                        sid smb_conf samba_domain samba_netbios_name
                        hash_encrypt
 
-                       users_prefix groups_prefix computers_prefix
-                       idmap_prefix
+                       users_suffix groups_suffix computers_suffix
+                       idmap_suffix
 
                        start_uid start_gid
 
@@ -182,20 +182,20 @@ module ActiveSambaLdap
           :plain
         end
 
-        def users_prefix
+        def users_suffix
           retrieve_value_from_smb_conf(/ldap\s+user\s+suffix/i) || "ou=Users"
         end
 
-        def groups_prefix
+        def groups_suffix
           retrieve_value_from_smb_conf(/ldap\s+group\s+suffix/i) || "ou=Groups"
         end
 
-        def computers_prefix
+        def computers_suffix
           retrieve_value_from_smb_conf(/ldap\s+machine\s+suffix/i) ||
             "ou=Computers"
         end
 
-        def idmap_prefix
+        def idmap_suffix
           retrieve_value_from_smb_conf(/ldap\s+idmap\s+suffix/i) || "ou=Idmap"
         end
 

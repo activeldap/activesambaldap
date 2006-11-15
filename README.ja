@@ -170,10 +170,10 @@ FIXME
    SambaサーバのNetBIOS名
 : hash_encrypt
 
-: users_prefix
-: groups_prefix
-: computers_prefix
-: idmap_prefix
+: users_suffix
+: groups_suffix
+: computers_suffix
+: idmap_suffix
 
 : start_uid start_gid
 

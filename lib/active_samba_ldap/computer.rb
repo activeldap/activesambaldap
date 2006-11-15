@@ -6,7 +6,7 @@ module ActiveSambaLdap
     class << self
       def ldap_mapping(options={})
         default_options = {
-          :prefix => configuration[:computers_prefix],
+          :prefix => configuration[:computers_suffix],
           :classes => ["top", "inetOrgPerson", "posixAccount",
                        "sambaSamAccount"],
         }
