@@ -134,12 +134,12 @@ name = nil
 if argv.size == 1
   name = argv.first
 else
-  puts opts
+  $stderr.puts opts
   exit 1
 end
 
 unless Process.uid.zero?
-  puts "need root authority."
+  $stderr.puts "need root authority."
   exit 1
 end
 
@@ -180,7 +180,7 @@ if options.computer_account
 end
 
 unless member_class.valid_name?(name)
-  puts "'#{name}' is illegal #{member_type} name"
+  $stderr.puts "'#{name}' is illegal #{member_type} name"
   exit 1
 end
 
@@ -198,7 +198,7 @@ if options.ou
 end
 
 if member_class.exists?(name)
-  puts "#{member_type} '#{name}' already exists."
+  $stderr.puts "#{member_type} '#{name}' already exists."
   exit 1
 end
 member = member_class.new(name)
@@ -223,7 +223,7 @@ uid_number = Integer(member.uidNumber)
 unless member_class.find(:first,
                          :attribute => "uidNumber",
                          :value => uid_number.to_s).nil?
-  puts "UID '#{uid_number}' already exists"
+  $stderr.puts "UID '#{uid_number}' already exists"
   exit 1
 end
 
@@ -260,7 +260,7 @@ begin
 rescue ActiveSambaLdap::GidNumberDoesNotExist,
   ActiveSambaLdap::GroupDoesNotExist,
   ActiveSambaLdap::GroupDoesNotHaveSambaSID
-  puts $!
+  $stderr.puts $!
   exit 1
 end
 
@@ -385,7 +385,7 @@ if options.setup_home_directory
                      dest)
       FileUtils.chown_R(member.uid_number, member.gid_number, dest)
     rescue SystemCallError
-      puts $!
+      $stderr.puts $!
       exit 1
     end
   end

@@ -1,4 +1,4 @@
-#!/usr/bin/env ruby
+)#!/usr/bin/env ruby
 
 require 'active_samba_ldap'
 require 'active_samba_ldap/command'
@@ -16,12 +16,12 @@ name = nil
 if argv.size == 1
   name = argv.first
 else
-  puts opts
+  $stderr.puts opts
   exit 1
 end
 
 unless Process.uid.zero?
-  puts "need root authority."
+  $stderr.puts "need root authority."
   exit 1
 end
 
@@ -40,7 +40,7 @@ class Computer < ActiveSambaLdap::Computer
 end
 
 unless Group.exists?(name)
-  puts "group '#{name}' doesn't exist."
+  $stderr.puts "group '#{name}' doesn't exist."
   exit 1
 end
 group = Group.find(name)
@@ -49,7 +49,7 @@ begin
   group.destroy(:remove_members => true,
                 :force_change_primary_members => options.force)
 rescue ActiveSambaLdap::Error
-  puts $!
+  $stderr.puts $!
   exit 1
 end
 

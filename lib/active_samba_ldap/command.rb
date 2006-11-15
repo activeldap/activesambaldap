@@ -31,7 +31,14 @@ module ActiveSambaLdap
           exit
         end
       end
-      opts.parse!(argv)
+
+      begin
+        opts.parse!(argv)
+      rescue ParseError
+        $stderr.puts($!)
+        $stderr.puts(opts)
+        exit 1
+      end
 
       read_configuration_files(configuration_files)
 

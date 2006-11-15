@@ -30,12 +30,12 @@ name = nil
 if argv.size == 1
   name = argv.first
 else
-  puts opts
+  $stderr.puts opts
   exit 1
 end
 
 unless Process.uid.zero?
-  puts "need root authority."
+  $stderr.puts "need root authority."
   exit 1
 end
 
@@ -61,7 +61,7 @@ if options.computer_account
 end
 
 unless member_class.exists?(name)
-  puts "#{member_type} '#{name}' doesn't exist."
+  $stderr.puts "#{member_type} '#{name}' doesn't exist."
   exit 1
 end
 member = member_class.find(name)

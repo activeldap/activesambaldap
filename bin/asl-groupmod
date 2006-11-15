@@ -30,12 +30,12 @@ name = nil
 if argv.size == 1
   name = argv.first
 else
-  puts opts
+  $stderr.puts opts
   exit 1
 end
 
 unless Process.uid.zero?
-  puts "need root authority."
+  $stderr.puts "need root authority."
   exit 1
 end
 
@@ -54,7 +54,7 @@ class Computer < ActiveSambaLdap::Computer
 end
 
 unless Group.exists?(name)
-  puts "group '#{name}' doesn't exist."
+  $stderr.puts "group '#{name}' doesn't exist."
   exit 1
 end
 group = Group.find(name)
@@ -63,7 +63,7 @@ if options.gid
   begin
     group.change_gid_number(options.gid, options.allow_non_unique_gid_number)
   rescue ActiveSambaLdap::GidNumberAlreadyExists
-    puts $!.message
+    $stderr.puts $!.message
     exit 1
   end
 end
@@ -73,7 +73,7 @@ if options.members_to_add and options.members_to_delete
   unless duplicated_members.empty?
     message = "there are duplicated members in adding and deleting members: "
     message << duplicated_members.join(", ")
-    puts message
+    $stderr.puts message
     exit 1
   end
 end
@@ -110,7 +110,7 @@ group.save!
 
 if options.new_group_name
   if Group.exists?(options.new_group_name)
-    puts "group '#{options.new_group_name}' always exists."
+    $stderr.puts "group '#{options.new_group_name}' always exists."
     exit 1
   end
 

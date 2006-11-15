@@ -135,7 +135,7 @@ name = nil
 if argv.size == 1
   name = argv.first
 else
-  puts opts
+  $stderr.puts opts
   exit 1
 end
 
@@ -163,7 +163,7 @@ if options.computer_account
 end
 
 unless member_class.exists?(name)
-  puts "#{member_type} '#{name}' doesn't exist."
+  $stderr.puts "#{member_type} '#{name}' doesn't exist."
   exit 1
 end
 member = member_class.find(name)
@@ -178,7 +178,7 @@ unless Process.uid.zero?
                                                  :password => password,
                                                  :allow_anonymous => false))
   rescue ActiveLdap::AuthenticationError
-    puts "password isn't match"
+    $stderr.puts "password isn't match"
     exit 1
   ensure
     auth_class.remove_connection
@@ -189,7 +189,7 @@ if options.uid
   begin
     member.change_uid_number(options.uid, options.allow_non_unique_uid_number)
   rescue ActiveSambaLdap::UidNumberAlreadyExists
-    puts $!.message
+    $stderr.puts $!.message
     exit 1
   end
 end
@@ -198,7 +198,7 @@ if options.gid
   begin
     member.primary_group = Group.find_by_name_or_gid_number(options.gid)
   rescue ActiveSambaLdap::Error
-    puts $!.message
+    $stderr.puts $!.message
     exit 1
   end
 end
@@ -246,7 +246,7 @@ if options.supplementary_groups
     begin
       Group.find_by_name_or_gid_number(group)
     rescue ActiveSambaLdap::GidNumberDoesNotExist
-      puts $!
+      $stderr.puts $!
       exit 1
     end
   end
@@ -307,7 +307,7 @@ if options.new_user_name
     options.new_user_name = options.new_user_name.chomp("$") + "$"
   end
   if member_class.exists?(options.new_user_name)
-    puts "#{member_type} '#{options.new_user_name}' always exists."
+    $stderr.puts "#{member_type} '#{options.new_user_name}' always exists."
     exit 1
   end
   new_member = member_class.new(options.new_user_name)

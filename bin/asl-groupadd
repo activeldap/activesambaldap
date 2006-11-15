@@ -22,12 +22,12 @@ name = nil
 if argv.size == 1
   name = argv.first
 else
-  puts opts
+  $stderr.puts opts
   exit 1
 end
 
 unless Process.uid.zero?
-  puts "need root authority."
+  $stderr.puts "need root authority."
   exit 1
 end
 
@@ -42,7 +42,7 @@ class UnixIdPool < ActiveSambaLdap::UnixIdPool
 end
 
 if Group.exists?(name)
-  puts "group '#{name}' already exists."
+  $stderr.puts "group '#{name}' already exists."
   exit 1
 end
 
@@ -54,7 +54,7 @@ create_options = {
 group = Group.create(name, create_options)
 
 if options.print_gid_number
-  puts group.gid_number
+  $stderr.puts group.gid_number
 end
 
 ActiveSambaLdap::Base.restart_nscd

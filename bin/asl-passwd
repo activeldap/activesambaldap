@@ -29,12 +29,12 @@ when 0
 when 1
   name = argv.first
 else
-  puts opts
+  $stderr.puts opts
   exit 1
 end
 
 if !options.update_samba_password and !options.update_unix_password
-  puts "do nothing"
+  $stderr.puts "do nothing"
   exit
 end
 
@@ -45,7 +45,7 @@ class User < ActiveSambaLdap::User
 end
 
 unless User.exists?(name)
-  puts "user '#{name}' doesn't exist."
+  $stderr.puts "user '#{name}' doesn't exist."
   exit 1
 end
 user = User.find(name)
@@ -61,7 +61,7 @@ unless Process.uid.zero?
                                                  :password => old_password,
                                                  :allow_anonymous => false))
   rescue ActiveLdap::AuthenticationError
-    puts "password isn't match"
+    $stderr.puts "password isn't match"
     exit 1
   ensure
     auth_class.remove_connection
@@ -72,7 +72,7 @@ password = ActiveSambaLdap::Command.read_password("New password: ")
 password2 = ActiveSambaLdap::Command.read_password("Retype new password: ")
 
 unless password == password2
-  puts "New passwords don't match."
+  $stderr.puts "New passwords don't match."
   exit 1
 end
 
