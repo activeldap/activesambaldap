@@ -259,10 +259,13 @@ asl-populateを起動してLDAPサーバに基本的なエントリを追加し�
 
 ==== 管理
 
-後はasl-*を使って管理してください．各コマンドの使いかたは
---helpオプションを参考にしてください．
+コマンドラインからはasl-user*, asl-group*, asl-populate,
+asl-purge, asl-passwordを使って管理してください．各コマンド
+の使いかたは--helpオプションを参考にしてください．
 
 ==== smb.confの設定
+
+asl-samba-*を使います．
 
 設定例．FIXME
 
@@ -273,17 +276,17 @@ asl-populateを起動してLDAPサーバに基本的なエントリを追加し�
   ldap group suffix = ou=Groups
   ldap machine suffix = ou=Computers
   ldap idmap suffix = ou=Idmap
-  ldap passwd sync = no
+  ldap passwd sync = yes
 
   admin users = "@Domain Admins"
-  add user script = /etc/asl/asl-useradd "%u" --no-windows-account
-  delete user script = /etc/asl/asl-userdel "%u" --remove-home-directory
-  add group script = /etc/asl/asl-groupadd "%g"
-  delete group script = /etc/asl/asl-groupdel "%g"
-  add user to group script = /etc/asl/asl-groupmod "%g" --add-members "%u"
-  delete user from group script = /etc/asl/asl-groupmod "%g" --delete-members "%u"
-  set primary group script = /etc/asl/asl-usermod "%u" --gid "%g"
-  add machine script = /etc/asl/asl-useradd "%u" --computer-account --no-setup-home-directory
+  add user script = /etc/asl/asl-samba-useradd "%u"
+  delete user script = /etc/asl/asl-samba-userdel "%u"
+  add group script = /etc/asl/asl-samba-groupadd "%g"
+  delete group script = /etc/asl/asl-samba-groupdel "%g"
+  add user to group script = /etc/asl/asl-samba-groupmod "%g" --add-members "%u"
+  delete user from group script = /etc/asl/asl-samba-groupmod "%g" --delete-members "%u"
+  set primary group script = /etc/asl/asl-samba-usermod "%u" --gid "%g"
+  add machine script = /etc/asl/asl-samba-computeradd "%u"
 
 Sambaを起動する前に，以下を実行してldap admin dnで指定した
 LDAP管理ユーザのパスワードを設定しておく必要があります．
