@@ -34,7 +34,7 @@ module ActiveSambaLdap
 
       begin
         opts.parse!(argv)
-      rescue ParseError
+      rescue OptionParser::ParseError
         $stderr.puts($!)
         $stderr.puts(opts)
         exit 1
