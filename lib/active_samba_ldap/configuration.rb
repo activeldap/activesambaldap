@@ -211,11 +211,11 @@ module ActiveSambaLdap
         end
 
         def start_uid
-          "10000"
+          10000
         end
 
         def start_gid
-          "10000"
+          10000
         end
 
         def default_user_gid
@@ -262,7 +262,7 @@ module ActiveSambaLdap
         end
 
         def user_login_shell
-          "/nonexistent"
+          "/bin/false"
         end
 
         def user_home_drive
