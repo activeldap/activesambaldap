@@ -14,6 +14,7 @@ argv, opts, options = ActiveSambaLdap::Command.parse_options do |opts, options|
   options.supplementary_groups = []
   options.create_group = true
   options.home_directory = nil
+  options.home_directory_mode = nil
   options.shell = nil
   options.comment = nil
   options.setup_home_directory = true
@@ -68,6 +69,8 @@ argv, opts, options = ActiveSambaLdap::Command.parse_options do |opts, options|
 
   opts.on("-d", "--home-directory=HOME_DIR",
           "home directory") {|options.home_directory|}
+  opts.on("--home-directory-mode=MODE",
+          "permission of home directory") {|options.home_directory_mode|}
   opts.on("--[no-]setup-home-directory",
           "setup home directory",
           "(#{options.setup_home_directory}") {|options.setup_home_directory|}
@@ -378,6 +381,9 @@ if options.setup_home_directory
   if dest
     begin
       FileUtils.mkdir_p(dest)
+      mode = options.home_directory_mode
+      mode ||= member_class.configuration[:user_home_directory_mode]
+      FileUtils.chmod(Integer(mode), dest)
       skel = get_value(options, :skeleton_directory)
       FileUtils.cp_r(Dir.glob(File.join(skel, ".*")) +
                      Dir.glob(File.join(skel, "*")) -

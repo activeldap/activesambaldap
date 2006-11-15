@@ -246,6 +246,21 @@ module ActiveSambaLdap
           "/home/%U"
         end
 
+        def user_home_directory_mode
+          0755
+        end
+
+        def normalize_user_home_directory_mode(mode)
+          if mode
+            Integer(mode)
+          else
+            nil
+          end
+        rescue ArgumentError
+          raise InvalidConfigurationValueError.new("user_home_directory",
+                                                   mode, $!.message)
+        end
+
         def user_login_shell
           "/nonexistent"
         end

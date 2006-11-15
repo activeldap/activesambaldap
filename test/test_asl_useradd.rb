@@ -352,6 +352,25 @@ class AslUserAddTest < Test::Unit::TestCase
                                         "--home-directory", home_directory,
                                         "--setup-home-directory")
         assert(File.exist?(home_directory))
+        assert_equal(@user_class.configuration[:user_home_directory_mode],
+                     ("%o" % File.stat(home_directory).mode)[-3, 3].to_i(8))
+      ensure
+        FileUtils.rm_rf(home_directory)
+      end
+    end
+  end
+
+  def test_home_directory_user_with_mode
+    ensure_delete_user("test-user") do |uid,|
+      home_directory = "/tmp/#{File.basename(__FILE__)}.#{Process.pid}"
+      begin
+        assert_asl_useradd_successfully(uid,
+                                        "--home-directory", home_directory,
+                                        "--setup-home-directory",
+                                        "--home-directory-mode", "0700")
+        assert(File.exist?(home_directory))
+        assert_equal(0700,
+                     ("%o" % File.stat(home_directory).mode)[-3, 3].to_i(8))
       ensure
         FileUtils.rm_rf(home_directory)
       end
