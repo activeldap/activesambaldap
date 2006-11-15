@@ -195,8 +195,8 @@ module ActiveSambaLdap
 
     def change_password(password)
       hash_type = self.class.configuration[:password_hash_type]
-      self.user_password = ActiveLdap::UserPassword.__send__(hash_type,
-                                                             password)
+      hashed_password = ActiveLdap::UserPassword.__send__(hash_type, password)
+      self.user_password = hashed_password
     end
 
     def change_samba_password(password)

@@ -271,7 +271,7 @@ module ActiveSambaLdap
         end
 
         def normalize_password_hash_type(type)
-          type.to_sym
+          type.to_s.downcase.to_sym
         end
 
         AVAILABLE_HASH_TYPES = [:crypt, :md5, :smd5, :sha, :ssha]
