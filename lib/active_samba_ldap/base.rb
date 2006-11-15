@@ -91,6 +91,16 @@ module ActiveSambaLdap
     end
   end
 
+  class InvalidConfigurationValueError < Error
+    attr_reader :name, :value, :detail
+    def initialize(name, value, detail)
+      @name = name
+      @value = value
+      @detail = detail
+      super("the value of #{@name} '#{@value.inspect}' is invalid: #{@detail}")
+    end
+  end
+
   class Base < ActiveLdap::Base
     extend Unreloadable
 

@@ -168,7 +168,7 @@ FIXME
    Sambaサーバのドメイン
 : samba_netbios_name
    SambaサーバのNetBIOS名
-: hash_encrypt
+: password_hash_type
 
 : users_suffix
 : groups_suffix

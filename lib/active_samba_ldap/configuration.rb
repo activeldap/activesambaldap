@@ -73,7 +73,7 @@ module ActiveSambaLdap
                        password method allow_anonymous
 
                        sid smb_conf samba_domain samba_netbios_name
-                       hash_encrypt
+                       password_hash_type
 
                        users_suffix groups_suffix computers_suffix
                        idmap_suffix
@@ -109,7 +109,18 @@ module ActiveSambaLdap
         def merge
           result = @target.dup
           VARIABLES.each do |variable|
-            result[variable.to_sym] ||= send(variable) if respond_to?(variable)
+            key = variable.to_sym
+            result[key] ||= send(variable) if respond_to?(variable)
+
+            normalize_method = "normalize_#{variable}"
+            if respond_to?(normalize_method)
+              result[key] = __send__(normalize_method, result[key])
+            end
+
+            validate_method = "validate_#{variable}"
+            if respond_to?(validate_method)
+              __send__(validate_method, result[key])
+            end
           end
           result
         end
@@ -253,6 +264,24 @@ module ActiveSambaLdap
 
         def bind_dn
           nil
+        end
+
+        def password_hash_type
+          :ssha
+        end
+
+        def normalize_password_hash_type(type)
+          type.to_sym
+        end
+
+        AVAILABLE_HASH_TYPES = [:crypt, :md5, :smd5, :sha, :ssha]
+        def validate_password_hash_type(type)
+          unless AVAILABLE_HASH_TYPES.include?(type)
+            types = AVAILABLE_HASH_TYPES.collect {|x| x.inspect}.join(", ")
+            raise InvalidConfigurationValueError.new("password_hash_type",
+                                                     type,
+                                                     "must be in #{types}")
+          end
         end
 
         private
