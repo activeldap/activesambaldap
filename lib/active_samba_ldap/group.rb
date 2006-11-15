@@ -4,6 +4,9 @@ module ActiveSambaLdap
   class Group < Base
     extend Unreloadable
 
+    # from librpc/ndr/security.h in Samba
+    SID_BUILTIN = "S-1-5-32"
+
     # from source/include/rpc_misc.c in Samba
     DOMAIN_ADMINS_RID = 0x00000200
     DOMAIN_USERS_RID = 0x00000201
@@ -91,8 +94,8 @@ module ActiveSambaLdap
           group = find_by_gid_number(gid_number)
           raise GidNumberDoesNotExist.new(gid_number) if group.nil?
         rescue ArgumentError
-          group = new(key)
-          raise GroupDoesNotExist.new(key) unless group.exists?
+          raise GroupDoesNotExist.new(key) unless exists?(key)
+          group = find(key)
         end
         group
       end
@@ -214,7 +217,11 @@ module ActiveSambaLdap
     end
 
     def change_sid(rid, allow_non_unique=false)
-      sid = "#{self.class.configuration[:sid]}-#{rid}"
+      if (LOCAL_ADMINS_RID..LOCAL_REPLICATORS_RID).include?(rid.to_i)
+        sid = "#{SID_BUILTIN}-#{rid}"
+      else
+        sid = "#{self.class.configuration[:sid]}-#{rid}"
+      end
       # check_unique_sid_number(sid) unless allow_non_unique
       self.samba_sid = sid
     end
