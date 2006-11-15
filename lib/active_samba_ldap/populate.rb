@@ -37,9 +37,9 @@ module ActiveSambaLdap
         end
 
         def init_classes
-          @options[:user_class] = user_class = Class.new(User)
-          @options[:group_class] = group_class = Class.new(Group)
-          @options[:computer_class] = computer_class = Class.new(Computer)
+          @options[:user_class] = user_class = Class.new(SambaUser)
+          @options[:group_class] = group_class = Class.new(SambaGroup)
+          @options[:computer_class] = computer_class = Class.new(SambaComputer)
           @options[:idmap_class] = idmap_class = Class.new(Idmap)
           @options[:unix_id_pool_class] = id_pool_class = Class.new(UnixIdPool)
 
@@ -60,17 +60,36 @@ module ActiveSambaLdap
           group_class.set_associated_class(:primary_computers, computer_class)
         end
 
+        def user_class
+          @options[:user_class]
+        end
+
+        def group_class
+          @options[:group_class]
+        end
+
+        def computer_class
+          @options[:computer_class]
+        end
+
+        def idmap_class
+          @options[:idmap_class]
+        end
+
         def init_options
           config = @base.configuration
           @options[:start_uid] ||= Integer(config[:start_uid])
           @options[:start_gid] ||= Integer(config[:start_gid])
-          @options[:administrator] ||= User::DOMAIN_ADMIN_NAME
-          @options[:administrator_uid] ||= User.rid2uid(User::DOMAIN_ADMIN_RID)
+          @options[:administrator] ||= user_class::DOMAIN_ADMIN_NAME
+          @options[:administrator_uid] ||=
+            user_class.rid2uid(user_class::DOMAIN_ADMIN_RID)
           @options[:administrator_gid] ||=
-            Group.rid2gid(Group::DOMAIN_ADMINS_RID)
-          @options[:guest] ||= User::DOMAIN_GUEST_NAME
-          @options[:guest_uid] ||= User.rid2uid(User::DOMAIN_GUEST_RID)
-          @options[:guest_gid] ||= Group.rid2gid(Group::DOMAIN_GUESTS_RID)
+            group_class.rid2gid(group_class::DOMAIN_ADMINS_RID)
+          @options[:guest] ||= user_class::DOMAIN_GUEST_NAME
+          @options[:guest_uid] ||=
+            user_class.rid2uid(user_class::DOMAIN_GUEST_RID)
+          @options[:guest_gid] ||=
+            group_class.rid2gid(group_class::DOMAIN_GUESTS_RID)
           @options[:default_user_gid] ||= config[:default_user_gid]
           @options[:default_computer_gid] ||= config[:default_computer_gid]
         end
@@ -110,19 +129,19 @@ module ActiveSambaLdap
         end
 
         def ensure_user_base
-          ensure_ou_base(@options[:user_class].prefix)
+          ensure_ou_base(user_class.prefix)
         end
 
         def ensure_group_base
-          ensure_ou_base(@options[:group_class].prefix)
+          ensure_ou_base(group_class.prefix)
         end
 
         def ensure_computer_base
-          ensure_ou_base(@options[:computer_class].prefix)
+          ensure_ou_base(computer_class.prefix)
         end
 
         def ensure_idmap_base
-          ensure_ou_base(@options[:idmap_class].prefix)
+          ensure_ou_base(idmap_class.prefix)
         end
 
         def make_user(user_class, name, uid, group)
@@ -131,7 +150,7 @@ module ActiveSambaLdap
             group = nil
           else
             user = user_class.new(name)
-            user.init(uid, group)
+            user.fill_default_values(:uid_number => uid, :group => group)
             user.save!
             group.users << user
           end
@@ -181,7 +200,6 @@ module ActiveSambaLdap
         end
 
         def make_groups
-          group_class = @options[:group_class]
           entries = []
           [
            ["Domain Admins", @options[:administrator_gid],
@@ -192,20 +210,22 @@ module ActiveSambaLdap
             "Netbios Domain Guest Users"],
            ["Domain Computers", @options[:default_computer_gid],
             "Netbios Domain Computers"],
-           ["Administrators", nil, nil, "builtin", Group::LOCAL_ADMINS_RID],
-           ["Users", nil, nil, "builtin", Group::LOCAL_USERS_RID],
-           ["Guests", nil, nil, "builtin", Group::LOCAL_GUESTS_RID],
-           ["Power Users", nil, nil, "builtin", Group::LOCAL_POWER_USERS_RID],
+           ["Administrators", nil, nil, "builtin",
+            group_class::LOCAL_ADMINS_RID],
+           ["Users", nil, nil, "builtin", group_class::LOCAL_USERS_RID],
+           ["Guests", nil, nil, "builtin", group_class::LOCAL_GUESTS_RID],
+           ["Power Users", nil, nil, "builtin",
+            group_class::LOCAL_POWER_USERS_RID],
            ["Account Operators", nil, nil, "builtin",
-            Group::LOCAL_ACCOUNT_OPERATORS_RID],
+            group_class::LOCAL_ACCOUNT_OPERATORS_RID],
            ["System Operators", nil, nil, "builtin",
-            Group::LOCAL_SYSTEM_OPERATORS_RID],
+            group_class::LOCAL_SYSTEM_OPERATORS_RID],
            ["Print Operators", nil, nil, "builtin",
-            Group::LOCAL_PRINT_OPERATORS_RID],
+            group_class::LOCAL_PRINT_OPERATORS_RID],
            ["Backup Operators", nil, nil, "builtin",
-            Group::LOCAL_BACKUP_OPERATORS_RID],
+            group_class::LOCAL_BACKUP_OPERATORS_RID],
            ["Replicators", nil, nil, "builtin",
-            Group::LOCAL_REPLICATORS_RID],
+            group_class::LOCAL_REPLICATORS_RID],
           ].each do |name, gid, description, type, rid|
             gid ||= group_class.rid2gid(rid)
             entries << make_group(group_class, name, gid, description, type)

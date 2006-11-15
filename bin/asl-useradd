@@ -159,11 +159,11 @@ end
 ActiveSambaLdap::Base.establish_connection("update")
 
 
-class Computer < ActiveSambaLdap::Computer
+class Computer < ActiveSambaLdap::SambaComputer
   ldap_mapping
 end
 
-class User < ActiveSambaLdap::User
+class User < ActiveSambaLdap::SambaUser
   ldap_mapping
 end
 
@@ -230,7 +230,7 @@ unless member_class.find(:first,
   exit 1
 end
 
-class Group < ActiveSambaLdap::Group
+class Group < ActiveSambaLdap::SambaGroup
   ldap_mapping
 end
 
@@ -343,11 +343,11 @@ unless options.computer_account
   end
 
   member.samba_logon_time = '0'
-  member.samba_logoff_time = ActiveSambaLdap::User::FAR_FUTURE_TIME
+  member.samba_logoff_time = member_class::FAR_FUTURE_TIME
   if options.expire_date
     member.samba_kickoff_time = options.expire_date.to_i.to_s
   else
-    member.samba_kickoff_time = ActiveSambaLdap::User::FAR_FUTURE_TIME
+    member.samba_kickoff_time = member_class::FAR_FUTURE_TIME
   end
 
   logon_script = get_value(options, :samba_logon_script, :user_script)

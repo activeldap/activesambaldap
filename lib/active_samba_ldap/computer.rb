@@ -1,33 +1,11 @@
 require 'active_samba_ldap/account'
+require 'active_samba_ldap/computer_account'
 
 module ActiveSambaLdap
   class Computer < Base
     include Reloadable::Subclasses
 
     include Account
-
-    class << self
-      def ldap_mapping(options={})
-        default_options = {
-          :prefix => configuration[:computers_suffix],
-          :classes => ["top", "inetOrgPerson", "posixAccount",
-                       "sambaSamAccount"],
-        }
-        super(default_options.merge(options))
-      end
-
-      def valid_name?(name)
-        /\$\Z/ =~ name and User.valid_name?($PREMATCH)
-      end
-    end
-
-    def remove_from_group(group)
-      group.computers.delete(self)
-    end
-
-    private
-    def default_account_flags
-      "[W]"
-    end
+    include ComputerAccount
   end
 end

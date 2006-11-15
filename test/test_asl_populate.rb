@@ -60,7 +60,7 @@ class AslPopulateTest < Test::Unit::TestCase
 
   private
   def assert_asl_populate_successfully(password, name=nil, *args)
-    name ||= ActiveSambaLdap::User::DOMAIN_ADMIN_NAME
+    name ||= @user_class::DOMAIN_ADMIN_NAME
     assert_equal([true,
                   [
                    "Password for #{name}: ",
@@ -75,7 +75,7 @@ class AslPopulateTest < Test::Unit::TestCase
   end
 
   def assert_asl_populate_miss_match_password(name=nil, *args)
-    name ||= ActiveSambaLdap::User::DOMAIN_ADMIN_NAME
+    name ||= @user_class::DOMAIN_ADMIN_NAME
     password = "password"
     assert_equal([false,
                   [

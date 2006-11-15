@@ -85,11 +85,11 @@ module AslTestUtils
   module TemporaryEntry
     def setup
       super
-      @user_class = Class.new(ActiveSambaLdap::User)
+      @user_class = Class.new(ActiveSambaLdap::SambaUser)
       @user_class.ldap_mapping
-      @computer_class = Class.new(ActiveSambaLdap::Computer)
+      @computer_class = Class.new(ActiveSambaLdap::SambaComputer)
       @computer_class.ldap_mapping
-      @group_class = Class.new(ActiveSambaLdap::Group)
+      @group_class = Class.new(ActiveSambaLdap::SambaGroup)
       @group_class.ldap_mapping
 
       @user_class.set_associated_class(:primary_group, @group_class)
@@ -119,7 +119,11 @@ module AslTestUtils
         _wrap_assertion do
           assert(!@user_class.exists?(name))
           user = @user_class.new(name)
-          user.init(uid_number, @group_class.find_by_gid_number(gid_number))
+          options = {
+            :uid_number => uid_number,
+            :group => @group_class.find_by_gid_number(gid_number),
+          }
+          user.fill_default_values(options)
           user.home_directory = home_directory
           user.change_password(password)
           user.change_samba_password(password)
@@ -155,7 +159,11 @@ module AslTestUtils
         _wrap_assertion do
           assert(!@computer_class.exists?(name))
           computer = @computer_class.new(name)
-          computer.init(uid_number, @group_class.find_by_gid_number(gid_number))
+          options = {
+            :uid_number => uid_number,
+            :group => @group_class.find_by_gid_number(gid_number),
+          }
+          computer.fill_default_values(options)
           if password
             computer.change_password(password)
             computer.change_samba_password(password)
