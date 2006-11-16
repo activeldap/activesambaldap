@@ -142,6 +142,7 @@ module AslTestUtils
         @user_class.find(uid).destroy(:remove_from_group => true,
                                       :remove_home_directory => true)
       end
+      FileUtils.rm_rf(home) if home
     end
 
     def make_dummy_computer(config={})
@@ -178,6 +179,7 @@ module AslTestUtils
         @computer_class.find(uid).destroy(:remove_from_group => true,
                                           :remove_home_directory => true)
       end
+      FileUtils.rm_rf(home) if home
     end
 
     def make_dummy_group(config={})
