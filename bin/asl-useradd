@@ -24,7 +24,7 @@ argv, opts, options = ActiveSambaLdap::Command.parse_options do |opts, options|
   options.expire_date = nil
   options.can_change_password = nil
   options.must_change_password = nil
-  options.samba_home_path = nil
+  options.samba_home_unc = nil
   options.samba_home_drive = nil
   options.samba_logon_script = nil
   options.samba_profile_path = nil
@@ -95,10 +95,10 @@ argv, opts, options = ActiveSambaLdap::Command.parse_options do |opts, options|
           "must change password") do |bool|
     options.must_change_password = bool
   end
-  opts.on("--samba-home-path=PATH",
+  opts.on("--samba-home-path=UNC",
           "sambaHomePath",
-          "(SMB home share, like '\\\\PDC\\user'") do |path|
-    options.samba_home_path = path
+          "(SMB home share, like '\\\\PDC\\user'") do |unc|
+    options.samba_home_unc = unc
   end
   opts.on("--samba-home-drive=DRIVE",
           "sambaHomeDrive",
@@ -228,8 +228,8 @@ if options.computer_account
 else
   create_options.merge!(:can_change_password => options.can_change_password,
                         :must_change_password => options.must_change_password,
-                        :user_script => options.samba_logon_script,
-                        :user_samba_home => options.samba_home_path,
+                        :user_logon_script => options.samba_logon_script,
+                        :user_home_unc => options.samba_home_unc,
                         :user_home_drive => options.samba_home_drive,
                         :user_profile => options.samba_profile_path)
   if options.expire_date

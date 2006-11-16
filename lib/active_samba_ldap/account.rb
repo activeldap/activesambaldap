@@ -79,7 +79,7 @@ module ActiveSambaLdap
       self.given_name ||= uid
       self.display_name ||= cn
       self.gecos ||= substituted_value(:user_gecos) {cn}
-      self.home_directory ||= substituted_value(:user_home)
+      self.home_directory ||= substituted_value(:user_home_directory)
       self.login_shell ||= self.class.configuration[:user_login_shell]
 
       password = options[:password]

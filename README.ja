@@ -201,7 +201,7 @@ sidを設定しておかないと，毎回net getlocalsidをするため，効�
 : user_login_shell
    新しく作成したユーザのログインシェル．デフォルトは
    /bin/false．
-: user_home
+: user_home_directory
    新しく作成したユーザのホームディレクトリ．%Uはユーザ名に
    置換される．デフォルトは/home/%U．
 : user_home_directory_mode
@@ -211,7 +211,7 @@ sidを設定しておかないと，毎回net getlocalsidをするため，効�
 : user_gecos
    ユーザのGECOSフィールドの値．%Uはユーザ名に置換される．
 
-: user_samba_home
+: user_home_unc
    Windowsから見たときのユーザのホームへのパス．
    UNC(Universal Naming Convention)で記述する．%Uはユーザ名
    に置換される．デフォルトは\\SambaサーバのNetBIOS名\%U．
@@ -224,7 +224,7 @@ sidを設定しておかないと，毎回net getlocalsidをするため，効�
 : user_home_drive
    ユーザのホームを割り当てるドライブ名．デフォルトはH:．
 
-: user_script
+: user_logon_script
    ユーザがログオンしたときに実行するスクリプトファイル名．
    デフォルトはlogon.bat．
 

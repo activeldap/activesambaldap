@@ -80,9 +80,10 @@ module ActiveSambaLdap
 
                        start_uid start_gid
 
-                       user_login_shell user_home user_home_directory_mode
-                       user_gecos user_samba_home user_profile
-                       user_home_drive user_script mail_domain
+                       user_login_shell user_home_directory
+                       user_home_directory_mode
+                       user_gecos user_home_unc user_profile
+                       user_home_drive user_logon_script mail_domain
 
                        skeleton_directory
 
@@ -232,7 +233,7 @@ module ActiveSambaLdap
           "/etc/skel"
         end
 
-        def user_samba_home
+        def user_home_unc
           netbios_name = self["samba_netbios_name"]
           netbios_name ? "\\\\#{netbios_name}\\%U" : nil
         end
@@ -242,7 +243,7 @@ module ActiveSambaLdap
           netbios_name ? "\\\\#{netbios_name}\\profiles\\%U" : nil
         end
 
-        def user_home
+        def user_home_directory
           "/home/%U"
         end
 
@@ -269,7 +270,7 @@ module ActiveSambaLdap
           "H:"
         end
 
-        def user_script
+        def user_logon_script
           "logon.bat"
         end
 
