@@ -12,13 +12,22 @@ module ActiveSambaLdap
         init_associations(options)
       end
 
-      def create(name, options={})
-        gid_number, pool = ensure_gid_number(options)
-        group = new(name)
-        group.fill_default_values(options.merge(:gid_number => gid_number))
-        if group.save and pool
+      def create(attributes=nil)
+        pool = nil
+        group = super do |group|
+          options = attributes || {}
+          options = {:gid_number => group.gid_number}.merge(options)
+          gid_number, pool = ensure_gid_number(options)
+          group.fill_default_values(options.merge(:gid_number => gid_number))
+          yield group if block_given?
+        end
+        if group.errors.empty? and pool
           pool.gid_number = Integer(group.gid_number).succ
-          pool.save!
+          unless pool.save
+            pool.each do |key, value|
+              group.add("pool: #{key}", value)
+            end
+          end
         end
         group
       end
@@ -132,9 +141,9 @@ module ActiveSambaLdap
 
     def fill_default_values(options={})
       gid_number = options[:gid_number]
-      self.change_gid_number(gid_number) if gid_number
-      self.description = options[:description] || cn
-      self.display_name = options[:display_name] || cn
+      change_gid_number(gid_number) if gid_number
+      self.description ||= options[:description] || cn
+      self.display_name ||= options[:display_name] || cn
     end
 
     def members

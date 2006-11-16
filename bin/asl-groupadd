@@ -47,11 +47,19 @@ if Group.exists?(name)
 end
 
 create_options = {
+  :cn => name,
   :gid_number => options.gid,
   :pool_class => UnixIdPool,
   :group_type => options.group_type,
 }
-group = Group.create(name, create_options)
+group = Group.create(create_options)
+
+unless group.errors.empty?
+  group.errors.each_full do |message|
+    $stderr.puts(message)
+  end
+  exit 1
+end
 
 if options.print_gid_number
   puts group.gid_number
