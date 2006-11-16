@@ -1,13 +1,16 @@
 module ActiveSambaLdap
   module ComputerAccount
+    NAME_RE = /\A#{Account::NAME_RE_SRC}\$\z/
+
     def self.included(base)
       super
       base.extend(ClassMethods)
+      base.validates_format_of :uid, :with => NAME_RE
     end
 
     module ClassMethods
       def valid_name?(name)
-        /\$\Z/ =~ name and super($PREMATCH)
+        NAME_RE =~ name ? true : false
       end
 
       private

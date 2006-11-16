@@ -4,12 +4,12 @@ require 'English'
 
 module ActiveSambaLdap
   module Account
+    NAME_RE_SRC = "(?!\\d)[\\w @_\\-\\.]+"
+
     def self.included(base)
       super
       base.extend(ClassMethods)
     end
-
-    NAME_RE = /\A(?!\d)[\w @_\-\.]+\z/
 
     module ClassMethods
       def ldap_mapping(options={})
@@ -17,10 +17,6 @@ module ActiveSambaLdap
         super(extract_ldap_mapping_options(options))
         belongs_to :primary_group, primary_group_options(options)
         belongs_to :groups, groups_options(options)
-      end
-
-      def valid_name?(name)
-        NAME_RE =~ name ? true : false
       end
 
       def find_by_uid_number(number)

@@ -167,13 +167,6 @@ end
 member_class = options.computer_account ? Computer : User
 
 member_type = member_class.name.downcase
-member_base_re = /,#{Regexp.escape(ActiveSambaLdap::Base.base)}$/
-member_prefix = member_class.base.sub(member_base_re, '')
-opts = {}
-if options.ou
-  opts[:prefix] = "#{options.ou},#{member_prefix}"
-  member_class.ldap_mapping(opts)
-end
 
 if options.computer_account
   name = name.chomp("$") + "$"
@@ -189,21 +182,8 @@ if member_class.exists?(name)
   exit 1
 end
 
-if options.ou
-  prefixes = [member_prefix]
-  options.ou.split(/\s*,\s*/).reverse_each do |entry|
-    _, value = entry.split(/\s*=\s*/, 2).collect {|x| x.strip}
-    ou_class = Class.new(ActiveSambaLdap::Ou)
-    ou_class.ldap_mapping :prefix => prefixes.join(',')
-    prefixes.unshift(entry)
-    next if ou_class.exists?(value)
-    ou = ou_class.new(value)
-    ou.save!
-  end
-end
-
 create_options = {
-  :uid => name,
+  :uid => [name, options.ou].compact.join(","),
   :uid_number => options.uid,
   :gid_number => options.gid,
   :create_group => options.create_group,

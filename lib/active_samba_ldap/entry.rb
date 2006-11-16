@@ -9,6 +9,7 @@ module ActiveSambaLdap
       def create(attributes=nil)
         pool = nil
         number_key = nil
+        ensure_ou((attributes || {})[dn_attribute.to_sym])
         entry = super do |entry|
           options = attributes || {}
           options, pool, number_key = prepare_create_options(entry, options)
@@ -27,6 +28,23 @@ module ActiveSambaLdap
       end
 
       private
+      def ensure_ou(dn)
+        return if dn.nil?
+        dn_value, ou = dn.split(/,/, 2)
+        return if ou.nil?
+        prefixes = [prefix]
+        ou.split(/\s*,\s*/).reverse_each do |entry|
+          name, value = entry.split(/\s*=\s*/, 2).collect {|x| x.strip}
+          raise ArgumentError, "#{ou} must be only ou" if name != "ou"
+          ou_class = Class.new(ActiveSambaLdap::Ou)
+          ou_class.ldap_mapping :prefix => prefixes.join(',')
+          prefixes.unshift(entry)
+          next if ou_class.exists?(value)
+          ou = ou_class.new(value)
+          ou.save!
+        end
+      end
+
       def prepare_create_options_for_number(key, entry, options)
         options = {key => entry[key]}.merge(options)
         number, pool = ensure_number(key, options)

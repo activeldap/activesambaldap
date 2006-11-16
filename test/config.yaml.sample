@@ -1,6 +1,6 @@
 common:
   sid: S-1-5-21-915876905-2926214379-2876160357
-  user_home: /home/%U
+  user_home_directory: /home/%U
   user_login_shell: /bin/sh
 
 update:
