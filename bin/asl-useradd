@@ -146,24 +146,22 @@ unless Process.uid.zero?
   exit 1
 end
 
-def get_value(options, key, default_key=nil)
-  value = options.__send__(key)
-  value ||= ActiveSambaLdap::Base.configuration[(default_key || key).to_sym]
-  value
-end
-
-def substitute_member(value, member)
-  value.gsub(/%U/, member.uid)
-end
-
 ActiveSambaLdap::Base.establish_connection("update")
 
+
+class User < ActiveSambaLdap::SambaUser
+  ldap_mapping
+end
 
 class Computer < ActiveSambaLdap::SambaComputer
   ldap_mapping
 end
 
-class User < ActiveSambaLdap::SambaUser
+class Group < ActiveSambaLdap::SambaGroup
+  ldap_mapping
+end
+
+class UnixIdPool < ActiveSambaLdap::UnixIdPool
   ldap_mapping
 end
 
@@ -187,6 +185,11 @@ unless member_class.valid_name?(name)
   exit 1
 end
 
+if member_class.exists?(name)
+  $stderr.puts "#{member_type} '#{name}' already exists."
+  exit 1
+end
+
 if options.ou
   prefixes = [member_prefix]
   options.ou.split(/\s*,\s*/).reverse_each do |entry|
@@ -200,66 +203,48 @@ if options.ou
   end
 end
 
-if member_class.exists?(name)
-  $stderr.puts "#{member_type} '#{name}' already exists."
-  exit 1
-end
-member = member_class.new(name)
+create_options = {
+  :uid => name,
+  :uid_number => options.uid,
+  :gid_number => options.gid,
+  :create_group => options.create_group,
+  :group_class => Group,
+  :home_directory => options.home_directory,
+  :login_shell => options.shell,
+  :given_name => options.given_name,
+  :cn => options.canonical_name,
+  :sn => options.surname,
+  :gecos => options.comment,
+  :samba_acct_flags => options.samba_account_flags,
+}
 
-class UnixIdPool < ActiveSambaLdap::UnixIdPool
-  ldap_mapping
+if !create_options[:cn] and options.given_name and options.surname
+  create_options[:cn] = "#{options.given_name} #{options.surname}"
 end
-def make_pool
-  UnixIdPool.find(UnixIdPool.configuration[:samba_domain])
-end
-pool = nil
 
-if options.uid
-  uid_number = options.uid
+if options.computer_account
+  create_options[:description] = "Computer"
+  create_options[:gecos] ||= "Computer"
 else
-  pool = make_pool
-  uid_number = member_class.find_available_uid_number(pool)
-end
-member.change_uid_number(uid_number)
-
-uid_number = Integer(member.uidNumber)
-unless member_class.find(:first,
-                         :attribute => "uidNumber",
-                         :value => uid_number.to_s).nil?
-  $stderr.puts "UID '#{uid_number}' already exists"
-  exit 1
-end
-
-class Group < ActiveSambaLdap::SambaGroup
-  ldap_mapping
-end
-
-group = nil
-if options.gid
-  gid_number = options.gid
-else
-  if options.create_group
-    pool ||= make_pool
-    gid_number = Group.find_available_gid_number(pool)
-    name = member.uid.sub(/\$\z/, '')
-    unless Group.exists?(name)
-      group = Group.new(name)
-      group.change_gid_number(gid_number)
-      group.change_type("domain")
-      group.display_name = group.cn
-      group.save!
-    end
-  else
-    if options.computer_account
-      gid_number = member_class.configuration[:default_computer_gid]
-    else
-      gid_number = member_class.configuration[:default_user_gid]
-    end
+  create_options.merge!(:can_change_password => options.can_change_password,
+                        :must_change_password => options.must_change_password,
+                        :user_script => options.samba_logon_script,
+                        :user_samba_home => options.samba_home_path,
+                        :user_home_drive => options.samba_home_drive,
+                        :user_profile => options.samba_profile_path)
+  if options.expire_date
+    create_options[:samba_kickoff_time] = options.expire_date.to_i.to_s
   end
 end
 
+
+
+member = nil
 begin
-  member.primary_group = Group.find_by_gid_number(gid_number)
+  member = member_class.create(create_options)
+rescue ActiveSambaLdap::UidNumberAlreadyExists
+  $stderr.puts "UID '#{uid_number}' already exists"
+  exit 1
 rescue ActiveSambaLdap::GidNumberDoesNotExist,
   ActiveSambaLdap::GroupDoesNotExist,
   ActiveSambaLdap::GroupDoesNotHaveSambaSID
@@ -267,133 +252,23 @@ rescue ActiveSambaLdap::GidNumberDoesNotExist,
   exit 1
 end
 
-home_directory = options.home_directory
-if home_directory.nil?
-  if options.computer_account
-    home_directory = "/nonexistent"
-  else
-    home_directory = member_class.configuration[:user_home]
+unless member.errors.empty?
+  member.errors.each_full do |message|
+    $stderr.puts(message)
   end
-end
-home_directory = substitute_member(home_directory, member)
-home_directory = home_directory.gsub(/\/{2,}/, "/")
-member.home_directory = home_directory
-
-
-login_shell = options.shell
-if options.computer_account
-  login_shell ||= "/bin/false"
-else
-  login_shell ||= member_class.configuration[:user_login_shell]
-end
-member.login_shell = login_shell
-
-if options.computer_account
-  member.description = "Computer"
-end
-
-member.given_name = options.given_name || member.uid
-member.sn = options.surname || member.uid
-if options.canonical_name
-  member.cn = options.canonical_name
-elsif options.given_name and options.surname
-  member.cn = "#{options.given_name} #{options.surname}"
-else
-  member.cn = member.uid
-end
-
-gecos = options.comment
-if options.computer_account
-  gecos ||= "Computer"
-else
-  gecos ||= member_class.configuration[:user_gecos]
-end
-
-if gecos
-  member.gecos = substitute_member(gecos, member)
-else
-  member.gecos = member.cn
-end
-
-member.display_name = member.cn
-
-flags = options.samba_account_flags
-if flags.nil?
-  if options.computer_account
-    flags = "[W]"
-  else
-    flags = "[U]"
-  end
-end
-member.samba_acct_flags = flags
-
-unless options.computer_account
-  member.user_password = "{crypt}x"
-
-  if options.can_change_password
-    member.enable_password_change
-  else
-    member.disable_password_change
-  end
-
-  if options.must_change_password
-    member.enable_forcing_password_change
-  else
-    member.disable_forcing_password_change
-  end
-
-  member.samba_logon_time = '0'
-  member.samba_logoff_time = member_class::FAR_FUTURE_TIME
-  if options.expire_date
-    member.samba_kickoff_time = options.expire_date.to_i.to_s
-  else
-    member.samba_kickoff_time = member_class::FAR_FUTURE_TIME
-  end
-
-  logon_script = get_value(options, :samba_logon_script, :user_script)
-  member.samba_logon_script = substitute_member(logon_script, member)
-
-  home_path = get_value(options, :samba_home_path, :user_samba_home)
-  member.samba_home_path = substitute_member(home_path, member)
-
-  home_drive = get_value(options, :samba_home_drive, :user_home_drive)
-  home_drive = substitute_member(home_drive, member)
-  member.samba_home_drive = home_drive.sub(/([^:])$/, "\\1:")
-
-  profile_path = get_value(options, :samba_profile_path, :user_profile)
-  member.samba_profile_path = substitute_member(profile_path, member)
-
-  member.samba_lm_password = "XXX"
-  member.samba_nt_password = "XXX"
-  member.samba_pwd_last_set = Time.now.to_i.to_s
-end
-
-member.save!
-
-if pool
-  pool.uid_number = Integer(member.uid_number).succ unless options.uid
-  pool.gid_number = Integer(group.gid_number).succ if group
-  pool.save!
+  exit 1
 end
 
 if options.setup_home_directory
-  dest = member.home_directory
-  if dest
-    begin
-      FileUtils.mkdir_p(dest)
-      mode = options.home_directory_mode
-      mode ||= member_class.configuration[:user_home_directory_mode]
-      FileUtils.chmod(Integer(mode), dest)
-      skel = get_value(options, :skeleton_directory)
-      FileUtils.cp_r(Dir.glob(File.join(skel, ".*")) +
-                     Dir.glob(File.join(skel, "*")) -
-                     [File.join(skel, "."), File.join(skel, "..")],
-                     dest)
-      FileUtils.chown_R(member.uid_number, member.gid_number, dest)
-    rescue SystemCallError
-      $stderr.puts $!
-      exit 1
-    end
+  begin
+    setup_options = {
+      :mode => options.home_directory_mode,
+      :skeleton_directory => options.skeleton_directory,
+    }
+    member.setup_home_directory(setup_options)
+  rescue SystemCallError
+    $stderr.puts $!
+    exit 1
   end
 end
 

@@ -5,6 +5,8 @@ module ActiveSambaLdap
   class Computer < Base
     include Reloadable::Subclasses
 
+    include Entry
+
     include Account
     include ComputerAccount
   end

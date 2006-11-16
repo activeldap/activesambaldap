@@ -1,35 +1,18 @@
 require 'English'
 
+require 'active_samba_ldap/entry'
+
 module ActiveSambaLdap
   class Group < Base
     include Reloadable::Subclasses
 
+    include Entry
 
     class << self
       def ldap_mapping(options={})
         options = default_options.merge(options)
         super(extract_ldap_mapping_options(options))
         init_associations(options)
-      end
-
-      def create(attributes=nil)
-        pool = nil
-        group = super do |group|
-          options = attributes || {}
-          options = {:gid_number => group.gid_number}.merge(options)
-          gid_number, pool = ensure_gid_number(options)
-          group.fill_default_values(options.merge(:gid_number => gid_number))
-          yield group if block_given?
-        end
-        if group.errors.empty? and pool
-          pool.gid_number = Integer(group.gid_number).succ
-          unless pool.save
-            pool.each do |key, value|
-              group.add("pool: #{key}", value)
-            end
-          end
-        end
-        group
       end
 
       def find_by_name_or_gid_number(key)
@@ -49,23 +32,6 @@ module ActiveSambaLdap
         attribute = "gidNumber"
         value = Integer(number).to_s
         find(:first, :filter => "(#{attribute}=#{value})")
-      end
-
-      def start_gid
-        Integer(configuration[:start_gid])
-      end
-
-      def find_available_gid_number(pool)
-        gid_number = pool.gid_number || start_gid
-
-        100.times do |i|
-          if find(:first, :filter => "(gidNumber=#{gid_number})").nil?
-            return gid_number
-          end
-          gid_number = gid_number.succ
-        end
-
-        nil
       end
 
       private
@@ -125,17 +91,8 @@ module ActiveSambaLdap
                  primary_members_opts.merge(primary_computer_members_opts)
       end
 
-      def ensure_gid_number(options)
-        gid_number = options[:gid_number]
-        pool = nil
-        unless gid_number
-          pool_class = options[:pool_class] || Class.new(UnixIdPool)
-          samba_domain = options[:samba_domain]
-          samba_domain ||= pool_class.configuration[:samba_domain]
-          pool = pool_class.find(samba_domain)
-          gid_number = find_available_gid_number(pool)
-        end
-        [gid_number, pool]
+      def prepare_create_options(group, options)
+        prepare_create_options_for_number(:gid_number, group, options)
       end
     end
 

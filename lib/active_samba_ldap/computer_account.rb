@@ -19,5 +19,13 @@ module ActiveSambaLdap
     def remove_from_group(group)
       group.computers.delete(self)
     end
+
+    def default_gid_number
+      self.class.configuration[:default_computer_gid]
+    end
+
+    def created_group_name
+      super.sub(/\$$/, '')
+    end
   end
 end

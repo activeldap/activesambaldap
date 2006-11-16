@@ -82,7 +82,7 @@ module ActiveSambaLdap
     end
 
     def fill_default_values(options={})
-      change_type(options[:group_type] || "domain")
+      change_type(options[:group_type] || "domain") unless samba_group_type
       super
     end
 

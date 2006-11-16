@@ -13,5 +13,29 @@ module ActiveSambaLdap
         super options
       end
     end
+
+    def find_available_uid_number(account_class)
+      find_available_number(account_class, "uidNumber", uid_number) do
+        account_class.configuration[:start_uid]
+      end
+    end
+
+    def find_available_gid_number(group_class)
+      find_available_number(group_class, "gidNumber", gid_number) do
+        group_class.configuration[:start_gid]
+      end
+    end
+
+    private
+    def find_available_number(klass, key, start_value)
+      number = Integer(start_value || yield)
+
+      100.times do |i|
+        return number if klass.search(:filter => "(#{key}=#{number})").empty?
+        number += 1
+      end
+
+      nil
+    end
   end
 end

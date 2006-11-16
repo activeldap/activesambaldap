@@ -15,5 +15,9 @@ module ActiveSambaLdap
     def remove_from_group(group)
       group.users.delete(self)
     end
+
+    def default_gid_number
+      self.class.configuration[:default_user_gid]
+    end
   end
 end

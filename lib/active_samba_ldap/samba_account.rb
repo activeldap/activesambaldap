@@ -76,24 +76,39 @@ module ActiveSambaLdap
     end
 
     def fill_default_values(options={})
-      self.samba_home_path = substituted_value(:user_samba_home)
-      self.samba_home_drive = substituted_value(:user_home_drive)
-      self.samba_profile_path = substituted_value(:user_profile)
-      self.samba_logon_script = substituted_value(:user_script)
-      self.samba_logon_time = "0"
-      self.samba_logoff_time = FAR_FUTURE_TIME
-      self.samba_kickoff_time = FAR_FUTURE_TIME
-      self.samba_acct_flags = default_account_flags
-
-      self.samba_lm_password = "XXX"
-      self.samba_nt_password = "XXX"
-      self.samba_pwd_last_set = "0"
-      self.enable_password_change
-      self.disable_forcing_password_change
-
-      self.disable
-
       super
+
+      self.samba_logon_time ||= "0"
+      self.samba_logoff_time ||= FAR_FUTURE_TIME
+      self.samba_kickoff_time ||= nil
+
+      self.samba_lm_password ||= "XXX"
+      self.samba_nt_password ||= "XXX"
+      self.samba_pwd_last_set ||= "0"
+
+      account_flags_is_not_set = samba_acct_flags.nil?
+      self.samba_acct_flags ||= default_account_flags
+
+      can_change_password = options[:can_change_password]
+      if can_change_password
+        self.enable_password_change
+      elsif account_flags_is_not_set or can_change_password == false
+        self.disable_password_change
+      end
+
+      must_change_password = options[:must_change_password]
+      if must_change_password
+        self.enable_forcing_password_change
+      elsif account_flags_is_not_set or must_change_password == false
+        self.disable_forcing_password_change
+      end
+
+      enable_account = options[:enable]
+      if enable_account
+        self.enable
+      elsif account_flags_is_not_set or enable_account == false
+        self.disable
+      end
     end
 
     def change_uid_number(uid, allow_non_unique=false)

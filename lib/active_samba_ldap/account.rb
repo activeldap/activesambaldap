@@ -30,23 +30,6 @@ module ActiveSambaLdap
         find(:first, :filter => "(#{attribute}=#{value})")
       end
 
-      def start_uid
-        Integer(configuration[:start_uid])
-      end
-
-      def find_available_uid_number(pool)
-        uid_number = (pool.uid_number || start_uid).to_s
-
-        100.times do |i|
-          if find(:first, :attribute => "uidNumber", :value => uid_number).nil?
-            return uid_number
-          end
-          uid_number = uid_number.succ
-        end
-
-        nil
-      end
-
       private
       def default_options
         {
@@ -84,21 +67,48 @@ module ActiveSambaLdap
           :many => options[:groups_many],
         }
       end
+
+      def prepare_create_options(account, options)
+        prepare_create_options_for_number(:uid_number, account, options)
+      end
     end
 
     def fill_default_values(options={})
-      self.cn = uid
-      self.sn = uid
-      self.gecos = substituted_value(:user_gecos) {uid}
-      self.home_directory = substituted_value(:user_home)
-      self.login_shell = substituted_value(:user_login_shell)
+      self.cn ||= uid
+      self.sn ||= uid
+      self.given_name ||= uid
+      self.display_name ||= cn
+      self.gecos ||= substituted_value(:user_gecos) {cn}
+      self.home_directory ||= substituted_value(:user_home)
+      self.login_shell ||= self.class.configuration[:user_login_shell]
 
-      self.user_password = "{crypt}x"
+      self.user_password ||= "{crypt}x"
 
       uid_number = options[:uid_number]
       self.change_uid_number(uid_number) if uid_number
 
       group = options[:group]
+      unless group
+        gid_number = options[:gid_number]
+        group_class = options[:group_class]
+        unless gid_number
+          if options[:create_group]
+            group_name = created_group_name
+            if group_class.exists?(group_name)
+              group = group_class.find(group_name)
+            else
+              group = group_class.create(:cn => group_name,
+                                         :pool => options[:pool],
+                                         :pool_class => options[:pool_class])
+            end
+          else
+            gid_number = default_gid_number
+          end
+        end
+        if gid_number
+          group = group_class.find_by_gid_number(gid_number)
+        end
+      end
       self.primary_group = group if group
 
       self
@@ -135,6 +145,23 @@ module ActiveSambaLdap
       self.user_password = hashed_password
     end
 
+    def setup_home_directory(options={})
+      dest = home_directory
+      return unless dest
+
+      FileUtils.mkdir_p(dest)
+      mode = options[:mode]
+      mode ||= self.class.configuration[:user_home_directory_mode]
+      FileUtils.chmod(Integer(mode), dest)
+      skel = options[:skeleton_directory]
+      skel ||= self.class.configuration[:skeleton_directory]
+      FileUtils.cp_r(Dir.glob(File.join(skel, ".*")) +
+                     Dir.glob(File.join(skel, "*")) -
+                     [File.join(skel, "."), File.join(skel, "..")],
+                     dest)
+      FileUtils.chown_R(uid_number, gid_number, dest)
+    end
+
     private
     def check_unique_uid_number(uid_number)
       ActiveSambaLdap::Base.restart_nscd do
@@ -160,6 +187,10 @@ module ActiveSambaLdap
       else
         substitute_template(config[key.to_sym])
       end
+    end
+
+    def created_group_name
+      uid
     end
   end
 end

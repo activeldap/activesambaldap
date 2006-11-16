@@ -42,7 +42,7 @@ class AslGroupAddTest < Test::Unit::TestCase
       pool_class = Class.new(ActiveSambaLdap::UnixIdPool)
       pool_class.ldap_mapping
       pool = pool_class.new(pool_class.configuration[:samba_domain])
-      next_gid = @group_class.find_available_gid_number(pool)
+      next_gid = pool.find_available_gid_number(@group_class)
       assert_asl_groupadd_successfully(cn, "#{next_gid}\n",
                                        "--print-gid-number")
     end

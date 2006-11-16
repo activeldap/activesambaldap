@@ -227,11 +227,11 @@ module AslTestUtils
     end
 
     def next_uid_number
-      pool.uidNumber || @user_class.start_uid
+      pool.uid_number || @user_class.configuration[:start_uid]
     end
 
     def next_gid_number
-      pool.gidNumber || @group_class.start_gid
+      pool.gid_number || @group_class.configuration[:start_gid]
     end
   end
 
