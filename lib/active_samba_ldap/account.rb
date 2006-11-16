@@ -82,33 +82,14 @@ module ActiveSambaLdap
       self.home_directory ||= substituted_value(:user_home)
       self.login_shell ||= self.class.configuration[:user_login_shell]
 
+      password = options[:password]
+      change_password(password) if password
       self.user_password ||= "{crypt}x"
 
       uid_number = options[:uid_number]
       self.change_uid_number(uid_number) if uid_number
 
-      group = options[:group]
-      unless group
-        gid_number = options[:gid_number]
-        group_class = options[:group_class]
-        unless gid_number
-          if options[:create_group]
-            group_name = created_group_name
-            if group_class.exists?(group_name)
-              group = group_class.find(group_name)
-            else
-              group = group_class.create(:cn => group_name,
-                                         :pool => options[:pool],
-                                         :pool_class => options[:pool_class])
-            end
-          else
-            gid_number = default_gid_number
-          end
-        end
-        if gid_number
-          group = group_class.find_by_gid_number(gid_number)
-        end
-      end
+      group = options[:group] || retrieve_default_group(options)
       self.primary_group = group if group
 
       self
@@ -191,6 +172,32 @@ module ActiveSambaLdap
 
     def created_group_name
       uid
+    end
+
+    def retrieve_default_group(options={})
+      group = nil
+
+      gid_number = options[:gid_number]
+      group_class = options[:group_class]
+      unless gid_number
+        if options[:create_group]
+          group_name = created_group_name
+          if group_class.exists?(group_name)
+            group = group_class.find(group_name)
+          else
+            group = group_class.create(:cn => group_name,
+                                       :pool => options[:pool],
+                                       :pool_class => options[:pool_class])
+          end
+        else
+          gid_number = default_gid_number
+        end
+      end
+      if gid_number
+        group = group_class.find_by_gid_number(gid_number)
+      end
+
+      group
     end
   end
 end

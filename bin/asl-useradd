@@ -237,8 +237,6 @@ else
   end
 end
 
-
-
 member = nil
 begin
   member = member_class.create(create_options)

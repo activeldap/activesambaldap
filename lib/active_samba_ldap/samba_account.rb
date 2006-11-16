@@ -82,6 +82,8 @@ module ActiveSambaLdap
       self.samba_logoff_time ||= FAR_FUTURE_TIME
       self.samba_kickoff_time ||= nil
 
+      password = options[:password]
+      change_samba_password(password) if password
       self.samba_lm_password ||= "XXX"
       self.samba_nt_password ||= "XXX"
       self.samba_pwd_last_set ||= "0"
@@ -109,6 +111,8 @@ module ActiveSambaLdap
       elsif account_flags_is_not_set or enable_account == false
         self.disable
       end
+
+      self
     end
 
     def change_uid_number(uid, allow_non_unique=false)

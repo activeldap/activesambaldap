@@ -118,15 +118,15 @@ module AslTestUtils
         gid_number = config[:gid_number] || default_user_gid
         _wrap_assertion do
           assert(!@user_class.exists?(name))
-          user = @user_class.new(name)
           options = {
+            :uid => name,
             :uid_number => uid_number,
             :group => @group_class.find_by_gid_number(gid_number),
+            :home_directory => home_directory,
+            :password => password,
           }
-          user.fill_default_values(options)
-          user.home_directory = home_directory
-          user.change_password(password)
-          user.change_samba_password(password)
+          user = @user_class.create(options)
+          assert_equal([], user.errors.to_a)
           user.save!
           FileUtils.mkdir(home_directory)
           assert(@user_class.exists?(name))
@@ -138,11 +138,9 @@ module AslTestUtils
     def ensure_delete_user(uid, home=nil)
       yield(uid, home)
     ensure
-      FileUtils.rm_rf(home) if home
       if @user_class.exists?(uid)
-        user = @user_class.find(uid)
-        user.groups = []
-        user.destroy
+        @user_class.find(uid).destroy(:remove_from_group => true,
+                                      :remove_home_directory => true)
       end
     end
 
@@ -158,17 +156,14 @@ module AslTestUtils
         gid_number = config[:gid_number] || default_computer_gid
         _wrap_assertion do
           assert(!@computer_class.exists?(name))
-          computer = @computer_class.new(name)
           options = {
+            :uid => name,
             :uid_number => uid_number,
             :group => @group_class.find_by_gid_number(gid_number),
+            :password => password,
           }
-          computer.fill_default_values(options)
-          if password
-            computer.change_password(password)
-            computer.change_samba_password(password)
-          end
-          computer.save!
+          computer = @computer_class.create(options)
+          assert_equal([], computer.errors.to_a)
           FileUtils.mkdir(home_directory)
           assert(@computer_class.exists?(name))
           yield(computer, password)
@@ -179,11 +174,9 @@ module AslTestUtils
     def ensure_delete_computer(uid, home=nil)
       yield(uid.sub(/\$+\z/, '') + "$", home)
     ensure
-      FileUtils.rm_rf(home) if home
       if @computer_class.exists?(uid)
-        computer = @computer_class.find(uid)
-        computer.groups = []
-        computer.destroy
+        @computer_class.find(uid).destroy(:remove_from_group => true,
+                                          :remove_home_directory => true)
       end
     end
 
@@ -195,10 +188,13 @@ module AslTestUtils
         group_type = config[:group_type] || "domain"
         _wrap_assertion do
           assert(!@group_class.exists?(name))
-          group = @group_class.new(name)
-          group.change_gid_number(gid_number)
-          group.change_type(group_type)
-          group.save!
+          options = {
+            :cn => name,
+            :gid_number => gid_number,
+            :group_type => group_type,
+          }
+          group = @group_class.create(options)
+          assert_equal([], group.errors.to_a)
           assert(@group_class.exists?(name))
           yield(group)
         end
@@ -208,7 +204,9 @@ module AslTestUtils
     def ensure_delete_group(name)
       yield(name)
     ensure
-      @group_class.destroy(name) if @group_class.exists?(name)
+      if @group_class.exists?(name)
+        @group_class.find(name).destroy(:remove_members => false)
+      end
     end
 
     def ensure_delete_ou(ou)
