@@ -29,6 +29,14 @@ Ruby's.
 
 asl-devel@rubyforge.org
 
+== Reference manual
+
+((<URL:http://asl.rubyforge.org/>))
+
+== Dependency libraries
+
+  * ActiveLdap >= 0.8.0: not released
+
 == Usage
 
 === Use with Rails
