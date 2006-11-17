@@ -15,7 +15,7 @@ eval('require_gem_if_need.call("hoe")', _binding)
 manifest = File.join(base_dir, "Manifest.txt")
 manifest_contents = []
 excluded_components = %w(.svn .test-result .config Manifest.txt config.yml doc
-                         pkg setup.rb post-setup.rb)
+                         pkg setup.rb post-setup.rb html)
 excluded_suffixes = %w(.help)
 Find.find(base_dir) do |target|
   target = truncate_base_dir[target]
