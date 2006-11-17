@@ -1,0 +1,92 @@
+#!/usr/bin/env ruby
+
+require 'active_samba_ldap'
+require 'active_samba_ldap/command'
+
+argv, opts, options = ActiveSambaLdap::Command.parse_options do |opts, options|
+  options.computer_account = false
+  options.gid = nil
+
+  opts.banner += " USER_NAME"
+
+  opts.on("-c", "--[no-]computer-account",
+          "is a Windows Workstation",
+          "(otherwise, Windows user)",
+          "(#{options.computer_account})") {|options.computer_account|}
+
+  opts.on("-g", "--gid=GID", "gid") {|options.gid|}
+end
+
+name = nil
+if argv.size == 1
+  name = argv.first
+else
+  $stderr.puts opts
+  exit 1
+end
+
+ActiveSambaLdap::Base.establish_connection("update")
+
+class User < ActiveSambaLdap::User
+  ldap_mapping
+end
+
+class Computer < ActiveSambaLdap::Computer
+  ldap_mapping
+end
+
+class Group < ActiveSambaLdap::Group
+  ldap_mapping
+end
+
+options.computer_account = true if /\$$/ =~ name
+
+member_class = options.computer_account ? Computer : User
+member_type = member_class.name.downcase
+
+if options.computer_account
+  name = name.chomp("$") + "$"
+end
+
+unless member_class.exists?(name)
+  $stderr.puts "#{member_type} '#{name}' doesn't exist."
+  exit 1
+end
+member = member_class.find(name)
+
+unless Process.uid.zero?
+  password = ActiveSambaLdap::Command.read_password("Enter your password: ")
+
+  auth_class = Class.new(ActiveSambaLdap::Base)
+  config = ActiveSambaLdap::Base.configurations["reference"]
+  begin
+    auth_class.establish_connection(config.merge(:bind_dn => member.dn,
+                                                 :password => password,
+                                                 :allow_anonymous => false))
+  rescue ActiveLdap::AuthenticationError
+    $stderr.puts "password isn't match"
+    exit 1
+  ensure
+    auth_class.remove_connection
+  end
+end
+
+if options.gid
+  begin
+    member.primary_group = Group.find_by_name_or_gid_number(options.gid)
+  rescue ActiveSambaLdap::Error
+    $stderr.puts $!.message
+    exit 1
+  end
+end
+
+unless member.save
+  member.errors.each_full do |message|
+    $stderr.puts(message)
+  end
+  exit 1
+end
+
+ActiveSambaLdap::Base.restart_nscd
+
+ActiveSambaLdap::Base.clear_active_connections!

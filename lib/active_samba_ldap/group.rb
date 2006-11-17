@@ -100,7 +100,6 @@ module ActiveSambaLdap
       gid_number = options[:gid_number]
       change_gid_number(gid_number) if gid_number
       self.description ||= options[:description] || cn
-      self.display_name ||= options[:display_name] || cn
     end
 
     def members

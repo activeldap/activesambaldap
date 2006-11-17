@@ -4,22 +4,11 @@ require 'active_samba_ldap'
 require 'active_samba_ldap/command'
 
 argv, opts, options = ActiveSambaLdap::Command.parse_options do |opts, options|
-  options.gid = nil
-  options.allow_non_unique_gid_number = false
-  options.new_group_name = nil
   options.members_to_add = nil
   options.members_to_delete = nil
 
   opts.banner += " GROUP_NAME"
 
-  opts.on("-g", "--gid=GID", "gid") {|options.gid|}
-  opts.on("--[no-]allow-non-unique-gid",
-          "gid can be non unique " +
-          "(#{options.allow_non_unique_gid_number})") do |bool|
-    options.allow_non_unique_gid_number = bool
-  end
-  opts.on("-r", "--rename=NEW_NAME",
-          "new group name") {|options.new_group_name|}
   opts.on("-a", "--add-members=MEMBER1,MEMBER2,MEBMER3", Array,
           "add members (comma delimited)") {|options.members_to_add|}
   opts.on("-d", "--delete-members=MEMBER1,MEMBER2,MEBMER3", Array,
@@ -41,15 +30,15 @@ end
 
 ActiveSambaLdap::Base.establish_connection("update")
 
-class Group < ActiveSambaLdap::SambaGroup
+class Group < ActiveSambaLdap::Group
   ldap_mapping
 end
 
-class User < ActiveSambaLdap::SambaUser
+class User < ActiveSambaLdap::User
   ldap_mapping
 end
 
-class Computer < ActiveSambaLdap::SambaComputer
+class Computer < ActiveSambaLdap::Computer
   ldap_mapping
 end
 
@@ -58,15 +47,6 @@ unless Group.exists?(name)
   exit 1
 end
 group = Group.find(name)
-
-if options.gid
-  begin
-    group.change_gid_number(options.gid, options.allow_non_unique_gid_number)
-  rescue ActiveSambaLdap::GidNumberAlreadyExists
-    $stderr.puts $!.message
-    exit 1
-  end
-end
 
 if options.members_to_add and options.members_to_delete
   duplicated_members = options.members_to_add & options.members_to_delete
@@ -106,26 +86,11 @@ if options.members_to_delete
   group.computers -= computers
 end
 
-group.save!
-
-if options.new_group_name
-  if Group.exists?(options.new_group_name)
-    $stderr.puts "group '#{options.new_group_name}' always exists."
-    exit 1
+unless group.save
+  group.errors.each_full do |message|
+    $stderr.puts(message)
   end
-
-  new_group = Group.new(options.new_group_name)
-  new_group.attributes = group.attributes.reject do |key, value|
-    %w(cn).include?(key)
-  end
-  primary_members = group.primary_members
-  group.gid_number = nil
-  new_group.save!
-  primary_members.each do |member|
-    member.primary_group = new_group
-    member.save!
-  end
-  group.destroy(:remove_members => true)
+  exit 1
 end
 
 ActiveSambaLdap::Base.restart_nscd

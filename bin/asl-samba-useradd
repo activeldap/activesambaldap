@@ -1,0 +1,98 @@
+#!/usr/bin/env ruby
+
+require 'active_samba_ldap'
+require 'active_samba_ldap/command'
+
+argv, opts, options = ActiveSambaLdap::Command.parse_options do |opts, options|
+  options.ou = nil
+
+  opts.banner += " USER_NAME"
+
+  opts.on("-o", "--ou=OU",
+          "add the user in the organizational unit OU",
+          "(relative to the user suffix)") do |ou|
+    if /^ou=/ =~ ou
+      options.ou = ou
+    else
+      options.ou = "ou=#{ou}"
+    end
+  end
+end
+
+name = nil
+if argv.size == 1
+  name = argv.first
+else
+  $stderr.puts opts
+  exit 1
+end
+
+unless Process.uid.zero?
+  $stderr.puts "need root authority."
+  exit 1
+end
+
+ActiveSambaLdap::Base.establish_connection("update")
+
+
+class User < ActiveSambaLdap::User
+  ldap_mapping
+end
+
+class Computer < ActiveSambaLdap::Computer
+  ldap_mapping
+end
+
+class Group < ActiveSambaLdap::Group
+  ldap_mapping
+end
+
+class UnixIdPool < ActiveSambaLdap::UnixIdPool
+  ldap_mapping
+end
+
+unless User.valid_name?(name)
+  $stderr.puts "'#{name}' is illegal user name"
+  exit 1
+end
+
+if User.exists?(name)
+  $stderr.puts "user '#{name}' already exists."
+  exit 1
+end
+
+create_options = {
+  :uid => [name, options.ou].compact.join(","),
+  :group_class => Group,
+}
+
+user = nil
+begin
+  user = User.create(:uid => name, :group_class => Group)
+rescue ActiveSambaLdap::UidNumberAlreadyExists
+  $stderr.puts "UID '#{uid_number}' already exists"
+  exit 1
+rescue ActiveSambaLdap::GidNumberDoesNotExist,
+  ActiveSambaLdap::GroupDoesNotExist,
+  ActiveSambaLdap::GroupDoesNotHaveSambaSID
+  $stderr.puts $!
+  exit 1
+end
+
+unless user.errors.empty?
+  user.errors.each_full do |message|
+    $stderr.puts(message)
+  end
+  exit 1
+end
+
+begin
+  user.setup_home_directory
+rescue SystemCallError
+  $stderr.puts $!
+  exit 1
+end
+
+ActiveSambaLdap::Base.restart_nscd
+
+ActiveSambaLdap::Base.clear_active_connections!
