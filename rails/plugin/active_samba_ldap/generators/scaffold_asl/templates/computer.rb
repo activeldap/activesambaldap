@@ -1,3 +1,3 @@
-class Computer < ActiveSambaLdap::Computer
+class Computer < ActiveSambaLdap::SambaComputer
   ldap_mapping
 end

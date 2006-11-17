@@ -1,3 +1,3 @@
-class Group < ActiveSambaLdap::Group
+class Group < ActiveSambaLdap::SambaGroup
   ldap_mapping
 end

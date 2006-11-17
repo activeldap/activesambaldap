@@ -1,3 +1,3 @@
-class User < ActiveSambaLdap::User
+class User < ActiveSambaLdap::SambaUser
   ldap_mapping
 end

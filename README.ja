@@ -51,6 +51,8 @@ config/ldap.ymlが生成されるので，環境にあわせて編集します�
 指定できるオプションは，以下の「設定ファイルのオプション」の
 項を参考にしてください．
 
+==== 初期化
+
 はじめに，Samba + LDAP環境を初期化する必要があります．
 script/serverなどでRailsを起動し，
 http://localhost:3000/sambaにアクセスしてください．
@@ -62,7 +64,8 @@ User/Computer/Groupクラスなどを使用して開発してください．
 
 === コマンドラインから使う
 
-asl-*というコマンドを使います．
+asl-*というコマンドを使います．asl-samba-*はsmb.confに設定す
+るためのコマンドで，ターミナルから使うことはありません．
 
 ==== 設定
 
@@ -185,7 +188,7 @@ sidを設定しておかないと，毎回net getlocalsidをするため，効�
    LDAP上のコンピュータエントリを格納するツリー．baseからの相対パ
    スを指定する．例: ou=Computers
 : idmap_suffix
-   LDAP上のユーザエントリを格納するツリー．baseからの相対パ
+   LDAP上のidmapエントリを格納するツリー．baseからの相対パ
    スを指定する．例: ou=Idmap
 
 : start_uid
@@ -265,9 +268,14 @@ asl-purge, asl-passwordを使って管理してください．各コマンド
 
 ==== smb.confの設定
 
-asl-samba-*を使います．
+((<Srvtools|URL:http://support.microsoft.com/kb/173673/>))を
+使ってWindowsからユーザ管理を行いたい場合は，また，Sambaをド
+メインコントローラとして動作させたい場合は，以下のように
+smb.confを設定します．ここでは，asl-samba-*を使います．
 
-設定例．FIXME
+（ドメインコントローラとして動作させるけど，Srvtools でユー
+ザ管理を行わない場合はadd machine script以外のなんとかscript
+は設定しなくてもよい気がする．）
 
   passdb backend = ldapsam:ldap://127.0.0.0
   ldap admin dn = cn=admin,dc=local,dc=net
@@ -279,14 +287,14 @@ asl-samba-*を使います．
   ldap passwd sync = yes
 
   admin users = "@Domain Admins"
-  add user script = /etc/asl/asl-samba-useradd "%u"
-  delete user script = /etc/asl/asl-samba-userdel "%u"
-  add group script = /etc/asl/asl-samba-groupadd "%g"
-  delete group script = /etc/asl/asl-samba-groupdel "%g"
-  add user to group script = /etc/asl/asl-samba-groupmod "%g" --add-members "%u"
-  delete user from group script = /etc/asl/asl-samba-groupmod "%g" --delete-members "%u"
-  set primary group script = /etc/asl/asl-samba-usermod "%u" --gid "%g"
-  add machine script = /etc/asl/asl-samba-computeradd "%u"
+  add user script = /.../asl-samba-useradd "%u"
+  delete user script = /.../asl-samba-userdel "%u"
+  add group script = /.../asl-samba-groupadd "%g"
+  delete group script = /.../asl-samba-groupdel "%g"
+  add user to group script = /.../asl-samba-groupmod "%g" --add-members "%u"
+  delete user from group script = /.../asl-samba-groupmod "%g" --delete-members "%u"
+  set primary group script = /.../asl-samba-usermod "%u" --gid "%g"
+  add machine script = /.../asl-samba-computeradd "%u"
 
 Sambaを起動する前に，以下を実行してldap admin dnで指定した
 LDAP管理ユーザのパスワードを設定しておく必要があります．
