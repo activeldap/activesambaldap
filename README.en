@@ -239,7 +239,7 @@ The following options are available:
 
 : default_user_gid
    Default GID of group to which user belongs. Default is
-  'Domain Users' group.
+   'Domain Users' group.
 
 : default_computer_gid
    Default GID of group to which computer belongs. Default
