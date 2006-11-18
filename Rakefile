@@ -36,9 +36,24 @@ def cleanup_white_space(entry)
   entry.gsub(/(\A\n+|\n+\z)/, '') + "\n"
 end
 
+class Hoe
+  attr_accessor :full_name
+
+  alias_method :announcement_original, :announcement
+  def announcement
+    name_orig = name
+    self.name = full_name
+    announcement_original
+  ensure
+    self_name = name_orig
+  end
+end
+
 ENV["VERSION"] = ActiveSambaLdap::VERSION
 project = Hoe.new("activesambaldap", ActiveSambaLdap::VERSION) do |p|
   p.rubyforge_name = "asl"
+  p.name = p.rubyforge_name if ARGV.include?("public_docs")
+  p.full_name = "ActiveSambaLdap"
   p.summary = "Samba+LDAP administration tools"
   p.extra_deps << ["activeldap", ">= 0.8.0"]
   p.email = "kou@cozmixng.org"
