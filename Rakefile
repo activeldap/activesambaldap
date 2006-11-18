@@ -14,12 +14,17 @@ eval('require_gem_if_need.call("hoe")', _binding)
 
 manifest = File.join(base_dir, "Manifest.txt")
 manifest_contents = []
+base_dir_included_components = %w(README.ja README.en NEWS.ja NEWS.en setup.rb
+                                  Rakefile)
 excluded_components = %w(.svn .test-result .config Manifest.txt config.yml doc
-                         pkg setup.rb post-setup.rb html)
+                         pkg setup.rb post-setup.rb html config.yaml)
 excluded_suffixes = %w(.help)
 Find.find(base_dir) do |target|
   target = truncate_base_dir[target]
   components = target.split(File::SEPARATOR)
+  if components.size == 1 and !File.directory?(target)
+    next unless base_dir_included_components.include?(components[0])
+  end
   Find.prune if (excluded_components - components) != excluded_components
   next if excluded_suffixes.include?(File.extname(target))
   manifest_contents << target if File.file?(target)
