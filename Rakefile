@@ -17,7 +17,7 @@ manifest_contents = []
 base_dir_included_components = %w(README.ja README.en NEWS.ja NEWS.en setup.rb
                                   Rakefile)
 excluded_components = %w(.svn .test-result .config Manifest.txt config.yml doc
-                         pkg setup.rb post-setup.rb html config.yaml)
+                         pkg html config.yaml)
 excluded_suffixes = %w(.help)
 Find.find(base_dir) do |target|
   target = truncate_base_dir[target]
