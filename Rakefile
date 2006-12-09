@@ -93,3 +93,11 @@ project.bin_files.each do |bin|
     FileUtils.rm_f(bin_help)
   end
 end
+
+desc 'Tag the repository for release.'
+task :tag do
+  version = ActiveSambaLdap::VERSION
+  message = "Released ActiveSambaLdap #{version}!"
+  base = "svn+ssh://#{ENV['USER']}@rubyforge.org/var/svn/asl/"
+  run("svn copy -m #{message.dump} #{base}/trunk #{base}/tags/#{version}"
+end
