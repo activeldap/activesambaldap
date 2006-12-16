@@ -2,7 +2,7 @@ require 'active_samba_ldap/group'
 
 module ActiveSambaLdap
   class SambaGroup < Group
-    include Reloadable::Subclasses
+    include Reloadable
 
     # from librpc/ndr/security.h in Samba
     SID_BUILTIN = "S-1-5-32"

@@ -1,6 +1,8 @@
+require 'active_samba_ldap/base'
+
 module ActiveSambaLdap
   class Dc < Base
-    include Reloadable::Subclasses
+    include Reloadable
 
     class << self
       def ldap_mapping(options={})

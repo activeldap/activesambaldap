@@ -1,6 +1,8 @@
+require 'active_samba_ldap/base'
+
 module ActiveSambaLdap
   class UnixIdPool < Base
-    include Reloadable::Subclasses
+    include Reloadable
 
     class << self
       def ldap_mapping(options={})

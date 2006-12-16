@@ -2,6 +2,8 @@ require 'time'
 require 'fileutils'
 require 'English'
 
+require 'active_samba_ldap/base'
+
 module ActiveSambaLdap
   module Account
     NAME_RE_SRC = "(?!\\d)[\\w @_\\-\\.]+"

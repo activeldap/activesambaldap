@@ -1,3 +1,5 @@
+require 'active_samba_ldap/reloadable'
+
 module ActiveSambaLdap
   class Error < StandardError
   end
@@ -102,7 +104,7 @@ module ActiveSambaLdap
   end
 
   class Base < ActiveLdap::Base
-    include Reloadable::Subclasses
+    include Reloadable
 
     class << self
       def restart_nscd

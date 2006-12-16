@@ -3,7 +3,7 @@ require 'active_samba_ldap/computer_account'
 
 module ActiveSambaLdap
   class Computer < Base
-    include Reloadable::Subclasses
+    include Reloadable
 
     include Entry
 

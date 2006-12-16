@@ -4,7 +4,7 @@ require 'active_samba_ldap/entry'
 
 module ActiveSambaLdap
   class Group < Base
-    include Reloadable::Subclasses
+    include Reloadable
 
     include Entry
 
