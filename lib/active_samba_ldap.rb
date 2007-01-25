@@ -10,6 +10,10 @@ end
 
 require_gem_if_need.call("active_ldap", "ruby-activeldap", ">= 0.8.0")
 
+if Dependencies.respond_to?(:load_paths)
+  Dependencies.load_paths << File.expand_path(File.dirname(__FILE__))
+end
+
 require 'active_samba_ldap/version'
 require 'active_samba_ldap/base'
 require "active_samba_ldap/configuration"
