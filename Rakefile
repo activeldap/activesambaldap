@@ -99,5 +99,5 @@ task :tag do
   version = ActiveSambaLdap::VERSION
   message = "Released ActiveSambaLdap #{version}!"
   base = "svn+ssh://#{ENV['USER']}@rubyforge.org/var/svn/asl/"
-  run("svn copy -m #{message.dump} #{base}/trunk #{base}/tags/#{version}")
+  sh 'svn', 'copy', '-m', message, "#{base}trunk", "#{base}tags/#{version}"
 end
