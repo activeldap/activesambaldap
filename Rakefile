@@ -57,7 +57,6 @@ end
 ENV["VERSION"] = ActiveSambaLdap::VERSION
 project = Hoe.new("activesambaldap", ActiveSambaLdap::VERSION) do |p|
   p.rubyforge_name = "asl"
-  p.name = p.rubyforge_name if ARGV.include?("public_docs")
   p.full_name = "ActiveSambaLdap"
   p.summary = "Samba+LDAP administration tools"
   p.extra_deps << ["activeldap", ">= 0.8.0"]
