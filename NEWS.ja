@@ -4,8 +4,9 @@
 
 $Id$
 
-== 0.0.2:
+== 0.0.2: 2006-01-29
 
+  * ActiveSupport 1.4.0のサポート．
   * Ruby/ActiveLDAPのRubyGems名を修正．
 
 == 0.0.1: 2006-11-17
