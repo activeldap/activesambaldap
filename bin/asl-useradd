@@ -72,7 +72,7 @@ argv, opts, options = ActiveSambaLdap::Command.parse_options do |opts, options|
           "permission of home directory") {|options.home_directory_mode|}
   opts.on("--[no-]setup-home-directory",
           "setup home directory",
-          "(#{options.setup_home_directory}") {|options.setup_home_directory|}
+          "(#{options.setup_home_directory})") {|options.setup_home_directory|}
   opts.on("-k", "--skel=DIR", "--skeleton-directory=DIR",
           "skeleton directory") {|options.skeleton_directory|}
 
