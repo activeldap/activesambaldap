@@ -11,6 +11,7 @@ end
 _binding = binding
 eval(File.read("#{base_dir}/lib/active_samba_ldap.rb"), _binding)
 eval('require_gem_if_need.call("hoe")', _binding)
+required_active_ldap_version = eval('required_active_ldap_version', _binding)
 
 manifest = File.join(base_dir, "Manifest.txt")
 manifest_contents = []
@@ -59,7 +60,7 @@ project = Hoe.new("activesambaldap", ActiveSambaLdap::VERSION) do |p|
   p.rubyforge_name = "asl"
   p.full_name = "ActiveSambaLdap"
   p.summary = "Samba+LDAP administration tools"
-  p.extra_deps << ["activeldap", ">= 0.8.0"]
+  p.extra_deps << ["ruby-activeldap", required_active_ldap_version]
   p.email = "kou@cozmixng.org"
   p.author = "Kouhei Sutou"
   p.url = "http://asl.rubyforge.org/"
@@ -99,4 +100,38 @@ task :tag do
   message = "Released ActiveSambaLdap #{version}!"
   base = "svn+ssh://#{ENV['USER']}@rubyforge.org/var/svn/asl/"
   sh 'svn', 'copy', '-m', message, "#{base}trunk", "#{base}tags/#{version}"
+end
+
+
+# # fix Hoe's incorrect guess.
+# project.spec.executables.clear
+# project.bin_files = project.spec.files.grep(/^bin/)
+
+# fix Hoe's install and uninstall task.
+task(:install).instance_variable_get("@actions").clear
+task(:uninstall).instance_variable_get("@actions").clear
+
+task :install do
+  [
+   [project.lib_files, "lib", Hoe::RUBYLIB, 0444],
+   [project.bin_files, "bin", File.join(Hoe::PREFIX, 'bin'), 0555]
+  ].each do |files, prefix, dest, mode|
+    FileUtils.mkdir_p dest unless test ?d, dest
+    files.each do |file|
+      base = File.dirname(file.sub(/^#{prefix}#{File::SEPARATOR}/, ''))
+      _dest = File.join(dest, base)
+      FileUtils.mkdir_p _dest unless test ?d, _dest
+      install file, _dest, :mode => mode
+    end
+  end
+end
+
+desc 'Uninstall the package.'
+task :uninstall do
+  Dir.chdir Hoe::RUBYLIB do
+    rm_f project.lib_files.collect {|f| f.sub(/^lib#{File::SEPARATOR}/, '')}
+  end
+  Dir.chdir File.join(Hoe::PREFIX, 'bin') do
+    rm_f project.bin_files.collect {|f| f.sub(/^bin#{File::SEPARATOR}/, '')}
+  end
 end

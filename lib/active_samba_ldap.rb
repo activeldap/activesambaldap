@@ -8,7 +8,9 @@ require_gem_if_need = Proc.new do |library_name, gem_name, *options|
   end
 end
 
-require_gem_if_need.call("active_ldap", "ruby-activeldap", ">= 0.8.0")
+required_active_ldap_version = ">= 0.8.2"
+require_gem_if_need.call("active_ldap", "ruby-activeldap",
+                         required_active_ldap_version)
 
 if Dependencies.respond_to?(:load_paths)
   Dependencies.load_paths << File.expand_path(File.dirname(__FILE__))
