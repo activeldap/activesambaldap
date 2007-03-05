@@ -4,6 +4,10 @@
 
 $Id$
 
+== 0.0.3: XXXX-XX-XX
+
+  * Fixed typo of Ruby/ActiveLDAP's RubyGems name.
+
 == 0.0.2: 2007-01-29
 
   * Supported ActiveSupport 1.4.0.
