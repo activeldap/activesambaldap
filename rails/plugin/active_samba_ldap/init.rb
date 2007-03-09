@@ -1,4 +1,4 @@
-require_dependency 'active_samba_ldap'
+require_library_or_gem 'active_samba_ldap'
 ActiveSambaLdap::Base.logger ||= RAILS_DEFAULT_LOGGER
 ldap_configuration_file = File.join(RAILS_ROOT, 'config', 'ldap.yml')
 ActiveSambaLdap::Base.configurations =
