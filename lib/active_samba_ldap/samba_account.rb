@@ -29,6 +29,10 @@ module ActiveSambaLdap
     ACCOUNT_FLAGS_RE = /\A\[([NDHTUMWSLXI ]+)\]\z/
 
     module ClassMethods
+      def samba_object_class
+        "sambaSamAccount"
+      end
+
       def uid2rid(uid)
         uid = Integer(uid)
         if WELL_KNOWN_RIDS.include?(uid)
@@ -53,7 +57,7 @@ module ActiveSambaLdap
 
       private
       def default_recommended_classes
-        super + ["sambaSamAccount"]
+        super + [samba_object_class]
       end
 
       def primary_group_options(options)
@@ -76,14 +80,6 @@ module ActiveSambaLdap
           result
         end
       end
-    end
-
-    def samba_available?
-      classes.include?("sambaSamAccount")
-    end
-
-    def ensure_samba_available
-      ensure_recommended_classes
     end
 
     def fill_default_values(options={})

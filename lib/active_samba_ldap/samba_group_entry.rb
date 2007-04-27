@@ -58,6 +58,10 @@ module ActiveSambaLdap
     }
 
     module ClassMethods
+      def samba_object_class
+        "sambaGroupMapping"
+      end
+
       def gid2rid(gid)
         gid = Integer(gid)
         if WELL_KNOWN_RIDS.include?(gid)
@@ -82,16 +86,8 @@ module ActiveSambaLdap
 
       private
       def default_recommended_classes
-        super + ["sambaGroupMapping"]
+        super + [samba_object_class]
       end
-    end
-
-    def samba_available?
-      classes.include?("sambaGroupMapping")
-    end
-
-    def ensure_samba_available
-      ensure_recommended_classes
     end
 
     def fill_default_values(options={})
