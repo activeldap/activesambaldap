@@ -1,9 +1,9 @@
 require 'active_samba_ldap/base'
 require 'active_samba_ldap/entry'
 require 'active_samba_ldap/samba_entry'
-require 'active_samba_ldap/account'
-require 'active_samba_ldap/computer_account'
-require 'active_samba_ldap/samba_account'
+require 'active_samba_ldap/account_entry'
+require 'active_samba_ldap/computer_account_entry'
+require 'active_samba_ldap/samba_account_entry'
 
 module ActiveSambaLdap
   class Computer < Base
@@ -12,9 +12,9 @@ module ActiveSambaLdap
     include Entry
     include SambaEntry
 
-    include Account
-    include ComputerAccount
-    include SambaAccount
+    include AccountEntry
+    include ComputerAccountEntry
+    include SambaAccountEntry
 
     private
     def default_account_flags

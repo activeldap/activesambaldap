@@ -1,9 +1,9 @@
 require 'active_samba_ldap/base'
 require 'active_samba_ldap/entry'
 require 'active_samba_ldap/samba_entry'
-require 'active_samba_ldap/account'
-require 'active_samba_ldap/user_account'
-require 'active_samba_ldap/samba_account'
+require 'active_samba_ldap/account_entry'
+require 'active_samba_ldap/user_account_entry'
+require 'active_samba_ldap/samba_account_entry'
 
 module ActiveSambaLdap
   class User < Base
@@ -12,9 +12,9 @@ module ActiveSambaLdap
     include Entry
     include SambaEntry
 
-    include Account
-    include UserAccount
-    include SambaAccount
+    include AccountEntry
+    include UserAccountEntry
+    include SambaAccountEntry
 
     def fill_default_values(options={})
       result = super

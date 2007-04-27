@@ -1,6 +1,6 @@
 module ActiveSambaLdap
-  module ComputerAccount
-    NAME_RE = /\A#{Account::NAME_RE_SRC}\$\z/
+  module ComputerAccountEntry
+    NAME_RE = /\A#{AccountEntry::NAME_RE_SRC}\$\z/
 
     def self.included(base)
       super

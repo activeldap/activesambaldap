@@ -1,5 +1,5 @@
 module ActiveSambaLdap
-  module SambaAccount
+  module SambaAccountEntry
     def self.included(base)
       super
       base.extend(ClassMethods)

@@ -1,6 +1,6 @@
 module ActiveSambaLdap
-  module UserAccount
-    NAME_RE = /\A#{Account::NAME_RE_SRC}\z/
+  module UserAccountEntry
+    NAME_RE = /\A#{AccountEntry::NAME_RE_SRC}\z/
 
     def self.included(base)
       super

@@ -5,7 +5,7 @@ require 'English'
 require 'active_samba_ldap/base'
 
 module ActiveSambaLdap
-  module Account
+  module AccountEntry
     NAME_RE_SRC = "(?!\\d)[\\w @_\\-\\.]+"
 
     def self.included(base)
