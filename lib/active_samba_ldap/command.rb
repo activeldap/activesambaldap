@@ -1,6 +1,8 @@
 require 'optparse'
 require 'ostruct'
 
+require 'active_samba_ldap'
+
 module ActiveSambaLdap
   module Command
     module_function
