@@ -307,4 +307,21 @@ command before invoke your Samba server.
 
 == Trouble shootings
 
+=== Groups aren't listed
+
+You can list groups by the following command:
+
+  % net rpc group list --user=USER_NAME
+
+If no groups listed by the above command after you execute
+asl-populate, please confirm the following:
+
+  * Is your samba.schema old?
+
+    If your sambaSID entry in your samba.schema doesn't have
+    the following configuration, your samba.schema may be old.
+    Please update your samba.schema.
+
+      SUBSTR caseExactIA5SubstringsMatch
+
 == Thanks

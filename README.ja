@@ -303,5 +303,21 @@ LDAP管理ユーザのパスワードを設定しておく必要があります�
 
 == トラブルシューティング
 
+=== グループ一覧がでない
+
+以下のコマンドでグループ一覧を表示する事ができます。
+
+  % net rpc group list --user=USER_NAME
+
+もし、asl-populateした後なのに上記のコマンドでひとつもグルー
+プがでない場合は以下のことを確認してください。
+
+  * samba.schemaが古くないか
+
+    sambaSIDのエントリに以下の設定がない場合は古い
+    samba.schemaである可能性があります。最新のものに更新して
+    ください。
+
+      SUBSTR caseExactIA5SubstringsMatch
 
 == 感謝
