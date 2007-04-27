@@ -67,6 +67,7 @@ module ActiveSambaLdap
       module PrimaryGroupProxy
         def replace(entry)
           result = super
+          return result unless @owner.samba_available?
 
           if @target and @target.samba_available?
             if @target.samba_sid.to_s.empty?
