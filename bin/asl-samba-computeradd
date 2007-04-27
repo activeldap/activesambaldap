@@ -36,15 +36,15 @@ ActiveSambaLdap::Base.establish_connection("update")
 
 
 class User < ActiveSambaLdap::User
-  ldap_mapping
+  ldap_mapping :recommended_classes => []
 end
 
 class Computer < ActiveSambaLdap::Computer
-  ldap_mapping
+  ldap_mapping :recommended_classes => []
 end
 
 class Group < ActiveSambaLdap::Group
-  ldap_mapping
+  ldap_mapping :recommended_classes => []
 end
 
 class UnixIdPool < ActiveSambaLdap::UnixIdPool
