@@ -54,7 +54,7 @@ module ActiveSambaLdap
         end - ActiveLdap::Adaptor::Base::VALID_ADAPTOR_CONFIGURATION_KEYS
         super(config).reject do |key, value|
           target_keys.include?(key)
-	end
+        end
       end
 
       def merge_configuration(config)
@@ -229,13 +229,13 @@ module ActiveSambaLdap
         end
 
         def default_user_gid
-          rid = ActiveSambaLdap::SambaGroup::DOMAIN_USERS_RID
-          ActiveSambaLdap::SambaGroup.rid2gid(rid)
+          rid = ActiveSambaLdap::Group::DOMAIN_USERS_RID
+          ActiveSambaLdap::Group.rid2gid(rid)
         end
 
         def default_computer_gid
-          rid = ActiveSambaLdap::SambaGroup::DOMAIN_COMPUTERS_RID
-          ActiveSambaLdap::SambaGroup.rid2gid(rid)
+          rid = ActiveSambaLdap::Group::DOMAIN_COMPUTERS_RID
+          ActiveSambaLdap::Group.rid2gid(rid)
         end
 
         def skeleton_directory

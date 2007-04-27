@@ -85,11 +85,11 @@ module AslTestUtils
   module TemporaryEntry
     def setup
       super
-      @user_class = Class.new(ActiveSambaLdap::SambaUser)
+      @user_class = Class.new(ActiveSambaLdap::User)
       @user_class.ldap_mapping
-      @computer_class = Class.new(ActiveSambaLdap::SambaComputer)
+      @computer_class = Class.new(ActiveSambaLdap::Computer)
       @computer_class.ldap_mapping
-      @group_class = Class.new(ActiveSambaLdap::SambaGroup)
+      @group_class = Class.new(ActiveSambaLdap::Group)
       @group_class.ldap_mapping
 
       @user_class.set_associated_class(:primary_group, @group_class)

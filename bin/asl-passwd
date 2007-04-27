@@ -40,13 +40,7 @@ end
 
 ActiveSambaLdap::Base.establish_connection("update")
 
-if options.update_samba_password
-  parent = ActiveSambaLdap::SambaUser
-else
-  parent = ActiveSambaLdap::User
-end
-
-class User < parent
+class User < ActiveSambaLdap::User
   ldap_mapping
 end
 

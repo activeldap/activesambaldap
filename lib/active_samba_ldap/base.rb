@@ -103,6 +103,14 @@ module ActiveSambaLdap
     end
   end
 
+  class NotSambaAavialableError < Error
+    attr_reader :object
+    def initialize(object)
+      @object = object
+      super("#{@object.inspect} is not Samba available")
+    end
+  end
+
   class Base < ActiveLdap::Base
     include Reloadable
 

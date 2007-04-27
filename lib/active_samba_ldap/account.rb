@@ -40,6 +40,7 @@ module ActiveSambaLdap
           :groups_many => "memberUid",
           :prefix => default_prefix,
           :classes => default_classes,
+          :recommended_classes => default_recommended_classes,
         }
       end
 
@@ -49,6 +50,10 @@ module ActiveSambaLdap
 
       def default_classes
         ["top", "inetOrgPerson", "posixAccount"]
+      end
+
+      def default_recommended_classes
+        []
       end
 
       def primary_group_options(options)

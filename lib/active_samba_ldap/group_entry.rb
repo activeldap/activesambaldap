@@ -3,12 +3,13 @@ require 'English'
 require 'active_samba_ldap/entry'
 
 module ActiveSambaLdap
-  class Group < Base
-    include Reloadable
+  module GroupEntry
+    def self.included(base)
+      super
+      base.extend(ClassMethods)
+    end
 
-    include Entry
-
-    class << self
+    module ClassMethods
       def ldap_mapping(options={})
         options = default_options.merge(options)
         super(extract_ldap_mapping_options(options))
@@ -40,6 +41,7 @@ module ActiveSambaLdap
           :dn_attribute => "cn",
           :prefix => configuration[:groups_suffix],
           :classes => default_classes,
+          :recommended_classes => default_recommended_classes,
 
           :members_wrap => "memberUid",
           :users_class => default_user_class,
@@ -54,6 +56,10 @@ module ActiveSambaLdap
 
       def default_classes
         ["top", "posixGroup"]
+      end
+
+      def default_recommended_classes
+        []
       end
 
       def default_user_class

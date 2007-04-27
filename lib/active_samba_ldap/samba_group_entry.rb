@@ -1,8 +1,13 @@
-require 'active_samba_ldap/group'
+require 'active_samba_ldap/samba_entry'
 
 module ActiveSambaLdap
-  class SambaGroup < Group
-    include Reloadable
+  module SambaGroupEntry
+    include SambaEntry
+
+    def self.included(base)
+      super
+      base.extend(ClassMethods)
+    end
 
     # from librpc/ndr/security.h in Samba
     SID_BUILTIN = "S-1-5-32"
@@ -52,7 +57,7 @@ module ActiveSambaLdap
       "builtin" => 5,
     }
 
-    class << self
+    module ClassMethods
       def gid2rid(gid)
         gid = Integer(gid)
         if WELL_KNOWN_RIDS.include?(gid)
@@ -76,28 +81,41 @@ module ActiveSambaLdap
       end
 
       private
-      def default_classes
+      def default_recommended_classes
         super + ["sambaGroupMapping"]
       end
     end
 
+    def samba_available?
+      classes.include?("sambaGroupMapping")
+    end
+
+    def ensure_samba_available
+      ensure_recommended_classes
+    end
+
     def fill_default_values(options={})
-      change_type(options[:group_type] || "domain") unless samba_group_type
-      self.display_name ||= options[:display_name] || cn
+      if samba_available?
+        change_type(options[:group_type] || "domain") unless samba_group_type
+        self.display_name ||= options[:display_name] || cn
+      end
       super
     end
 
     def change_gid_number(gid, allow_non_unique=false)
-      super
+      result = super
+      return result unless samba_available?
       rid = self.class.gid2rid(gid_number.to_s)
       change_sid(rid, allow_non_unique)
     end
 
     def change_gid_number_by_rid(rid, allow_non_unique=false)
+      assert_samba_available
       change_gid_number(self.class.rid2gid(rid), allow_non_unique)
     end
 
     def change_sid(rid, allow_non_unique=false)
+      assert_samba_available
       if (LOCAL_ADMINS_RID..LOCAL_REPLICATORS_RID).include?(rid.to_i)
         sid = "#{SID_BUILTIN}-#{rid}"
       else
@@ -108,15 +126,17 @@ module ActiveSambaLdap
     end
 
     def rid
+      assert_samba_available
       Integer(samba_sid.split(/-/).last)
     end
 
     def change_type(type)
+      assert_samba_available
       normalized_type = type.to_s.downcase
       if TYPES.has_key?(normalized_type)
         type = TYPES[normalized_type]
       elsif TYPES.values.include?(type.to_i)
-	# pass
+        # pass
       else
         raise ArgumentError, "invalid type: #{type}"
       end

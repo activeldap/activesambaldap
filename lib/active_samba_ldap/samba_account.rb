@@ -52,7 +52,7 @@ module ActiveSambaLdap
       end
 
       private
-      def default_classes
+      def default_recommended_classes
         super + ["sambaSamAccount"]
       end
 
@@ -62,8 +62,9 @@ module ActiveSambaLdap
 
       module PrimaryGroupProxy
         def replace(entry)
-          super
-          if @target
+          result = super
+
+          if @target and @target.samba_available?
             if @target.samba_sid.to_s.empty?
               raise GroupDoesNotHaveSambaSID.new(@target.gid_number)
             end
@@ -71,13 +72,23 @@ module ActiveSambaLdap
           else
             @owner.samba_primary_group_sid = nil
           end
-          entry
+
+          result
         end
       end
     end
 
+    def samba_available?
+      classes.include?("sambaSamAccount")
+    end
+
+    def ensure_samba_available
+      ensure_recommended_classes
+    end
+
     def fill_default_values(options={})
-      super
+      result = super
+      return result unless samba_available?
 
       self.samba_logon_time ||= "0"
       self.samba_logoff_time ||= FAR_FUTURE_TIME
@@ -117,45 +128,55 @@ module ActiveSambaLdap
     end
 
     def change_uid_number(uid, allow_non_unique=false)
-      super
+      result = super
+      return result unless samba_available?
+
       rid = self.class.uid2rid(uid_number.to_s)
       change_sid(rid, allow_non_unique)
     end
 
     def change_uid_number_by_rid(rid, allow_non_unique=false)
+      assert_samba_available
       change_uid_number(self.class.rid2uid(rid), allow_non_unique)
     end
 
     def change_sid(rid, allow_non_unique=false)
+      assert_samba_available
       sid = "#{self.class.configuration[:sid]}-#{rid}"
       # check_unique_sid_number(sid) unless allow_non_unique
       self.samba_sid = sid
     end
 
     def rid
+      assert_samba_available
       Integer(samba_sid.split(/-/).last)
     end
 
     def change_samba_password(password)
+      assert_samba_available
       self.samba_lm_password = Samba::Encrypt.lm_hash(password)
       self.samba_nt_password = Samba::Encrypt.ntlm_hash(password)
       self.samba_pwd_last_set = Time.now.to_i.to_s
     end
 
     def enable_password_change
+      assert_samba_available
       self.samba_pwd_can_change = "0"
     end
 
     def disable_password_change
+      assert_samba_available
       self.samba_pwd_can_change = FAR_FUTURE_TIME
     end
 
     def can_change_password?
+      assert_samba_available
       samba_pwd_can_change.nil? or
         Time.at(samba_pwd_can_change.to_i) <= Time.now
     end
 
     def enable_forcing_password_change
+      assert_samba_available
       self.samba_pwd_must_change = "0"
       if /X/ =~ samba_acct_flags.to_s
         self.samba_acct_flags = samba_acct_flags.sub(/X/, '')
@@ -166,22 +187,26 @@ module ActiveSambaLdap
     end
 
     def disable_forcing_password_change
+      assert_samba_available
       self.samba_pwd_must_change = FAR_FUTURE_TIME
     end
 
     def must_change_password?
+      assert_samba_available
       !(/X/ =~ samba_acct_flags.to_s or
         samba_pwd_must_change.nil? or
         Time.at(samba_pwd_must_change.to_i) > Time.now)
     end
 
     def enable
+      assert_samba_available
       if /D/ =~ samba_acct_flags.to_s
         self.samba_acct_flags = samba_acct_flags.gsub(/D/, '')
       end
     end
 
     def disable
+      assert_samba_available
       flags = ""
       if ACCOUNT_FLAGS_RE =~ samba_acct_flags.to_s
         flags = $1
@@ -191,10 +216,12 @@ module ActiveSambaLdap
     end
 
     def enabled?
+      assert_samba_available
       !disabled?
     end
 
     def disabled?
+      assert_samba_available
       (/D/ =~ samba_acct_flags.to_s) ? true : false
     end
   end

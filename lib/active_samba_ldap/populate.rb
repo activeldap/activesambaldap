@@ -37,9 +37,9 @@ module ActiveSambaLdap
         end
 
         def init_classes
-          @options[:user_class] = user_class = Class.new(SambaUser)
-          @options[:group_class] = group_class = Class.new(SambaGroup)
-          @options[:computer_class] = computer_class = Class.new(SambaComputer)
+          @options[:user_class] = user_class = Class.new(User)
+          @options[:group_class] = group_class = Class.new(Group)
+          @options[:computer_class] = computer_class = Class.new(Computer)
           @options[:idmap_class] = idmap_class = Class.new(Idmap)
           @options[:unix_id_pool_class] = id_pool_class = Class.new(UnixIdPool)
 

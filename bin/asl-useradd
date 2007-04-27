@@ -148,15 +148,15 @@ end
 ActiveSambaLdap::Base.establish_connection("update")
 
 
-class User < ActiveSambaLdap::SambaUser
+class User < ActiveSambaLdap::User
   ldap_mapping
 end
 
-class Computer < ActiveSambaLdap::SambaComputer
+class Computer < ActiveSambaLdap::Computer
   ldap_mapping
 end
 
-class Group < ActiveSambaLdap::SambaGroup
+class Group < ActiveSambaLdap::Group
   ldap_mapping
 end
 
