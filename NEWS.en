@@ -7,6 +7,9 @@ $Id$
 == 0.0.3: XXXX-XX-XX
 
   * Fixed typo of Ruby/ActiveLDAP's RubyGems name.
+  * Integrated ActiveLdap::User, ActiveLdap::Computer and ActiveLdap::Group
+    with ActiveLdap::SambaUser, ActiveLdap::SambaComputer and
+    ActiveLdap::SambaGroup.
 
 == 0.0.2: 2007-01-29
 

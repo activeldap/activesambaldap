@@ -7,6 +7,12 @@ $Id$
 == 0.0.3: XXXX-XX-XX
 
   * Ruby/ActiveLDAPのRubyGems名を修正．
+  * ActiveSambaLdap::SambaUser,
+    ActiveSambaLdap::SambaComputer,
+    ActiveSambaLdap::SambaGroupを廃止し、
+    ActiveSambaLdap::User,
+    ActiveSambaLdap::Computer,
+    ActiveSambaLdap::Groupへ一本化。
 
 == 0.0.2: 2007-01-29
 
