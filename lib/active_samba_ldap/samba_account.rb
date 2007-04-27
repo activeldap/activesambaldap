@@ -24,7 +24,8 @@ module ActiveSambaLdap
       end
     end
 
-    FAR_FUTURE_TIME = Time.parse("2050/01/01").to_i.to_s
+    # FAR_FUTURE_TIME = Time.parse("2050/01/01").to_i.to_s
+    FAR_FUTURE_TIME = Time.parse("2038/01/19").to_i.to_s
     ACCOUNT_FLAGS_RE = /\A\[([NDHTUMWSLXI ]+)\]\z/
 
     module ClassMethods
