@@ -3,7 +3,7 @@ require_gem_if_need = Proc.new do |library_name, gem_name, *options|
     require library_name
   rescue LoadError
     require 'rubygems'
-    require_gem gem_name, *options
+    gem gem_name, *options
     require library_name
   end
 end
