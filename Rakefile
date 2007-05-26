@@ -79,6 +79,7 @@ if ObjectSpace.each_object(Rake::RDocTask) {|rdoc_task|} != 1
   puts "hoe may be changed"
 end
 rdoc_task.main = "README.en"
+rdoc_task.options.delete("-d")
 rdoc_task.options << "--charset=UTF-8"
 rdoc_task.template = "kilmer"
 rdoc_task.rdoc_files -= project.bin_files
