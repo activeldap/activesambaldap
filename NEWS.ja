@@ -4,9 +4,10 @@
 
 $Id$
 
-== 0.0.3: XXXX-XX-XX
+== 0.0.3: 2007-05-26
 
   * Ruby/ActiveLDAPのRubyGems名を修正．
+  * Ruby/ActiveLDAP 0.8.2対応。
   * ActiveSambaLdap::SambaUser,
     ActiveSambaLdap::SambaComputer,
     ActiveSambaLdap::SambaGroupを廃止し、

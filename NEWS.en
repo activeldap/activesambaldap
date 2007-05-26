@@ -4,9 +4,10 @@
 
 $Id$
 
-== 0.0.3: XXXX-XX-XX
+== 0.0.3: 2007-05-26
 
-  * Fixed typo of Ruby/ActiveLDAP's RubyGems name.
+  * Fixed a typo of Ruby/ActiveLDAP's RubyGems name.
+  * Supported Ruby/AtiveLDAP 0.8.2.
   * Integrated ActiveLdap::User, ActiveLdap::Computer and ActiveLdap::Group
     with ActiveLdap::SambaUser, ActiveLdap::SambaComputer and
     ActiveLdap::SambaGroup.
@@ -14,7 +15,7 @@ $Id$
 == 0.0.2: 2007-01-29
 
   * Supported ActiveSupport 1.4.0.
-  * Fixed typo of Ruby/ActiveLDAP's RubyGems name.
+  * Fixed a typo of Ruby/ActiveLDAP's RubyGems name.
 
 == 0.0.1: 2006-11-17
 

@@ -51,7 +51,7 @@ module ActiveSambaLdap
       def remove_connection_related_configuration(config)
         target_keys = Private::VARIABLES.collect do |name|
           name.to_sym
-        end - ActiveLdap::Adaptor::Base::VALID_ADAPTOR_CONFIGURATION_KEYS
+        end - ActiveLdap::Adapter::Base::VALID_ADAPTER_CONFIGURATION_KEYS
         super(config).reject do |key, value|
           target_keys.include?(key)
         end

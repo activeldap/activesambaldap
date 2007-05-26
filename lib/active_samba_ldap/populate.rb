@@ -112,7 +112,10 @@ module ActiveSambaLdap
             next if container_class.exists?(value, :prefix => suffix)
             container = container_class.new(value)
             yield(container) if block_given?
-            container.save!
+            begin
+              container.save!
+            rescue ActiveLdap::OperationNotPermitted
+            end
             entries << container
           end
           entries
