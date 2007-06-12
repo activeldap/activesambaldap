@@ -5,12 +5,17 @@ class EntryTest < Test::Unit::TestCase
 
   priority :must
   def test_entry_create
-    name = "temporary-user"
-    user = @user_class.create(:uid => name)
+    assert_created_user("temporary-user1", false)
+    assert_created_user("temporary-user2", true)
+  end
+
+  private
+  def assert_created_user(name, stringify)
+    params = {:uid => name}
+    params = params.stringify_keys if stringify
+    user = @user_class.create(params)
     assert(@user_class.exists?(name))
     assert_equal(ActiveSambaLdap::Group::DOMAIN_USERS_RID.to_s,
                  user.primary_group.gid_number)
-  ensure
-    user.destroy if user
   end
 end

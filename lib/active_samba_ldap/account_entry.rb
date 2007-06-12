@@ -85,14 +85,16 @@ module ActiveSambaLdap
       self.home_directory ||= substituted_value(:user_home_directory)
       self.login_shell ||= self.class.configuration[:user_login_shell]
 
-      password = options[:password]
+      options = options.stringify_keys
+
+      password = options["password"]
       change_password(password) if password
       self.user_password ||= "{crypt}x"
 
-      uid_number = options[:uid_number]
+      uid_number = options["uid_number"]
       self.change_uid_number(uid_number) if uid_number
 
-      primary_group = options[:group] || retrieve_default_primary_group(options)
+      primary_group = options["group"] || retrieve_default_primary_group(options)
       self.primary_group = primary_group if primary_group
 
       self
@@ -180,18 +182,18 @@ module ActiveSambaLdap
     def retrieve_default_primary_group(options={})
       group = nil
 
-      gid_number = options[:gid_number]
-      group_class = options[:group_class]
+      gid_number = options["gid_number"]
+      group_class = options["group_class"]
       group_class ||= self.class.associated_class(:primary_group)
       unless gid_number
-        if options[:create_group]
+        if options["create_group"]
           group_name = created_group_name
           if group_class.exists?(group_name)
             group = group_class.find(group_name)
           else
             group = group_class.create(:cn => group_name,
-                                       :pool => options[:pool],
-                                       :pool_class => options[:pool_class])
+                                       :pool => options["pool"],
+                                       :pool_class => options["pool_class"])
           end
         else
           gid_number = default_gid_number
