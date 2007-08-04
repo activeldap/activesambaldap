@@ -9,7 +9,8 @@ truncate_base_dir = Proc.new do |x|
 end
 
 _binding = binding
-eval(File.read("#{base_dir}/lib/active_samba_ldap.rb"), _binding)
+file = "#{base_dir}/lib/active_samba_ldap.rb"
+eval(File.read(file), _binding, file)
 eval('require_gem_if_need.call("hoe")', _binding)
 required_active_ldap_version = eval('required_active_ldap_version', _binding)
 
