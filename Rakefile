@@ -104,6 +104,8 @@ task :tag do
   sh 'svn', 'copy', '-m', message, "#{base}trunk", "#{base}tags/#{version}"
 end
 
+desc "Distribute new release."
+task :dist => [:publish_docs, :release, :tag, :announce]
 
 # # fix Hoe's incorrect guess.
 # project.spec.executables.clear
