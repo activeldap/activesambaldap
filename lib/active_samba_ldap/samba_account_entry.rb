@@ -91,7 +91,7 @@ module ActiveSambaLdap
       self.samba_logoff_time ||= FAR_FUTURE_TIME
       self.samba_kickoff_time ||= nil
 
-      password = options[:password]
+      password = options["password"]
       change_samba_password(password) if password
       self.samba_lm_password ||= "XXX"
       self.samba_nt_password ||= "XXX"
@@ -100,21 +100,21 @@ module ActiveSambaLdap
       account_flags_is_not_set = samba_acct_flags.nil?
       self.samba_acct_flags ||= default_account_flags
 
-      can_change_password = options[:can_change_password]
+      can_change_password = options["can_change_password"]
       if can_change_password
         self.enable_password_change
       elsif account_flags_is_not_set or can_change_password == false
         self.disable_password_change
       end
 
-      must_change_password = options[:must_change_password]
+      must_change_password = options["must_change_password"]
       if must_change_password
         self.enable_forcing_password_change
       elsif account_flags_is_not_set or must_change_password == false
         self.disable_forcing_password_change
       end
 
-      enable_account = options[:enable]
+      enable_account = options["enable"]
       if enable_account
         self.enable
       elsif account_flags_is_not_set or enable_account == false

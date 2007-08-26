@@ -20,6 +20,7 @@ module ActiveSambaLdap
       result = super
       return result unless samba_available?
 
+      options = options.stringify_keys
       subst = Proc.new do |key|
         value = options[key]
         if value
@@ -29,10 +30,10 @@ module ActiveSambaLdap
         end
       end
 
-      self.samba_home_path ||= subst[:user_home_unc]
-      self.samba_home_drive ||= subst[:user_home_drive].sub(/([^:])$/, "\\1:")
-      self.samba_profile_path ||= subst[:user_profile]
-      self.samba_logon_script ||= subst[:user_logon_script]
+      self.samba_home_path ||= subst["user_home_unc"]
+      self.samba_home_drive ||= subst["user_home_drive"].sub(/([^:])$/, "\\1:")
+      self.samba_profile_path ||= subst["user_profile"]
+      self.samba_logon_script ||= subst["user_logon_script"]
     end
 
     private

@@ -72,7 +72,7 @@ module ActiveSambaLdap
       end
 
       def prepare_create_options(account, options)
-        prepare_create_options_for_number(:uid_number, account, options)
+        prepare_create_options_for_number("uid_number", account, options)
       end
     end
 
@@ -86,7 +86,6 @@ module ActiveSambaLdap
       self.login_shell ||= self.class.configuration[:user_login_shell]
 
       options = options.stringify_keys
-
       password = options["password"]
       change_password(password) if password
       self.user_password ||= "{crypt}x"

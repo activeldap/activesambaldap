@@ -105,7 +105,7 @@ module ActiveSambaLdap
           end
 
           def compute_required_variables
-            not_required_variables = %w(base ldap_scope)
+            not_required_variables = %w(base scope ldap_scope)
             (VARIABLES - public_methods - not_required_variables).collect do |x|
               x.to_sym
             end

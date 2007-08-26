@@ -9,10 +9,11 @@ module ActiveSambaLdap
       def create(attributes=nil)
         pool = nil
         number_key = nil
-        ensure_ou((attributes || {})[dn_attribute.to_sym])
+        attributes ||= {}
+        attributes = attributes.stringify_keys
+        ensure_ou(attributes[dn_attribute])
         entry = super do |entry|
-          options = attributes || {}
-          options, pool, number_key = prepare_create_options(entry, options)
+          options, pool, number_key = prepare_create_options(entry, attributes)
           entry.fill_default_values(options)
           yield entry if block_given?
         end

@@ -98,14 +98,15 @@ module ActiveSambaLdap
       end
 
       def prepare_create_options(group, options)
-        prepare_create_options_for_number(:gid_number, group, options)
+        prepare_create_options_for_number("gid_number", group, options)
       end
     end
 
     def fill_default_values(options={})
-      gid_number = options[:gid_number]
+      options = options.stringify_keys
+      gid_number = options["gid_number"]
       change_gid_number(gid_number) if gid_number
-      self.description ||= options[:description] || cn
+      self.description ||= options["description"] || cn
     end
 
     def members

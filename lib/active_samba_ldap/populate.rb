@@ -153,7 +153,7 @@ module ActiveSambaLdap
             group = nil
           else
             user = user_class.new(name)
-            user.fill_default_values(:uid_number => uid, :group => group)
+            user.fill_default_values("uid_number" => uid, "group" => group)
             user.save!
             group.users << user
           end
