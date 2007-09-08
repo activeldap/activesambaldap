@@ -1,7 +1,6 @@
 class ScaffoldActiveSambaLdapGenerator < Rails::Generator::Base
   def manifest
     record do |m|
-
       m.template("ldap.yml", File.join("config", "ldap.yml"))
 
       %w(user computer group unix_id_pool idmap ou dc).each do |component|

@@ -47,7 +47,7 @@ trunk用ですので，環境にあわせて変更してください．
 
 次に，Rails用ActiveSambaLdap環境を構築します．
 
-  % script/generate scaffold_asl
+  % script/generate scaffold_active_samba_ldap
 
 config/ldap.ymlが生成されるので，環境にあわせて編集します．
 指定できるオプションは，以下の「設定ファイルのオプション」の
