@@ -7,11 +7,13 @@ require 'time'
 require 'active_samba_ldap'
 require 'active_samba_ldap/command'
 
+include ActiveSambaLdap::GetTextSupport
+
 argv, opts, options = ActiveSambaLdap::Command.parse_options do |opts, options|
 end
 
 unless Process.uid.zero?
-  $stderr.puts "need root authority."
+  $stderr.puts(_("need root authority."))
   exit 1
 end
 

@@ -3,6 +3,8 @@
 require 'active_samba_ldap'
 require 'active_samba_ldap/command'
 
+include ActiveSambaLdap::GetTextSupport
+
 argv, opts, options = ActiveSambaLdap::Command.parse_options do |opts, options|
   opts.banner += " GROUP_NAME"
 end
@@ -22,7 +24,7 @@ class Group < ActiveSambaLdap::Group
 end
 
 unless Group.exists?(name)
-  $stderr.puts "group '#{name}' doesn't exist."
+  $stderr.puts(_("group '%s' doesn't exist.") % name)
   exit 1
 end
 group = Group.find(name)

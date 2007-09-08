@@ -6,6 +6,8 @@ require 'fileutils'
 require 'active_samba_ldap'
 require 'active_samba_ldap/command'
 
+include ActiveSambaLdap::GetTextSupport
+
 argv, opts, options = ActiveSambaLdap::Command.parse_options do |opts, options|
   options.computer_account = false
   options.gecos = nil
@@ -20,7 +22,7 @@ argv, opts, options = ActiveSambaLdap::Command.parse_options do |opts, options|
   options.supplementary_groups = nil
   options.shell = nil
   options.given_name = nil
-  options.canonical_name = nil
+  options.common_name = nil
   options.surname = nil
 
   options.expire_date = nil
@@ -39,94 +41,94 @@ argv, opts, options = ActiveSambaLdap::Command.parse_options do |opts, options|
   opts.banner += " USER_NAME"
 
   opts.on("-c", "--[no-]computer-account",
-          "is a Windows Workstation",
-          "(otherwise, Windows user)",
+          _("is a Windows Workstation"),
+          _("(otherwise, Windows user)"),
           "(#{options.computer_account})") {|options.computer_account|}
 
-  opts.on("--gecos=GECOS", "gecos") {|options.gecos|}
+  opts.on("--gecos=GECOS", _("gecos")) {|options.gecos|}
   opts.on("-d", "--home-directory=HOME_DIR",
-          "home directory") {|options.home_directory|}
+          _("home directory")) {|options.home_directory|}
   opts.on("-m", "--[no-]move-home-directory",
-          "move home directory (#{options.move_home_directory})") do |bool|
+          _("move home directory"),
+          "(#{options.move_home_directory})") do |bool|
     options.move_home_directory = bool
   end
   opts.on("-r", "--rename=NEW_NAME",
-          "new user name (cn and dn are updated)") do |name|
+          _("new user name (cn and dn are updated)")) do |name|
     options.new_user_name = name
   end
-  opts.on("-u", "--uid=UID", Integer, "uid") {|options.uid|}
+  opts.on("-u", "--uid=UID", Integer, _("uid")) {|options.uid|}
   opts.on("--[no-]allow-non-unique-uid",
-          "uid can be non unique " +
+          _("uid can be non unique "),
           "(#{options.allow_non_unique_uid_number})") do |bool|
     options.allow_non_unique_uid_number = bool
   end
   opts.on("-g", "--gid=GID", "gid") {|options.gid|}
   opts.on("-G", "--groups=GID1,GID2,GID3", Array,
-          "supplementary groups (comma separated)") do |groups|
+          _("supplementary groups (comma separated)")) do |groups|
     options.supplementary_groups = groups
   end
   opts.on("--[no-]merge-groups",
-          "replace supplementary groups " +
+          _("replace supplementary groups "),
           "(#{!options.merge_groups})") {|options.merge_groups|}
-  opts.on("-s", "--shell=SHELL", "shell") {|options.shell|}
-  opts.on("--given-name=NAME", "given name") {|options.given_name|}
-  opts.on("-N", "--canonical-name=NAME",
-          "canonical name") {|options.canonical_name|}
-  opts.on("-S", "--surname=NAME", "surname") {|options.surname|}
+  opts.on("-s", "--shell=SHELL", _("shell")) {|options.shell|}
+  opts.on("--given-name=NAME", _("given name")) {|options.given_name|}
+  opts.on("-N", "--common-name=NAME",
+          _("common name")) {|options.common_name|}
+  opts.on("-S", "--surname=NAME", _("surname")) {|options.surname|}
 
   opts.separator("")
-  opts.separator("For samba users:")
+  opts.separator(_("For samba accounts:"))
 
-  opts.on("-e", "--expire-date=DATE", "expire date") do |date|
+  opts.on("-e", "--expire-date=DATE", _("expire date")) do |date|
     options.expire_date = Time.parse(date)
   end
   opts.on("-C", "--[no-]can-change-password",
-          "can change password") do |bool|
+          _("can change password")) do |bool|
     options.can_change_password = bool
   end
   opts.on("-M", "--[no-]must-change-password",
-          "must change password") do |bool|
+          _("must change password")) do |bool|
     options.must_change_password = bool
   end
   opts.on("--samba-home-path=PATH",
-          "sambaHomePath",
-          "(SMB home share, like '\\\\PDC\\user'") do |path|
+          _("sambaHomePath"),
+          _("(SMB home share, like '\\\\PDC\\user'")) do |path|
     options.samba_home_path = path
   end
   opts.on("--samba-home-drive=DRIVE",
-          "sambaHomeDrive",
-          "(letter associated with home share,",
-          " like 'H:')") do |drive|
+          _("sambaHomeDrive"),
+          _("(letter associated with home share, like 'H:')")) do |drive|
     options.samba_home_drive = drive
   end
   opts.on("--samba-logon-script=SCRIPT",
-          "sambaLogonScript",
-          "(DOS script to execute on login)") do |script|
+          _("sambaLogonScript"),
+          _("(DOS script to execute on login)")) do |script|
     options.samba_logon_script = script
   end
   opts.on("--samba-profile-path=PATH",
-          "sambaProfilePath",
-          "(profile directory,",
-          " like '\\\\PDC\\profiles\\user')") do |path|
+          _("sambaProfilePath"),
+          _("(profile directory, " \
+            "like '\\\\PDC\\profiles\\user')")) do |path|
     options.samba_profile_path = path
   end
   opts.on("--samba-account-flags=FLAGS",
-          "sambaAcctFlags",
-          "(samba account control bits,",
-          " like '[NDHTUMWSLXI]')") {|options.samba_account_flags|}
-  opts.on("-D", "--[no-]disable-user", "disable an user") do |bool|
+          _("sambaAcctFlags"),
+          _("(samba account control bits, " \
+            "like '[NDHTUMWSLXI]')")) {|options.samba_account_flags|}
+  opts.on("-D", "--[no-]disable-user", _("disable this user")) do |bool|
     options.enable = !bool
   end
-  opts.on("-E", "--[no-]enable-user", "enable an user") do |bool|
+  opts.on("-E", "--[no-]enable-user", _("enable this user")) do |bool|
     options.enable = bool
   end
 #   opts.on("--mail-addresses=ADDRESS1,ADDRESS2,ADDRESS3",
 #           Array,
-#           "mailAddresses (comma separated)") {|options.mail_addresses|}
+#           _("mailAddresses (comma separated)")) {|options.mail_addresses|}
 #   opts.on("--mail-to-addresses=ADDRESS1,ADDRESS2,ADDRESS3",
 #           Array,
-#           "mailToAddresses (forward address)",
-#           "(comma separated)") do |addresses|
+#           _("mailToAddresses (forward address)"),
+#           _("(comma separated)")) do |addresses|
 #     options.mail_to_addresses = addresses
 #   end
 end
@@ -155,21 +157,23 @@ end
 
 options.computer_account = true if /\$$/ =~ name
 
-member_class = options.computer_account ? Computer : User
-member_type = member_class.name.downcase
-
 if options.computer_account
+  member_class = Computer
+  member_type = _("computer")
   name = name.chomp("$") + "$"
+else
+  member_class = User
+  member_type = _("user")
 end
 
 unless member_class.exists?(name)
-  $stderr.puts "#{member_type} '#{name}' doesn't exist."
+  $stderr.puts(_("%s '%s' doesn't exist.") % [member_type, name])
   exit 1
 end
 member = member_class.find(name)
 
 unless Process.uid.zero?
-  password = ActiveSambaLdap::Command.read_password("Enter your password: ")
+  password = ActiveSambaLdap::Command.read_password(_("Enter your password: "))
 
   auth_class = Class.new(ActiveSambaLdap::Base)
   config = ActiveSambaLdap::Base.configurations["reference"]
@@ -178,7 +182,7 @@ unless Process.uid.zero?
                                                  :password => password,
                                                  :allow_anonymous => false))
   rescue ActiveLdap::AuthenticationError
-    $stderr.puts "password isn't match"
+    $stderr.puts(_("password isn't match."))
     exit 1
   ensure
     auth_class.remove_connection
@@ -220,8 +224,8 @@ if options.home_directory
   member.home_directory = options.home_directory
 end
 
-if options.canonical_name
-  member.cn = options.canonical_name
+if options.common_name
+  member.cn = options.common_name
 end
 
 if options.surname
@@ -233,11 +237,11 @@ if options.given_name
 end
 
 if options.mail_addresses
-  raise "not implemented"
+  raise _("not implemented")
 end
 
 if options.mail_to_addresses
-  raise "not implemented"
+  raise _("not implemented")
 end
 
 if options.supplementary_groups
@@ -307,7 +311,8 @@ if options.new_user_name
     options.new_user_name = options.new_user_name.chomp("$") + "$"
   end
   if member_class.exists?(options.new_user_name)
-    $stderr.puts "#{member_type} '#{options.new_user_name}' always exists."
+    format = _("%s '%s' always exists.")
+    $stderr.puts(format % [member_type, options.new_user_name])
     exit 1
   end
   new_member = member_class.new(options.new_user_name)

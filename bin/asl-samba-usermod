@@ -3,6 +3,8 @@
 require 'active_samba_ldap'
 require 'active_samba_ldap/command'
 
+include ActiveSambaLdap::GetTextSupport
+
 argv, opts, options = ActiveSambaLdap::Command.parse_options do |opts, options|
   options.computer_account = false
   options.gid = nil
@@ -10,11 +12,11 @@ argv, opts, options = ActiveSambaLdap::Command.parse_options do |opts, options|
   opts.banner += " USER_NAME"
 
   opts.on("-c", "--[no-]computer-account",
-          "is a Windows Workstation",
-          "(otherwise, Windows user)",
+          _("is a Windows Workstation"),
+          _("(otherwise, Windows user)"),
           "(#{options.computer_account})") {|options.computer_account|}
 
-  opts.on("-g", "--gid=GID", "gid") {|options.gid|}
+  opts.on("-g", "--gid=GID", _("gid")) {|options.gid|}
 end
 
 name = nil
@@ -41,21 +43,26 @@ end
 
 options.computer_account = true if /\$$/ =~ name
 
-member_class = options.computer_account ? Computer : User
-member_type = member_class.name.downcase
+if options.computer_account
+  member_class = Computer
+  member_type = _("computer")
+else
+  member_class = User
+  member_type = _("user")
+end
 
 if options.computer_account
   name = name.chomp("$") + "$"
 end
 
 unless member_class.exists?(name)
-  $stderr.puts "#{member_type} '#{name}' doesn't exist."
+  $stderr.puts(_("%s '%s' doesn't exist.") % [member_type, name])
   exit 1
 end
 member = member_class.find(name)
 
 unless Process.uid.zero?
-  password = ActiveSambaLdap::Command.read_password("Enter your password: ")
+  password = ActiveSambaLdap::Command.read_password(_("Enter your password: "))
 
   auth_class = Class.new(ActiveSambaLdap::Base)
   config = ActiveSambaLdap::Base.configurations["reference"]
@@ -64,7 +71,7 @@ unless Process.uid.zero?
                                                  :password => password,
                                                  :allow_anonymous => false))
   rescue ActiveLdap::AuthenticationError
-    $stderr.puts "password isn't match"
+    $stderr.puts(_("password isn't match."))
     exit 1
   ensure
     auth_class.remove_connection

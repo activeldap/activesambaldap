@@ -5,6 +5,8 @@ require 'etc'
 require 'active_samba_ldap'
 require 'active_samba_ldap/command'
 
+include ActiveSambaLdap::GetTextSupport
+
 argv, opts, options = ActiveSambaLdap::Command.parse_options do |opts, options|
   options.update_samba_password = true
   options.update_unix_password = true
@@ -12,12 +14,14 @@ argv, opts, options = ActiveSambaLdap::Command.parse_options do |opts, options|
   opts.banner += " [USER_NAME]"
 
   opts.on("-s", "--[no-]samba-password",
-          "update samba password (#{options.update_samba_password})") do |bool|
+          _("update samba password"),
+          "(#{options.update_samba_password})") do |bool|
     options.update_samba_password = bool
   end
 
   opts.on("-u", "--[no-]unix-password",
-          "update UNIX password (#{options.update_unix_password})") do |bool|
+          _("update UNIX password"),
+          "(#{options.update_unix_password})") do |bool|
     options.update_unix_password = bool
   end
 end
@@ -34,7 +38,7 @@ else
 end
 
 if !options.update_samba_password and !options.update_unix_password
-  $stderr.puts "do nothing"
+  $stderr.puts(_("do nothing."))
   exit
 end
 
@@ -45,13 +49,13 @@ class User < ActiveSambaLdap::User
 end
 
 unless User.exists?(name)
-  $stderr.puts "user '#{name}' doesn't exist."
+  $stderr.puts(_("user '%s' doesn't exist.") % name)
   exit 1
 end
 user = User.find(name)
 
 unless Process.uid.zero?
-  prompt = "Enter your current password: "
+  prompt = _("Enter your current password: ")
   old_password = ActiveSambaLdap::Command.read_password(prompt)
 
   auth_class = Class.new(ActiveSambaLdap::Base)
@@ -61,18 +65,18 @@ unless Process.uid.zero?
                                                  :password => old_password,
                                                  :allow_anonymous => false))
   rescue ActiveLdap::AuthenticationError
-    $stderr.puts "password isn't match"
+    $stderr.puts(_("password isn't match."))
     exit 1
   ensure
     auth_class.remove_connection
   end
 end
 
-password = ActiveSambaLdap::Command.read_password("New password: ")
-password2 = ActiveSambaLdap::Command.read_password("Retype new password: ")
+password = ActiveSambaLdap::Command.read_password(_("New password: "))
+password2 = ActiveSambaLdap::Command.read_password(_("Retype new password: "))
 
 unless password == password2
-  $stderr.puts "New passwords don't match."
+  $stderr.puts(_("New passwords don't match."))
   exit 1
 end
 

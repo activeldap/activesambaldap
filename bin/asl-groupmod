@@ -3,6 +3,8 @@
 require 'active_samba_ldap'
 require 'active_samba_ldap/command'
 
+include ActiveSambaLdap::GetTextSupport
+
 argv, opts, options = ActiveSambaLdap::Command.parse_options do |opts, options|
   options.gid = nil
   options.allow_non_unique_gid_number = false
@@ -14,16 +16,16 @@ argv, opts, options = ActiveSambaLdap::Command.parse_options do |opts, options|
 
   opts.on("-g", "--gid=GID", "gid") {|options.gid|}
   opts.on("--[no-]allow-non-unique-gid",
-          "gid can be non unique " +
+          _("gid can be non unique"),
           "(#{options.allow_non_unique_gid_number})") do |bool|
     options.allow_non_unique_gid_number = bool
   end
   opts.on("-r", "--rename=NEW_NAME",
-          "new group name") {|options.new_group_name|}
+          _("new group name")) {|options.new_group_name|}
   opts.on("-a", "--add-members=MEMBER1,MEMBER2,MEBMER3", Array,
-          "add members (comma delimited)") {|options.members_to_add|}
+          _("add members (comma delimited)")) {|options.members_to_add|}
   opts.on("-d", "--delete-members=MEMBER1,MEMBER2,MEBMER3", Array,
-          "delete members (comma delimited)") {|options.members_to_delete|}
+          _("delete members (comma delimited)")) {|options.members_to_delete|}
 end
 
 name = nil
@@ -35,7 +37,7 @@ else
 end
 
 unless Process.uid.zero?
-  $stderr.puts "need root authority."
+  $stderr.puts(_("need root authority."))
   exit 1
 end
 
@@ -54,7 +56,7 @@ class Computer < ActiveSambaLdap::Computer
 end
 
 unless Group.exists?(name)
-  $stderr.puts "group '#{name}' doesn't exist."
+  $stderr.puts(_("group '%s' doesn't exist.") % name)
   exit 1
 end
 group = Group.find(name)
@@ -71,9 +73,11 @@ end
 if options.members_to_add and options.members_to_delete
   duplicated_members = options.members_to_add & options.members_to_delete
   unless duplicated_members.empty?
-    message = "there are duplicated members in adding and deleting members: "
-    message << duplicated_members.join(", ")
-    $stderr.puts message
+    format =
+      n_("there is duplicated member in adding and deleting members: %s",
+         "there are duplicated members in adding and deleting members: %s",
+         duplicated_members.size)
+    $stderr.puts(format % duplicated_members.join(", "))
     exit 1
   end
 end
@@ -110,7 +114,7 @@ group.save!
 
 if options.new_group_name
   if Group.exists?(options.new_group_name)
-    $stderr.puts "group '#{options.new_group_name}' always exists."
+    $stderr.puts(_("group '%s' always exists.") % options.new_group_name)
     exit 1
   end
 

@@ -5,6 +5,8 @@ require 'time'
 require 'active_samba_ldap'
 require 'active_samba_ldap/command'
 
+include ActiveSambaLdap::GetTextSupport
+
 argv, opts, options = ActiveSambaLdap::Command.parse_options do |opts, options|
   options.ou = nil
   options.computer_account = false
@@ -28,7 +30,7 @@ argv, opts, options = ActiveSambaLdap::Command.parse_options do |opts, options|
   options.samba_logon_script = nil
   options.samba_profile_path = nil
   options.samba_account_flags = nil
-  options.canonical_name = nil
+  options.common_name = nil
   options.given_name = nil
   options.surname = nil
   options.mail_addresses = nil
@@ -37,8 +39,8 @@ argv, opts, options = ActiveSambaLdap::Command.parse_options do |opts, options|
   opts.banner += " USER_NAME"
 
   opts.on("-o", "--ou=OU",
-          "add the user in the organizational unit OU",
-          "(relative to the user suffix)") do |ou|
+          _("add the user in the organizational unit OU"),
+          _("(relative to the user suffix)")) do |ou|
     if /^ou=/ =~ ou
       options.ou = ou
     else
@@ -46,88 +48,86 @@ argv, opts, options = ActiveSambaLdap::Command.parse_options do |opts, options|
     end
   end
   opts.on("-c", "--[no-]computer-account",
-          "is a Windows Workstation",
-          "(otherwise, Windows user)",
+          _("is a Windows Workstation"),
+          _("(otherwise, Windows user)"),
           "(#{options.computer_account})") {|options.computer_account|}
-  opts.on("-u", "--uid=UID", Integer, "uid") {|options.uid|}
-  opts.on("-g", "--gid=GID", "gid") {|options.gid|}
+  opts.on("-u", "--uid=UID", Integer, _("uid")) {|options.uid|}
+  opts.on("-g", "--gid=GID", _("gid")) {|options.gid|}
   opts.on("-G", "--groups=GID1,GID2,GID3", Array,
-          "supplementary groups (comma separated)") do |groups|
+          _("supplementary groups (comma separated)")) do |groups|
     options.supplementary_groups = groups
   end
   opts.on("--[no-]create-group",
-          "create a group for the user",
+          _("create a group for the user"),
           "(#{options.create_group})") {|options.create_group|}
   opts.on("-c", "--comment=COMMENT",
-          "set the GECOS field for the new user account") {|options.comment|}
-  opts.on("-s", "--shell=SHELL", "shell") {|options.shell|}
-  opts.on("-G", "--given-name=NAME", "given name") {|options.given_name|}
-  opts.on("-N", "--canonical-name=NAME",
-          "canonical name") {|options.canonical_name|}
-  opts.on("-S", "--surname=NAME", "surname") {|options.surname|}
+          _("set the GECOS field for the new user account")) {|options.comment|}
+  opts.on("-s", "--shell=SHELL", _("shell")) {|options.shell|}
+  opts.on("-G", "--given-name=NAME", _("given name")) {|options.given_name|}
+  opts.on("-N", "--common-name=NAME",
+          _("common name")) {|options.common_name|}
+  opts.on("-S", "--surname=NAME", _("surname")) {|options.surname|}
 
   opts.on("-d", "--home-directory=HOME_DIR",
-          "home directory") {|options.home_directory|}
+          _("home directory")) {|options.home_directory|}
   opts.on("--home-directory-mode=MODE",
-          "permission of home directory") {|options.home_directory_mode|}
+          _("permission of home directory")) {|options.home_directory_mode|}
   opts.on("--[no-]setup-home-directory",
-          "setup home directory",
+          _("setup home directory"),
           "(#{options.setup_home_directory})") {|options.setup_home_directory|}
   opts.on("-k", "--skel=DIR", "--skeleton-directory=DIR",
-          "skeleton directory") {|options.skeleton_directory|}
+          _("skeleton directory")) {|options.skeleton_directory|}
 
   opts.on("--time=TIME", Integer,
-          "wait TIME seconds before exiting",
+          _("wait TIME seconds before exiting"),
           "(#{options.time})") {|options.time|}
 
   opts.separator("")
-  opts.separator("For samba accounts:")
+  opts.separator(_("For samba accounts:"))
 
-  opts.on("-e", "--expire-date=DATE", "expire date") do |date|
+  opts.on("-e", "--expire-date=DATE", _("expire date")) do |date|
     options.expire_date = Time.parse(date)
   end
   opts.on("-C", "--[no-]can-change-password",
-          "can change password") do |bool|
+          _("can change password")) do |bool|
     options.can_change_password = bool
   end
   opts.on("-M", "--[no-]must-change-password",
-          "must change password") do |bool|
+          _("must change password")) do |bool|
     options.must_change_password = bool
   end
   opts.on("--samba-home-path=UNC",
-          "sambaHomePath",
-          "(SMB home share, like '\\\\PDC\\user'") do |unc|
+          _("sambaHomePath"),
+          _("(SMB home share, like '\\\\PDC\\user'")) do |unc|
     options.samba_home_unc = unc
   end
   opts.on("--samba-home-drive=DRIVE",
-          "sambaHomeDrive",
-          "(letter associated with home share,",
-          " like 'H:')") do |drive|
+          _("sambaHomeDrive"),
+          _("(letter associated with home share, like 'H:')")) do |drive|
     options.samba_home_drive = drive
   end
   opts.on("--samba-logon-script=SCRIPT",
-          "sambaLogonScript",
-          "(DOS script to execute on login)") do |script|
+          _("sambaLogonScript"),
+          _("(DOS script to execute on login)")) do |script|
     options.samba_logon_script = script
   end
   opts.on("--samba-profile-path=PATH",
-          "sambaProfilePath",
-          "(profile directory,",
-          " like '\\\\PDC\\profiles\\user')") do |path|
+          _("sambaProfilePath"),
+          _("(profile directory, like '\\\\PDC\\profiles\\user')")) do |path|
     options.samba_profile_path = path
   end
   opts.on("--samba-account-flags=FLAGS",
-          "sambaAcctFlags",
-          "(samba account control bits,",
-          " like '[NDHTUMWSLXI]')") {|options.samba_account_flags|}
+          _("sambaAcctFlags"),
+          _("(samba account control bits, " \
+            "like '[NDHTUMWSLXI]')")) {|options.samba_account_flags|}
 
 #   opts.on("--mail-addresses=ADDRESS1,ADDRESS2,ADDRESS3",
 #           Array,
-#           "mailAddresses (comma separated)") {|options.mail_addresses|}
+#           _("mailAddresses (comma separated)")) {|options.mail_addresses|}
 #   opts.on("--mail-to-addresses=ADDRESS1,ADDRESS2,ADDRESS3",
 #           Array,
-#           "mailToAddresses (forward address)",
-#           "(comma separated)") do |addresses|
+#           _("mailToAddresses (forward address)"),
+#           _("(comma separated)")) do |addresses|
 #     options.mail_to_addresses = addresses
 #   end
 end
@@ -141,7 +141,7 @@ else
 end
 
 unless Process.uid.zero?
-  $stderr.puts "need root authority."
+  $stderr.puts(_("need root authority."))
   exit 1
 end
 
@@ -164,21 +164,22 @@ class UnixIdPool < ActiveSambaLdap::UnixIdPool
   ldap_mapping
 end
 
-member_class = options.computer_account ? Computer : User
-
-member_type = member_class.name.downcase
-
 if options.computer_account
+  member_class = Computer
+  member_type = _("computer")
   name = name.chomp("$") + "$"
+else
+  member_class = User
+  member_type = _("user")
 end
 
 unless member_class.valid_name?(name)
-  $stderr.puts "'#{name}' is illegal #{member_type} name"
+  $stderr.puts(_("'%s' is illegal %s name.") % [name, member_type])
   exit 1
 end
 
 if member_class.exists?(name)
-  $stderr.puts "#{member_type} '#{name}' already exists."
+  $stderr.puts(_("%s '%s' already exists.") % [member_type, name])
   exit 1
 end
 
@@ -191,7 +192,7 @@ create_options = {
   :home_directory => options.home_directory,
   :login_shell => options.shell,
   :given_name => options.given_name,
-  :cn => options.canonical_name,
+  :cn => options.common_name,
   :sn => options.surname,
   :gecos => options.comment,
   :samba_acct_flags => options.samba_account_flags,
@@ -220,7 +221,7 @@ member = nil
 begin
   member = member_class.create(create_options)
 rescue ActiveSambaLdap::UidNumberAlreadyExists
-  $stderr.puts "UID '#{uid_number}' already exists"
+  $stderr.puts(_("UID '%s' already exists.") % uid_number)
   exit 1
 rescue ActiveSambaLdap::GidNumberDoesNotExist,
   ActiveSambaLdap::GroupDoesNotExist,

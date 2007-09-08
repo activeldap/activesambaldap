@@ -3,6 +3,8 @@
 require 'active_samba_ldap'
 require 'active_samba_ldap/command'
 
+include ActiveSambaLdap::GetTextSupport
+
 argv, opts, options = ActiveSambaLdap::Command.parse_options do |opts, options|
   opts.banner += " GROUP_NAME"
 end
@@ -16,7 +18,7 @@ else
 end
 
 unless Process.uid.zero?
-  $stderr.puts "need root authority."
+  $stderr.puts(_("need root authority."))
   exit 1
 end
 
@@ -31,7 +33,7 @@ class UnixIdPool < ActiveSambaLdap::UnixIdPool
 end
 
 if Group.exists?(name)
-  $stderr.puts "group '#{name}' already exists."
+  $stderr.puts(_("group '%s' already exists.") % name)
   exit 1
 end
 

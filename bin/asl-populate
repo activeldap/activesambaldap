@@ -7,6 +7,8 @@ require 'time'
 require 'active_samba_ldap'
 require 'active_samba_ldap/command'
 
+include ActiveSambaLdap::GetTextSupport
+
 argv, opts, options = ActiveSambaLdap::Command.parse_options do |opts, options|
   default = ActiveSambaLdap::Configuration::ClassMethods::Private.new({})
   options.start_uid = Integer(default.start_uid)
@@ -25,34 +27,37 @@ argv, opts, options = ActiveSambaLdap::Command.parse_options do |opts, options|
   options.import_ldif = nil
 
   opts.on("-u", "--start-uid=UID", Integer,
-          "first uid number to allocate",
+          _("first uid number to allocate"),
           "(#{options.start_uid})") {|options.start_uid|}
   opts.on("-g", "--start-gid=GID", Integer,
-          "first gid number to allocate",
+          _("first gid number to allocate"),
           "(#{options.start_gid})") {|options.start_gid|}
   opts.on("-a", "--administrator=NAME",
-          "administrator login name",
+          _("administrator login name"),
           "(#{options.administrator})") {|options.administrator|}
   opts.on("--administrator-uid=UID", Integer,
-          "administrator's uid number",
+          _("administrator's uid number"),
           "(#{options.administrator_uid})") {|options.administrator_uid|}
   opts.on("--administrator-gid=GID", Integer,
-          "administrator's gid number",
+          _("administrator's gid number"),
           "(#{options.administrator_gid})") {|options.administrator_gid|}
   opts.on("-g", "--guest=NAME",
-          "guest login name (#{options.guest})") {|options.guest|}
+          _("guest login name"),
+          "(#{options.guest})") {|options.guest|}
   opts.on("--guest-uid=UID", Integer,
-          "guest's uid number (#{options.guest_uid})") {|options.guest_uid|}
+          _("guest's uid number"),
+          "(#{options.guest_uid})") {|options.guest_uid|}
   opts.on("--guest-gid=GID", Integer,
-          "guest's gid number (#{options.guest_gid})") {|options.guest_gid|}
+          _("guest's gid number"),
+          "(#{options.guest_gid})") {|options.guest_gid|}
   opts.on("-e", "--export-ldif=LDIF",
-          "export LDIF file") {|options.export_ldif|}
+          _("export LDIF file")) {|options.export_ldif|}
 #   opts.on("-i", "--import-ldif=LDIF",
-#           "import LDIF file") {|options.import_ldif|}
+#           _("import LDIF file")) {|options.import_ldif|}
 end
 
 unless Process.uid.zero?
-  $stderr.puts "need root authority."
+  $stderr.puts(_("need root authority."))
   exit 1
 end
 
@@ -68,12 +73,12 @@ def init_administrator(opts, entries)
   end
   return if admin.new_entry?
 
-  prompt = "Password for #{admin_name}: "
+  prompt = _("Password for %s: ") % admin_name
   password = ActiveSambaLdap::Command.read_password(prompt)
-  prompt2 = "Retype password for #{admin_name}: "
+  prompt2 = _("Retype password for %s: ") % admin_name
   password2 = ActiveSambaLdap::Command.read_password(prompt2)
   unless password == password2
-    $stderr.puts "Passwords don't match."
+    $stderr.puts(_("Passwords don't match."))
     exit 1
   end
 

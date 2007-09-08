@@ -3,6 +3,8 @@
 require 'active_samba_ldap'
 require 'active_samba_ldap/command'
 
+include ActiveSambaLdap::GetTextSupport
+
 argv, opts, options = ActiveSambaLdap::Command.parse_options do |opts, options|
   options.remove_home_directory = false
   options.interactive = false
@@ -11,17 +13,19 @@ argv, opts, options = ActiveSambaLdap::Command.parse_options do |opts, options|
   opts.banner += " USER_NAME"
 
   opts.on("-c", "--[no-]computer-account",
-          "is a Windows Workstation",
-          "(otherwise, Windows user)",
+          _("is a Windows Workstation"),
+          _("(otherwise, Windows user)"),
           "(#{options.computer_account})") {|options.computer_account|}
 
   opts.on("-r", "--[no-]remove-home-directory",
-          "remove home directory (#{options.remove_home_directory})") do |bool|
+          _("remove home directory"),
+          "(#{options.remove_home_directory})") do |bool|
     options.remove_home_directory = bool
   end
 
   opts.on("-i", "--[no-]interactive",
-          "do interactively (#{options.interactive})") do |bool|
+          _("do interactively"),
+          "(#{options.interactive})") do |bool|
     options.interactive = bool
   end
 end
@@ -35,7 +39,7 @@ else
 end
 
 unless Process.uid.zero?
-  $stderr.puts "need root authority."
+  $stderr.puts(_("need root authority."))
   exit 1
 end
 
@@ -53,15 +57,20 @@ class Group < ActiveSambaLdap::Group
   ldap_mapping
 end
 
-member_class = options.computer_account ? Computer : User
-member_type = member_class.name.downcase
+if options.computer_account
+  member_class = Computer
+  member_type = _("computer")
+else
+  member_class = User
+  member_type = _("user")
+end
 
 if options.computer_account
   name = name.chomp("$") + "$"
 end
 
 unless member_class.exists?(name)
-  $stderr.puts "#{member_type} '#{name}' doesn't exist."
+  $stderr.puts(_("%s '%s' doesn't exist.") % [member_type, name])
   exit 1
 end
 member = member_class.find(name)

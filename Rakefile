@@ -153,7 +153,17 @@ namespace :gettext do
   namespace :po do
     desc "Update po/pot files (GetText)"
     task :update => "gettext:environment" do
+      module GetText::RGetText
+        class << self
+          alias_method :generate_pot_original, :generate_pot
+          def generate_pot(ary)
+            ary = ary.collect {|key, *other| [key.gsub(/\\/, "\\\\\\"), *other]}
+            generate_pot_original(ary)
+          end
+        end
+      end
       files = Dir.glob("{lib,rails}/**/*.rb")
+      files += Dir.glob("bin/asl*")
       GetText.update_pofiles("active-samba-ldap",
                              files,
                              "Ruby/ActiveSambaLdap #{ActiveSambaLdap::VERSION}")

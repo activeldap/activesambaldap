@@ -3,14 +3,16 @@
 require 'active_samba_ldap'
 require 'active_samba_ldap/command'
 
+include ActiveSambaLdap::GetTextSupport
+
 argv, opts, options = ActiveSambaLdap::Command.parse_options do |opts, options|
   options.ou = nil
 
   opts.banner += " COMPUTER_NAME"
 
   opts.on("-o", "--ou=OU",
-          "add the user in the organizational unit OU",
-          "(relative to the user suffix)") do |ou|
+          _("add the user in the organizational unit OU"),
+          _("(relative to the user suffix)")) do |ou|
     if /^ou=/ =~ ou
       options.ou = ou
     else
@@ -28,7 +30,7 @@ else
 end
 
 unless Process.uid.zero?
-  $stderr.puts "need root authority."
+  $stderr.puts(_("need root authority."))
   exit 1
 end
 
@@ -52,12 +54,12 @@ class UnixIdPool < ActiveSambaLdap::UnixIdPool
 end
 
 unless Computer.valid_name?(name)
-  $stderr.puts "'#{name}' is illegal computer name"
+  $stderr.puts(_("'%s' is illegal computer name.") % name)
   exit 1
 end
 
 if Computer.exists?(name)
-  $stderr.puts "computer '#{name}' already exists."
+  $stderr.puts(_("computer '%s' already exists.") % name)
   exit 1
 end
 
@@ -73,7 +75,7 @@ computer = nil
 begin
   computer = Computer.create(:uid => name, :group_class => Group)
 rescue ActiveSambaLdap::UidNumberAlreadyExists
-  $stderr.puts "UID '#{uid_number}' already exists"
+  $stderr.puts(_("UID '%s' already exists.") % uid_number)
   exit 1
 rescue ActiveSambaLdap::GidNumberDoesNotExist,
   ActiveSambaLdap::GroupDoesNotExist,

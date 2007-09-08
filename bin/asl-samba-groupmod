@@ -3,6 +3,8 @@
 require 'active_samba_ldap'
 require 'active_samba_ldap/command'
 
+include ActiveSambaLdap::GetTextSupport
+
 argv, opts, options = ActiveSambaLdap::Command.parse_options do |opts, options|
   options.members_to_add = nil
   options.members_to_delete = nil
@@ -10,9 +12,9 @@ argv, opts, options = ActiveSambaLdap::Command.parse_options do |opts, options|
   opts.banner += " GROUP_NAME"
 
   opts.on("-a", "--add-members=MEMBER1,MEMBER2,MEBMER3", Array,
-          "add members (comma delimited)") {|options.members_to_add|}
+          _("add members (comma delimited)")) {|options.members_to_add|}
   opts.on("-d", "--delete-members=MEMBER1,MEMBER2,MEBMER3", Array,
-          "delete members (comma delimited)") {|options.members_to_delete|}
+          _("delete members (comma delimited)")) {|options.members_to_delete|}
 end
 
 name = nil
@@ -24,7 +26,7 @@ else
 end
 
 unless Process.uid.zero?
-  $stderr.puts "need root authority."
+  $stderr.puts(_("need root authority."))
   exit 1
 end
 
@@ -43,7 +45,7 @@ class Computer < ActiveSambaLdap::Computer
 end
 
 unless Group.exists?(name)
-  $stderr.puts "group '#{name}' doesn't exist."
+  $stderr.puts(_("group '%s' doesn't exist.") % name)
   exit 1
 end
 group = Group.find(name)
@@ -51,9 +53,8 @@ group = Group.find(name)
 if options.members_to_add and options.members_to_delete
   duplicated_members = options.members_to_add & options.members_to_delete
   unless duplicated_members.empty?
-    message = "there are duplicated members in adding and deleting members: "
-    message << duplicated_members.join(", ")
-    $stderr.puts message
+    format = _("there are duplicated members in adding and deleting members: %s")
+    $stderr.puts(format % duplicated_members.join(", "))
     exit 1
   end
 end
