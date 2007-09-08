@@ -1,4 +1,4 @@
-class ScaffoldAslGenerator < Rails::Generator::Base
+class ScaffoldActiveSambaLdapGenerator < Rails::Generator::Base
   def manifest
     record do |m|
 
