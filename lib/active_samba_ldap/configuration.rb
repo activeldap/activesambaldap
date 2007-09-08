@@ -78,6 +78,8 @@ module ActiveSambaLdap
       end
 
       class Private
+        include ActiveSambaLdap::GetTextSupport
+
         VARIABLES = %w(base host port scope bind_dn
                        password method allow_anonymous
 
@@ -305,7 +307,7 @@ module ActiveSambaLdap
             types = AVAILABLE_HASH_TYPES.collect {|x| x.inspect}.join(", ")
             raise InvalidConfigurationValueError.new("password_hash_type",
                                                      type,
-                                                     "must be in #{types}")
+                                                     _("must be in %s") % types)
           end
         end
 

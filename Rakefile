@@ -139,3 +139,33 @@ task :uninstall do
     rm_f project.bin_files.collect {|f| f.sub(/^bin#{File::SEPARATOR}/, '')}
   end
 end
+
+
+desc "Update *.po/*.pot files and create *.mo from *.po files"
+task :gettext => ["gettext:po:update", "gettext:mo:create"]
+
+namespace :gettext do
+  desc "Setup environment for GetText"
+  task :environment do
+    require "gettext/utils"
+  end
+
+  namespace :po do
+    desc "Update po/pot files (GetText)"
+    task :update => "gettext:environment" do
+      files = Dir.glob("{lib,rails}/**/*.rb")
+      GetText.update_pofiles("active-samba-ldap",
+                             files,
+                             "Ruby/ActiveSambaLdap #{ActiveSambaLdap::VERSION}")
+    end
+  end
+
+  namespace :mo do
+    desc "Create *.mo from *.po (GetText)"
+    task :create => "gettext:environment" do
+      GetText.create_mofiles(false)
+    end
+  end
+end
+
+task(:gem).prerequisites.unshift("gettext:mo:create")

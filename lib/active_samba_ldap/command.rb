@@ -5,6 +5,8 @@ require 'active_samba_ldap'
 
 module ActiveSambaLdap
   module Command
+    include ActiveSambaLdap::GetTextSupport
+
     module_function
     def parse_options(argv=nil)
       argv ||= ARGV.dup
@@ -13,22 +15,22 @@ module ActiveSambaLdap
       opts = OptionParser.new do |opts|
         yield(opts, options)
 
-        opts.separator ""
-        opts.separator "Common options:"
+        opts.separator("")
+        opts.separator(_("Common options:"))
 
         opts.on_tail("--config=CONFIG",
-                     "Specify configuration file",
-                     "Default configuration files:",
+                     _("Specify configuration file"),
+                     _("Default configuration files:"),
                      *configuration_files.collect {|x| "  #{x}"}) do |file|
           configuration_files << file
         end
 
-        opts.on_tail("-h", "--help", "Show this message") do
+        opts.on_tail("-h", "--help", _("Show this message")) do
           puts opts
           exit
         end
 
-        opts.on_tail("--version", "Show version") do
+        opts.on_tail("--version", _("Show version")) do
           puts VERSION
           exit
         end

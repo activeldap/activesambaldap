@@ -2,13 +2,14 @@ require 'active_samba_ldap/reloadable'
 
 module ActiveSambaLdap
   class Error < StandardError
+    include ActiveSambaLdap::GetTextSupport
   end
 
   class RequiredVariableIsNotSet < Error
     attr_reader :name
     def initialize(name)
       @name = name
-      super("required variable '#{name}' is not set")
+      super(_("required variable is not set: %s") % name)
     end
   end
 
@@ -16,7 +17,7 @@ module ActiveSambaLdap
     attr_reader :names
     def initialize(names)
       @names = names
-      super("required variables '#{names.join(', ')}' are not set")
+      super(_("required variables are not set: %s") % names.join(', '))
     end
   end
 
@@ -24,7 +25,7 @@ module ActiveSambaLdap
     attr_reader :number
     def initialize(number)
       @number = number
-      super("uid number '#{@number}' already exists")
+      super(_("uid number already exists: %s") % number)
     end
   end
 
@@ -32,7 +33,7 @@ module ActiveSambaLdap
     attr_reader :name
     def initialize(name)
       @name = name
-      super("group '#{@name}' doesn't exist")
+      super(_("group doesn't exist: %s") % name)
     end
   end
 
@@ -40,7 +41,7 @@ module ActiveSambaLdap
     attr_reader :number
     def initialize(number)
       @number = number
-      super("gid number '#{@number}' already exists")
+      super(_("gid number already exists: %s") % number)
     end
   end
 
@@ -48,7 +49,7 @@ module ActiveSambaLdap
     attr_reader :number
     def initialize(number)
       @number = number
-      super("gid number '#{@number}' doesn't exist")
+      super(_("gid number doesn't exist: %s") % number)
     end
   end
 
@@ -56,7 +57,7 @@ module ActiveSambaLdap
     attr_reader :number
     def initialize(number)
       @number = number
-      super("sambaSID attribute doesn't exist for gid number '#{@number}'")
+      super(_("sambaSID attribute doesn't exist for gid number '%s'") % number)
     end
   end
 
@@ -65,9 +66,9 @@ module ActiveSambaLdap
     def initialize(group, members)
       @group = group
       @members = members
-      message = "cannot change primary group from '#{group}' to other group "
-      message << "due to no other belonged groups: #{members.join(', ')}"
-      super(message)
+      format = _("cannot change primary group from '%s' to other group " \
+                 "due to no other belonged groups: %s")
+      super(format % [group, members.join(', ')])
     end
   end
 
@@ -76,9 +77,9 @@ module ActiveSambaLdap
     def initialize(group, members)
       @group = group
       @members = members
-      message = "cannot destroy group '#{group}' due to members who belong "
-      message << "to the group as primary group: #{members.join(', ')}"
-      super(message)
+      format = _("cannot destroy group '%s' due to members who belong " \
+                 "to the group as primary group: %s")
+      super(format % [group, members.join(', ')])
     end
   end
 
@@ -88,8 +89,8 @@ module ActiveSambaLdap
       @file = file
       @location = location
       @detail = detail
-      super("found invalid configuration format at #{@file}:#{@location}" +
-            ": #{@detail}")
+      format = _("found invalid configuration format at %s:%s: %s")
+      super(format % [file, location, detail])
     end
   end
 
@@ -99,7 +100,8 @@ module ActiveSambaLdap
       @name = name
       @value = value
       @detail = detail
-      super("the value of #{@name} '#{@value.inspect}' is invalid: #{@detail}")
+      format = _("the value of %s '%s' is invalid: %s")
+      super(format % [name, value.inspect, detail])
     end
   end
 
@@ -107,7 +109,7 @@ module ActiveSambaLdap
     attr_reader :object
     def initialize(object)
       @object = object
-      super("#{@object.inspect} is not Samba available")
+      super(_("%s is not Samba available") % [object.inspect])
     end
   end
 

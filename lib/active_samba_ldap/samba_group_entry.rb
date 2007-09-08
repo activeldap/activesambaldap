@@ -135,7 +135,7 @@ module ActiveSambaLdap
       elsif TYPES.values.include?(type.to_i)
         # pass
       else
-        raise ArgumentError, "invalid type: #{type}"
+        raise ArgumentError, _("invalid type: %s") % type
       end
       self.samba_group_type = type.to_s
     end

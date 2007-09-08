@@ -36,7 +36,7 @@ module ActiveSambaLdap
         prefixes = [prefix]
         ou.split(/\s*,\s*/).reverse_each do |entry|
           name, value = entry.split(/\s*=\s*/, 2).collect {|x| x.strip}
-          raise ArgumentError, "#{ou} must be only ou" if name != "ou"
+          raise ArgumentError, _("%s must be only ou") % ou if name != "ou"
           ou_class = Class.new(ActiveSambaLdap::Ou)
           ou_class.ldap_mapping :prefix => prefixes.join(',')
           prefixes.unshift(entry)

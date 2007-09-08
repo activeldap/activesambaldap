@@ -8,7 +8,7 @@ require_gem_if_need = Proc.new do |library_name, gem_name, *options|
   end
 end
 
-required_active_ldap_version = ">= 0.8.2"
+required_active_ldap_version = ">= 0.8.3.1"
 require_gem_if_need.call("active_ldap", "ruby-activeldap",
                          required_active_ldap_version)
 
@@ -17,6 +17,7 @@ if Dependencies.respond_to?(:load_paths)
 end
 
 require 'active_samba_ldap/version'
+require 'active_samba_ldap/get_text_support'
 require 'active_samba_ldap/base'
 require "active_samba_ldap/configuration"
 require 'active_samba_ldap/populate'
