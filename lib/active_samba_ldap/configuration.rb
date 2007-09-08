@@ -42,7 +42,7 @@ module ActiveSambaLdap
       class ValidHash < Hash
         def [](name)
           if Private.required_variables.include?(name) and !has_key?(name)
-            raise RequiredVariableIsNotSet.new(name)
+            raise MissingRequiredVariableError.new(name)
           end
           super(name)
         end
@@ -73,7 +73,7 @@ module ActiveSambaLdap
           end
         end
         unless missing_variables.empty?
-          raise RequiredVariablesAreNotSet.new(missing_variables)
+          raise MissingRequiredVariableError.new(missing_variables)
         end
       end
 

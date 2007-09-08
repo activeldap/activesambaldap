@@ -1,0 +1,110 @@
+# Japanese translations for Ruby/ActiveSambaLdap.
+# Copyright (C) 2007 Kouhei Sutou
+# This file is distributed under the same license as the Ruby/ActiveSambaLdap
+# package.
+# Kouhei Sutou <kou@cozmixng.org>, 2007.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Ruby/ActiveSambaLdap 0.0.3\n"
+"POT-Creation-Date: 2007-09-08 12:08+0900\n"
+"PO-Revision-Date: 2007-09-08 12:09+0900\n"
+"Last-Translator: Kouhei Sutou <kou@cozmixng.org>\n"
+"Language-Team: Japanese\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: lib/active_samba_ldap/command.rb:19
+msgid "Common options:"
+msgstr "共通のオプション:"
+
+#: lib/active_samba_ldap/command.rb:22
+msgid "Specify configuration file"
+msgstr "設定ファイルを指定"
+
+#: lib/active_samba_ldap/command.rb:23
+msgid "Default configuration files:"
+msgstr "デフォルトの設定ファイル:"
+
+#: lib/active_samba_ldap/command.rb:28
+msgid "Show this message"
+msgstr "このメッセージを表示"
+
+#: lib/active_samba_ldap/command.rb:33
+msgid "Show version"
+msgstr "バージョンを表示"
+
+#: lib/active_samba_ldap/entry.rb:39
+msgid "%s must be only ou"
+msgstr "%sはouだけでなくてはいけません"
+
+#: lib/active_samba_ldap/base.rb:15
+msgid "required variable is not set: %s"
+msgid_plural "required variables are not set: %s"
+msgstr[0] "必須の変数が設定されていません: %s"
+msgstr[1] "必須の変数が設定されていません: %s"
+
+#: lib/active_samba_ldap/base.rb:27
+msgid "uid number already exists: %s"
+msgstr "UID番号がすでに存在します: %s"
+
+#: lib/active_samba_ldap/base.rb:35
+msgid "group doesn't exist: %s"
+msgstr "グループが存在しません: %s"
+
+#: lib/active_samba_ldap/base.rb:43
+msgid "gid number already exists: %s"
+msgstr "GID番号がすでに存在します: %s"
+
+#: lib/active_samba_ldap/base.rb:51
+msgid "gid number doesn't exist: %s"
+msgstr "GID番号が存在しません: %s"
+
+#: lib/active_samba_ldap/base.rb:59
+msgid "sambaSID attribute doesn't exist for gid number '%s'"
+msgstr "GID番号'%s'用のsambaSID属性が存在しません"
+
+#: lib/active_samba_ldap/base.rb:68
+msgid ""
+"cannot change primary group from '%s' to other group due to no other "
+"belonged groups: %s"
+msgstr ""
+"他に所属しているグループがないので、プライマリグループを'%s'から他のグループ"
+"に変更することができません: %s"
+
+#: lib/active_samba_ldap/base.rb:79
+msgid ""
+"cannot destroy group '%s' due to members who belong to the group as primary "
+"group: %s"
+msgstr ""
+"プライマリグループとして所属しているメンバーがいるため、グループ'%s'を削除す"
+"ることができません: %s"
+
+#: lib/active_samba_ldap/base.rb:91
+msgid "found invalid configuration format at %s:%s: %s"
+msgstr "%s:%sに不正な設定ファイル形式があります: %s"
+
+#: lib/active_samba_ldap/base.rb:102
+msgid "the value of %s '%s' is invalid: %s"
+msgstr "%sの値'%s'が不正です: %s"
+
+#: lib/active_samba_ldap/base.rb:111
+msgid "%s is not Samba available"
+msgstr "%sはSambaで利用できません"
+
+#: lib/active_samba_ldap/configuration.rb:310
+msgid "must be in %s"
+msgstr "%sの中になければいけません"
+
+#: lib/active_samba_ldap/samba_group_entry.rb:138
+msgid "invalid type: %s"
+msgstr "不正な種類: %s"
+
+#: rails/plugin/active_samba_ldap/init.rb:10
+msgid ""
+"You should run 'script/generator scaffold_active_samba_ldap' to make %s."
+msgstr ""
+"%sを作るために'script/generator scaffold_active_samba_ldap'を実行してくださ"
+"い。"

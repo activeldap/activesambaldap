@@ -5,19 +5,18 @@ module ActiveSambaLdap
     include ActiveSambaLdap::GetTextSupport
   end
 
-  class RequiredVariableIsNotSet < Error
-    attr_reader :name
-    def initialize(name)
-      @name = name
-      super(_("required variable is not set: %s") % name)
-    end
-  end
-
-  class RequiredVariablesAreNotSet < RequiredVariableIsNotSet
+  class MissingRequiredVariableError < Error
     attr_reader :names
     def initialize(names)
+      names = names.to_a
       @names = names
-      super(_("required variables are not set: %s") % names.join(', '))
+      super(n_("required variable is not set: %s",
+               "required variables are not set: %s",
+               names.size) % names.join(', '))
+    end
+
+    def name
+      @names.first
     end
   end
 
