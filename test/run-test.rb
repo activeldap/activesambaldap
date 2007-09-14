@@ -1,5 +1,7 @@
 #!/usr/bin/env ruby
 
+$KCODE = 'u'
+
 require "test/unit"
 
 top_dir = File.join(File.dirname(__FILE__), "..")
