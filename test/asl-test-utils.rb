@@ -12,6 +12,7 @@ require 'active_samba_ldap'
 module AslTestUtils
   def self.included(base)
     base.class_eval do
+      include ActiveSambaLdap::GetTextSupport
       include Configuration
       include Connection
       include Populate
