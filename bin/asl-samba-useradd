@@ -72,7 +72,7 @@ user = nil
 begin
   user = User.create(:uid => name, :group_class => Group)
 rescue ActiveSambaLdap::UidNumberAlreadyExists
-  $stderr.puts(_("UID '%s' already exists") % uid_number)
+  $stderr.puts(_("UID '%s' already exists.") % uid_number)
   exit 1
 rescue ActiveSambaLdap::GidNumberDoesNotExist,
   ActiveSambaLdap::GroupDoesNotExist,
