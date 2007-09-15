@@ -167,7 +167,7 @@ else
 end
 
 unless member_class.exists?(name)
-  $stderr.puts(_("%s '%s' doesn't exist.") % [member_type, name])
+  $stderr.puts(_("%s doesn't exist: %s") % [member_type, name])
   exit 1
 end
 member = member_class.find(name)
@@ -311,7 +311,7 @@ if options.new_user_name
     options.new_user_name = options.new_user_name.chomp("$") + "$"
   end
   if member_class.exists?(options.new_user_name)
-    format = _("%s '%s' always exists.")
+    format = _("%s already exists: %s")
     $stderr.puts(format % [member_type, options.new_user_name])
     exit 1
   end

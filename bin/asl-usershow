@@ -24,7 +24,7 @@ class User < ActiveSambaLdap::User
 end
 
 unless User.exists?(name)
-  $stderr.puts(_("user '%s' doesn't exist.") % name)
+  $stderr.puts(_("user doesn't exist: %s") % name)
   exit 1
 end
 user = User.find(name)

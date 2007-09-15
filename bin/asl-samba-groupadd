@@ -33,7 +33,7 @@ class UnixIdPool < ActiveSambaLdap::UnixIdPool
 end
 
 if Group.exists?(name)
-  $stderr.puts(_("group '%s' already exists.") % name)
+  $stderr.puts(_("group already exists: %s") % name)
   exit 1
 end
 

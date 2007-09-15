@@ -174,12 +174,12 @@ else
 end
 
 unless member_class.valid_name?(name)
-  $stderr.puts(_("'%s' is illegal %s name.") % [name, member_type])
+  $stderr.puts(_("illegal %s name: %s") % [name, member_type])
   exit 1
 end
 
 if member_class.exists?(name)
-  $stderr.puts(_("%s '%s' already exists.") % [member_type, name])
+  $stderr.puts(_("%s already exists: %s") % [member_type, name])
   exit 1
 end
 
@@ -221,7 +221,7 @@ member = nil
 begin
   member = member_class.create(create_options)
 rescue ActiveSambaLdap::UidNumberAlreadyExists
-  $stderr.puts(_("UID '%s' already exists.") % uid_number)
+  $stderr.puts(_("UID already exists: %s") % uid_number)
   exit 1
 rescue ActiveSambaLdap::GidNumberDoesNotExist,
   ActiveSambaLdap::GroupDoesNotExist,

@@ -54,12 +54,12 @@ class UnixIdPool < ActiveSambaLdap::UnixIdPool
 end
 
 unless Computer.valid_name?(name)
-  $stderr.puts(_("'%s' is illegal computer name.") % name)
+  $stderr.puts(_("illegal computer name: %s") % name)
   exit 1
 end
 
 if Computer.exists?(name)
-  $stderr.puts(_("computer '%s' already exists.") % name)
+  $stderr.puts(_("computer already exists: %s") % name)
   exit 1
 end
 
@@ -75,7 +75,7 @@ computer = nil
 begin
   computer = Computer.create(:uid => name, :group_class => Group)
 rescue ActiveSambaLdap::UidNumberAlreadyExists
-  $stderr.puts(_("UID '%s' already exists.") % uid_number)
+  $stderr.puts(_("UID already exists: %s") % uid_number)
   exit 1
 rescue ActiveSambaLdap::GidNumberDoesNotExist,
   ActiveSambaLdap::GroupDoesNotExist,

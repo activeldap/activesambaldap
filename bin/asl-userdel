@@ -70,7 +70,7 @@ if options.computer_account
 end
 
 unless member_class.exists?(name)
-  $stderr.puts(_("%s '%s' doesn't exist.") % [member_type, name])
+  $stderr.puts(_("%s doesn't exist: %s") % [member_type, name])
   exit 1
 end
 member = member_class.find(name)

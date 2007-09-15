@@ -54,12 +54,12 @@ class UnixIdPool < ActiveSambaLdap::UnixIdPool
 end
 
 unless User.valid_name?(name)
-  $stderr.puts(_("'%s' is illegal user name.") % name)
+  $stderr.puts(_("illegal user name: %s") % name)
   exit 1
 end
 
 if User.exists?(name)
-  $stderr.puts(_("user '%s' already exists.") % name)
+  $stderr.puts(_("user already exists: %s") % name)
   exit 1
 end
 
@@ -72,7 +72,7 @@ user = nil
 begin
   user = User.create(:uid => name, :group_class => Group)
 rescue ActiveSambaLdap::UidNumberAlreadyExists
-  $stderr.puts(_("UID '%s' already exists.") % uid_number)
+  $stderr.puts(_("UID already exists: %s") % uid_number)
   exit 1
 rescue ActiveSambaLdap::GidNumberDoesNotExist,
   ActiveSambaLdap::GroupDoesNotExist,

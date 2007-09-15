@@ -45,7 +45,7 @@ class Computer < ActiveSambaLdap::Computer
 end
 
 unless Group.exists?(name)
-  $stderr.puts(_("group '%s' doesn't exist.") % name)
+  $stderr.puts(_("group doesn't exist: %s") % name)
   exit 1
 end
 group = Group.find(name)
