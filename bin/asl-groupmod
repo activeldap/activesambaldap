@@ -14,7 +14,7 @@ argv, opts, options = ActiveSambaLdap::Command.parse_options do |opts, options|
 
   opts.banner += " GROUP_NAME"
 
-  opts.on("-g", "--gid=GID", "gid") {|options.gid|}
+  opts.on("-g", "--gid=GID", _("GID number")) {|options.gid|}
   opts.on("--[no-]allow-non-unique-gid",
           _("gid can be non unique"),
           "(#{options.allow_non_unique_gid_number})") do |bool|

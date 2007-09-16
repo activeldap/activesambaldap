@@ -12,7 +12,7 @@ argv, opts, options = ActiveSambaLdap::Command.parse_options do |opts, options|
 
   opts.banner += " GROUP_NAME"
 
-  opts.on("-g", "--gid=GID", Integer, "GID number") {|options.gid|}
+  opts.on("-g", "--gid=GID", Integer, _("GID number")) {|options.gid|}
   opts.on("-t", "--type=TYPE",
           _("group type"),
           "(#{options.group_type})") {|options.group_type|}

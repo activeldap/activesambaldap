@@ -6,9 +6,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Ruby/ActiveSambaLdap 0.0.3\n"
-"POT-Creation-Date: 2007-09-16 18:30+0900\n"
-"PO-Revision-Date: 2007-09-16 20:25+0900\n"
+"Project-Id-Version: Ruby/ActiveSambaLdap 0.0.4\n"
+"POT-Creation-Date: 2007-09-16 22:22+0900\n"
+"PO-Revision-Date: 2007-09-16 22:21+0900\n"
 "Last-Translator: Kouhei Sutou <kou@cozmixng.org>\n"
 "Language-Team: Japanese\n"
 "MIME-Version: 1.0\n"
@@ -202,19 +202,19 @@ msgstr "何もしません。"
 msgid "Enter your current password: "
 msgstr "現在のパスワードを入力してください: "
 
-#: bin/asl-passwd:68
+#: bin/asl-passwd:69
 msgid "password doesn't match."
 msgstr "パスワードが合っていません。"
 
-#: bin/asl-passwd:75
+#: bin/asl-passwd:74
 msgid "New password: "
 msgstr "新しいパスワード: "
 
-#: bin/asl-passwd:76
+#: bin/asl-passwd:75
 msgid "Retype new password: "
 msgstr "新しいパスワードをもう一度入力してください: "
 
-#: bin/asl-passwd:79
+#: bin/asl-passwd:78
 msgid "New passwords don't match."
 msgstr "新しいパスワードが合っていません。"
 
@@ -405,6 +405,10 @@ msgstr "%sのパスワードを再入力してください:"
 #: bin/asl-populate:81
 msgid "Passwords don't match."
 msgstr "パスワードが合っていません。"
+
+#: bin/asl-groupmod:17 bin/asl-groupadd:15
+msgid "GID number"
+msgstr "GID番号"
 
 #: bin/asl-groupmod:19
 msgid "gid can be non unique"
