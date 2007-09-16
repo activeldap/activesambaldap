@@ -524,7 +524,7 @@ class AslUserModTest < Test::Unit::TestCase
     make_dummy_user do |user, password|
       assert_asl_usermod_failed(user.uid,
                                 "wrong-#{password}",
-                                _("password doesn't match."))
+                                _("password doesn't match.") + "\n")
     end
   end
 
