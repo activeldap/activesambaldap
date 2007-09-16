@@ -64,11 +64,10 @@ unless Process.uid.zero?
     auth_class.establish_connection(config.merge(:bind_dn => user.dn,
                                                  :password => old_password,
                                                  :allow_anonymous => false))
+    auth_class.remove_connection
   rescue ActiveLdap::AuthenticationError
     $stderr.puts(_("password doesn't match."))
     exit 1
-  ensure
-    auth_class.remove_connection
   end
 end
 

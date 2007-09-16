@@ -246,7 +246,7 @@ module AslTestUtils
       @lib_dir = File.join(@top_dir, "lib")
       @ruby_args = [
                     "-I", @lib_dir,
-                    "-I", File.join(@parent_dir, "activeldap", "lib"),
+#                     "-I", File.join(@parent_dir, "activeldap", "lib"),
 #                     "-I", File.join(@parent_dir, "ldap", "lib"),
 #                     "-I", File.join(@parent_dir, "ldap"),
                  ]

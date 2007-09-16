@@ -9,9 +9,9 @@ class AslUserAddTest < Test::Unit::TestCase
   end
 
   def test_run_as_normal_user
-    assert_equal([false, "", "need root authority.\n"],
+    assert_equal([false, "", _("need root authority.") + "\n"],
                  run_asl_useradd_as_normal_user("user-name"))
-    assert_equal([false, "", "need root authority.\n"],
+    assert_equal([false, "", _("need root authority.") + "\n"],
                  run_asl_useradd_as_normal_user("computer-name$",
                                                 "--computer-account"))
   end
@@ -19,7 +19,7 @@ class AslUserAddTest < Test::Unit::TestCase
   def test_exist_user
     make_dummy_user do |user, password|
       assert(@user_class.exists?(user.uid))
-      assert_equal([false, "", "user '#{user.uid}' already exists.\n"],
+      assert_equal([false, "", _("user already exists: %s") % user.uid + "\n"],
                    run_asl_useradd(user.uid))
       assert(@user_class.exists?(user.uid))
     end
@@ -29,7 +29,8 @@ class AslUserAddTest < Test::Unit::TestCase
     make_dummy_computer do |computer, password|
       uid = computer.uid
       assert(@computer_class.exists?(uid))
-      assert_equal([false, "", "computer '#{uid}' already exists.\n"],
+      assert_equal([false, "",
+                    _("%s already exists: %s") % [_("computer"), uid] + "\n"],
                    run_asl_useradd(uid, "--computer-account"))
       assert(@computer_class.exists?(uid))
     end
@@ -250,10 +251,10 @@ class AslUserAddTest < Test::Unit::TestCase
     end
   end
 
-  def test_canonical_name_user
+  def test_common_name_user
     ensure_delete_user("test-user") do |uid,|
       cn = "John Kennedy"
-      assert_asl_useradd_successfully(uid, "--canonical-name", cn)
+      assert_asl_useradd_successfully(uid, "--common-name", cn)
       user = @user_class.find(uid)
       assert_equal(uid, user.given_name)
       assert_equal(uid, user.surname)
@@ -261,11 +262,12 @@ class AslUserAddTest < Test::Unit::TestCase
     end
   end
 
-  def test_canonical_name_computer
+  def test_common_name_computer
     ensure_delete_computer("test-computer$") do |uid,|
       cn = "A computer"
-      assert_asl_useradd_successfully(uid, "--computer-account",
-                                      "--canonical-name", cn)
+      assert_asl_useradd_successfully(uid,
+                                      "--computer-account",
+                                      "--common-name", cn)
       computer = @computer_class.find(uid)
       assert_equal(uid, computer.given_name)
       assert_equal(uid, computer.surname)

@@ -9,7 +9,7 @@ class AslPopulateTest < Test::Unit::TestCase
   end
 
   def test_run_as_normal_user
-    assert_equal([false, "", "need root authority.\n"],
+    assert_equal([false, "", _("need root authority.") + "\n"],
                  run_command_as_normal_user)
   end
 
@@ -63,8 +63,8 @@ class AslPopulateTest < Test::Unit::TestCase
     name ||= @user_class::DOMAIN_ADMIN_NAME
     assert_equal([true,
                   [
-                   "Password for #{name}: ",
-                   "Retype password for #{name}: ",
+                   _("Password for %s: ") % name,
+                   _("Retype password for %s: ") % name,
                   ].join("\n") + "\n",
                   "",
                  ],
@@ -79,10 +79,10 @@ class AslPopulateTest < Test::Unit::TestCase
     password = "password"
     assert_equal([false,
                   [
-                   "Password for #{name}: ",
-                   "Retype password for #{name}: ",
+                   _("Password for %s: ") % name,
+                   _("Retype password for %s: ") % name,
                   ].join("\n") + "\n",
-                  "Passwords don't match.\n",
+                  _("Passwords don't match.") + "\n",
                  ],
                  run_command(*args) do |input, output|
                    output.puts(password)

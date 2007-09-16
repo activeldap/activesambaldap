@@ -52,7 +52,9 @@ module ActiveSambaLdap
     def read_password(prompt, input=$stdin, output=$stdout)
       output.print prompt
       system "/bin/stty -echo" if input.tty?
-      input.gets.chomp
+      password = input.gets
+      password = password.chomp if password
+      password
     ensure
       system "/bin/stty echo" if input.tty?
       output.puts

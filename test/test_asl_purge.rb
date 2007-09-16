@@ -9,7 +9,7 @@ class AslPurgeTest < Test::Unit::TestCase
   end
 
   def test_run_as_normal_user
-    assert_equal([false, "", "need root authority.\n"],
+    assert_equal([false, "", _("need root authority.") + "\n"],
                  run_command_as_normal_user)
   end
 

@@ -21,7 +21,7 @@ class AslUserShowTest < Test::Unit::TestCase
   end
 
   def test_not_exist_user
-    assert_equal([false, "", "user 'not-exist' doesn't exist.\n"],
+    assert_equal([false, "", _("user doesn't exist: %s") % 'not-exist' + "\n"],
                  run_command("not-exist"))
   end
 end

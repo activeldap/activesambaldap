@@ -9,7 +9,7 @@ class AslGroupModTest < Test::Unit::TestCase
   end
 
   def test_not_exist_group
-    assert_equal([false, "", "group 'not-exist' doesn't exist.\n"],
+    assert_equal([false, "", _("group doesn't exist: %s") % 'not-exist' + "\n"],
                  run_command("not-exist"))
   end
 
@@ -120,7 +120,7 @@ class AslGroupModTest < Test::Unit::TestCase
         new_rid = (2 * Integer(new_gid_number) + 1001).to_s
         new_samba_sid = old_samba_sid.sub(/#{Regexp.escape(old_rid)}$/, new_rid)
 
-        message = "gid number '#{new_gid_number}' already exists\n"
+        message = _("gid number already exists: %s") % new_gid_number + "\n"
         args = ["--gid", new_gid_number]
         assert_asl_groupmod_failed(group.cn, message, *args)
 
@@ -225,19 +225,20 @@ class AslGroupModTest < Test::Unit::TestCase
 
   def test_duplicate_members
     make_dummy_group do |group|
-      base = "there are duplicated members in adding and deleting members:"
+      format = _("there are duplicated members in " \
+                 "adding and deleting members: %s")
       assert_asl_groupmod_failed(group.cn,
-                                 "#{base} user\n",
+                                 "#{format % 'user'}\n",
                                  "--add-members", "user",
                                  "--delete-members", "user")
 
       assert_asl_groupmod_failed(group.cn,
-                                 "#{base} user2\n",
+                                 "#{format % 'user2'}\n",
                                  "--add-members", "user1,user2,user3",
                                  "--delete-members", "user2")
 
       assert_asl_groupmod_failed(group.cn,
-                                 "#{base} user2, user3\n",
+                                 "#{format % 'user2, user3'}\n",
                                  "--add-members", "user1,user2,user3",
                                  "--delete-members", "user2,user3,user4")
     end

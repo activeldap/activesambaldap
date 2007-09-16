@@ -1,6 +1,7 @@
 require "thread"
 require "socket"
 require "shellwords"
+require "timeout"
 
 module Command
   class Error < StandardError
@@ -58,7 +59,9 @@ module Command
     in_r.close unless in_r.closed?
     out_w.close unless out_w.closed?
     err_w.close unless err_w.closed?
-    pid, status = Process.waitpid2(pid)
-    [status.exited? && status.exitstatus.zero?, out_r.read, err_r.read]
+    Timeout.timeout(5) do
+      pid, status = Process.waitpid2(pid)
+      [status.exited? && status.exitstatus.zero?, out_r.read, err_r.read]
+    end
   end
 end

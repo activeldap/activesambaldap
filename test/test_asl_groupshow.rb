@@ -15,7 +15,7 @@ class AslGroupShowTest < Test::Unit::TestCase
   end
 
   def test_not_exist_group
-    assert_equal([false, "", "group 'not-exist' doesn't exist.\n"],
+    assert_equal([false, "", _("group doesn't exist: %s") % 'not-exist' + "\n"],
                  run_command("not-exist"))
   end
 end

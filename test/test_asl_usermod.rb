@@ -9,7 +9,7 @@ class AslUserModTest < Test::Unit::TestCase
   end
 
   def test_not_exist_user
-    assert_equal([false, "", "user 'not-exist' doesn't exist.\n"],
+    assert_equal([false, "", _("user doesn't exist: %s") % 'not-exist' + "\n"],
                  run_command("not-exist"))
   end
 
@@ -106,7 +106,7 @@ class AslUserModTest < Test::Unit::TestCase
         new_rid = (2 * Integer(new_uid_number) + 1000).to_s
         new_samba_sid = old_samba_sid.sub(/#{Regexp.escape(old_rid)}$/, new_rid)
 
-        message = "uid number '#{new_uid_number}' already exists\n"
+        message = _("uid number already exists: %s") % new_uid_number + "\n"
         args = ["--uid", new_uid_number]
         assert_asl_usermod_failed(user.uid, password, message, *args)
 
@@ -163,7 +163,7 @@ class AslUserModTest < Test::Unit::TestCase
 
         group.destroy
         args = ["--gid", new_gid_number]
-        message = "gid number '#{new_gid_number}' doesn't exist\n"
+        message = _("gid number doesn't exist: %s") % new_gid_number + "\n"
         assert_asl_usermod_failed(user.uid, password, message, *args)
 
         new_user = @user_class.find(user.uid)
@@ -270,7 +270,7 @@ class AslUserModTest < Test::Unit::TestCase
                                          :value => user.uid)
 
           args = ["--groups", new_gid_numbers.join(",")]
-          message = "gid number '#{new_gid_numbers[0]}' doesn't exist\n"
+          message = _("gid number doesn't exist: %s") % new_gid_numbers[0] + "\n"
           assert_asl_usermod_failed(user.uid, password, message, *args)
 
           new_user = @user_class.find(user.uid)
@@ -299,12 +299,12 @@ class AslUserModTest < Test::Unit::TestCase
     end
   end
 
-  def test_canonical_name
+  def test_common_name
     make_dummy_user do |user, password|
       old_cn = user.cn
       new_cn = "new-#{new_cn}"
 
-      args = ["--canonical-name", new_cn]
+      args = ["--common-name", new_cn]
       assert_asl_usermod_successfully(user.uid, password, *args)
 
       new_user = @user_class.find(user.uid)
@@ -523,7 +523,7 @@ class AslUserModTest < Test::Unit::TestCase
   private
   def assert_asl_usermod_successfully(name, password, *args)
     args << name
-    assert_equal([true, "Enter your password: \n", ""],
+    assert_equal([true, _("Enter your password: ") + "\n", ""],
                  run_command_as_normal_user(*args) do |input, output|
                    output.puts password
                    output.puts password
@@ -532,7 +532,7 @@ class AslUserModTest < Test::Unit::TestCase
 
   def assert_asl_usermod_failed(name, password, message, *args)
     args << name
-    assert_equal([false, "Enter your password: \n", message],
+    assert_equal([false, _("Enter your password: ") + "\n", message],
                  run_command_as_normal_user(*args) do |input, output|
                    output.puts password
                    output.puts password

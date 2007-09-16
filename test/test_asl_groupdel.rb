@@ -9,12 +9,12 @@ class AslGroupDelTest < Test::Unit::TestCase
   end
 
   def test_run_as_normal_user
-    assert_equal([false, "", "need root authority.\n"],
+    assert_equal([false, "", _("need root authority.") + "\n"],
                  run_command_as_normal_user("group-name"))
   end
 
   def test_not_exist_group
-    assert_equal([false, "", "group 'not-exist' doesn't exist.\n"],
+    assert_equal([false, "", _("group doesn't exist: %s") % 'not-exist' + "\n"],
                  run_command("not-exist"))
   end
 
@@ -36,9 +36,9 @@ class AslGroupDelTest < Test::Unit::TestCase
   def test_primary_group_of_user
     make_dummy_group do |group|
       make_dummy_user(:gid_number => group.gid_number) do |user, password|
-        message = "cannot destroy group '#{group.cn}' due to members "
-        message << "who belong to the group as primary group"
-        message << ": #{user.uid}\n"
+        format = _("cannot destroy group '%s' due to members " \
+                   "who belong to the group as primary group: %s")
+        message = format % [group.cn, user.uid] + "\n"
         assert_equal([false, "", message], run_command(group.cn))
       end
     end
@@ -47,9 +47,9 @@ class AslGroupDelTest < Test::Unit::TestCase
   def test_primary_group_of_user_with_force
     make_dummy_group do |group|
       make_dummy_user(:gid_number => group.gid_number) do |user, password|
-        message = "cannot change primary group from '#{group.cn}' "
-        message << "to other group due to no other belonged groups"
-        message << ": #{user.uid}\n"
+        format = _("cannot change primary group from '%s' " \
+                   "to other group due to no other belonged groups: %s")
+        message = format % [group.cn, user.uid] + "\n"
         assert_equal([false, "", message], run_command(group.cn, "--force"))
       end
     end
@@ -75,9 +75,9 @@ class AslGroupDelTest < Test::Unit::TestCase
         make_dummy_group do |group2|
           group2.users << user
           assert_equal(group.gid_number, user.gid_number)
-          message = "cannot destroy group '#{group.cn}' due to members "
-          message << "who belong to the group as primary group"
-          message << ": #{user.uid}\n"
+          format = _("cannot destroy group '%s' due to members " \
+                     "who belong to the group as primary group: %s")
+          message = format % [group.cn, user.uid] + "\n"
           assert_equal([false, "", message], run_command(group.cn))
           user.reload
           assert_equal(group.gid_number, user.gid_number)

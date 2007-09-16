@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Ruby/ActiveSambaLdap 0.0.3\n"
 "POT-Creation-Date: 2007-09-16 18:30+0900\n"
-"PO-Revision-Date: 2007-09-16 18:33+0900\n"
+"PO-Revision-Date: 2007-09-16 20:25+0900\n"
 "Last-Translator: Kouhei Sutou <kou@cozmixng.org>\n"
 "Language-Team: Japanese\n"
 "MIME-Version: 1.0\n"
@@ -184,7 +184,7 @@ msgstr "不正なコンピュータ名: %s"
 
 #: bin/asl-samba-computeradd:62
 msgid "computer already exists: %s"
-msgstr "コンピュータがすでに存在します: %s"
+msgstr "すでに存在するコンピュータです: %s"
 
 #: bin/asl-passwd:17
 msgid "update samba password"

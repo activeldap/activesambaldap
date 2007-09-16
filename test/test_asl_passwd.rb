@@ -9,7 +9,7 @@ class AslPasswdTest < Test::Unit::TestCase
   end
 
   def test_unknown_user
-    assert_equal([false, "", "user 'unknown' doesn't exist.\n"],
+    assert_equal([false, "", _("user doesn't exist: %s") % 'unknown' + "\n"],
                  run_command("unknown"))
   end
 
@@ -103,9 +103,9 @@ class AslPasswdTest < Test::Unit::TestCase
                                           *args)
     assert_equal([true,
                   [
-                   "Enter your current password: ",
-                   "New password: ",
-                   "Retype new password: ",
+                   _("Enter your current password: "),
+                   _("New password: "),
+                   _("Retype new password: "),
                   ].join("\n") + "\n",
                   "",
                  ],
@@ -113,13 +113,14 @@ class AslPasswdTest < Test::Unit::TestCase
   end
 
   def assert_change_password_with_wrong_current_password(name, password, *args)
+    input_password = Proc.new do |input, output|
+      output.puts(password)
+      output.flush
+    end
     assert_equal([false,
-                  "Enter your current password: \n",
-                  "password isn't match\n",
+                  _("Enter your current password: ") + "\n",
+                  _("password doesn't match.") + "\n",
                  ],
-                 run_command_as_normal_user(name, *args) do |input, output|
-                   output.puts(password)
-                   output.flush
-                 end)
+                 run_command_as_normal_user(name, *args, &input_password))
   end
 end
