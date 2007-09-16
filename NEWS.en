@@ -4,6 +4,13 @@
 
 $Id$
 
+== 0.0.4: 2007-09-16
+
+  * Supported Ruby/ActiveLdap 0.8.3.1.
+  * Supported Ruby-GetText-Package.
+  * scaffold_asl -> scaffold_active_samba_ldap
+  * Improved Rails support.
+
 == 0.0.3: 2007-05-26
 
   * Fixed a typo of Ruby/ActiveLDAP's RubyGems name.
