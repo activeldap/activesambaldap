@@ -57,10 +57,10 @@ module ActiveSambaLdap
         end
       end
 
-      def merge_configuration(config)
+      def merge_configuration(config, *rest)
         config = config.symbolize_keys
         config = (configurations["common"] || {}).symbolize_keys.merge(config)
-        ValidHash.new.merge(super(Private.new(config).merge))
+        ValidHash.new.merge(super(Private.new(config).merge, *rest))
       end
 
       def required_configuration_variables(*names)

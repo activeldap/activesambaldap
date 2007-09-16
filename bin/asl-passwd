@@ -57,14 +57,8 @@ user = User.find(name)
 unless Process.uid.zero?
   prompt = _("Enter your current password: ")
   old_password = ActiveSambaLdap::Command.read_password(prompt)
-
-  auth_class = Class.new(ActiveSambaLdap::Base)
-  config = ActiveSambaLdap::Base.configurations["reference"].symbolize_keys
   begin
-    auth_class.establish_connection(config.merge(:bind_dn => user.dn,
-                                                 :password => old_password,
-                                                 :allow_anonymous => false))
-    auth_class.remove_connection
+    user.bind(old_password)
   rescue ActiveLdap::AuthenticationError
     $stderr.puts(_("password doesn't match."))
     exit 1
