@@ -6,9 +6,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Ruby/ActiveSambaLdap 0.0.4\n"
-"POT-Creation-Date: 2007-09-16 22:22+0900\n"
-"PO-Revision-Date: 2007-09-16 22:21+0900\n"
+"Project-Id-Version: Ruby/ActiveSambaLdap 0.0.5\n"
+"POT-Creation-Date: 2007-09-16 22:47+0900\n"
+"PO-Revision-Date: 2007-09-16 22:47+0900\n"
 "Last-Translator: Kouhei Sutou <kou@cozmixng.org>\n"
 "Language-Team: Japanese\n"
 "MIME-Version: 1.0\n"
@@ -202,19 +202,19 @@ msgstr "何もしません。"
 msgid "Enter your current password: "
 msgstr "現在のパスワードを入力してください: "
 
-#: bin/asl-passwd:69
+#: bin/asl-passwd:63 bin/asl-samba-usermod:70 bin/asl-usermod:181
 msgid "password doesn't match."
 msgstr "パスワードが合っていません。"
 
-#: bin/asl-passwd:74
+#: bin/asl-passwd:68
 msgid "New password: "
 msgstr "新しいパスワード: "
 
-#: bin/asl-passwd:75
+#: bin/asl-passwd:69
 msgid "Retype new password: "
 msgstr "新しいパスワードをもう一度入力してください: "
 
-#: bin/asl-passwd:78
+#: bin/asl-passwd:72
 msgid "New passwords don't match."
 msgstr "新しいパスワードが合っていません。"
 
@@ -334,7 +334,7 @@ msgstr "(Sambaのアカウント制御ビット。例: '[NDHTUMWSLXI]')"
 msgid "illegal %s name: %s"
 msgstr "不正な%s名: %s"
 
-#: bin/asl-useradd:182 bin/asl-usermod:314
+#: bin/asl-useradd:182 bin/asl-usermod:308
 msgid "%s already exists: %s"
 msgstr "すでに存在する%sです: %s"
 
@@ -353,10 +353,6 @@ msgstr "追加用メンバーと削除用メンバーに重複しているメン
 #: bin/asl-samba-usermod:65 bin/asl-usermod:176
 msgid "Enter your password: "
 msgstr "あなたのパスワードを入力してください: "
-
-#: bin/asl-samba-usermod:74 bin/asl-usermod:185
-msgid "password isn't match."
-msgstr "パスワードが合っていません。"
 
 #: bin/asl-populate:30
 msgid "first uid number to allocate"
@@ -456,7 +452,7 @@ msgstr "このユーザを無効にする"
 msgid "enable this user"
 msgstr "このユーザを有効にする"
 
-#: bin/asl-usermod:240 bin/asl-usermod:244
+#: bin/asl-usermod:234 bin/asl-usermod:238
 msgid "not implemented."
 msgstr "実装されていません。"
 

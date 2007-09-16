@@ -520,6 +520,14 @@ class AslUserModTest < Test::Unit::TestCase
     end
   end
 
+  def test_wrong_password
+    make_dummy_user do |user, password|
+      assert_asl_usermod_failed(user.uid,
+                                "wrong-#{password}",
+                                _("password doesn't match."))
+    end
+  end
+
   private
   def assert_asl_usermod_successfully(name, password, *args)
     args << name
