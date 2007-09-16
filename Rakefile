@@ -89,7 +89,10 @@ rdoc_task.rdoc_files += project.bin_files.collect {|x| "#{x}.help"}
 project.bin_files.each do |bin|
   bin_help = "#{bin}.help"
   File.open(bin_help, "w") do |f|
+    lang = ENV["LANG"]
+    ENV["LANG"] = "C"
     f.puts(`#{RUBY} -I #{File.join(base_dir, 'lib')} #{bin} --help`)
+    ENV["LANG"] = lang
   end
   at_exit do
     FileUtils.rm_f(bin_help)
