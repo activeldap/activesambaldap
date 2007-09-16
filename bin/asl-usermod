@@ -237,11 +237,11 @@ if options.given_name
 end
 
 if options.mail_addresses
-  raise _("not implemented")
+  raise _("not implemented.")
 end
 
 if options.mail_to_addresses
-  raise _("not implemented")
+  raise _("not implemented.")
 end
 
 if options.supplementary_groups

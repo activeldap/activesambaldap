@@ -65,7 +65,7 @@ unless Process.uid.zero?
                                                  :password => old_password,
                                                  :allow_anonymous => false))
   rescue ActiveLdap::AuthenticationError
-    $stderr.puts(_("password isn't match."))
+    $stderr.puts(_("password doesn't match."))
     exit 1
   ensure
     auth_class.remove_connection

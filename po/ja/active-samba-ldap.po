@@ -7,8 +7,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Ruby/ActiveSambaLdap 0.0.3\n"
-"POT-Creation-Date: 2007-09-08 12:08+0900\n"
-"PO-Revision-Date: 2007-09-08 12:09+0900\n"
+"POT-Creation-Date: 2007-09-16 18:30+0900\n"
+"PO-Revision-Date: 2007-09-16 18:31+0900\n"
 "Last-Translator: Kouhei Sutou <kou@cozmixng.org>\n"
 "Language-Team: Japanese\n"
 "MIME-Version: 1.0\n"
@@ -48,15 +48,16 @@ msgstr[1] "必須の変数が設定されていません: %s"
 
 #: lib/active_samba_ldap/base.rb:27
 msgid "uid number already exists: %s"
-msgstr "UID番号がすでに存在します: %s"
+msgstr "すでに存在するUID番号です: %s"
 
-#: lib/active_samba_ldap/base.rb:35
+#: lib/active_samba_ldap/base.rb:35 bin/asl-groupdel:46 bin/asl-groupshow:27
+#: bin/asl-samba-groupmod:48 bin/asl-groupmod:59 bin/asl-samba-groupdel:40
 msgid "group doesn't exist: %s"
 msgstr "グループが存在しません: %s"
 
 #: lib/active_samba_ldap/base.rb:43
 msgid "gid number already exists: %s"
-msgstr "GID番号がすでに存在します: %s"
+msgstr "すでに存在するGID番号です: %s"
 
 #: lib/active_samba_ldap/base.rb:51
 msgid "gid number doesn't exist: %s"
@@ -108,3 +109,357 @@ msgid ""
 msgstr ""
 "%sを作るために'script/generator scaffold_active_samba_ldap'を実行してくださ"
 "い。"
+
+#: bin/asl-samba-useradd:14 bin/asl-samba-computeradd:14 bin/asl-useradd:42
+msgid "add the user in the organizational unit OU"
+msgstr "ユーザを組織単位OUに追加"
+
+#: bin/asl-samba-useradd:15 bin/asl-samba-computeradd:15 bin/asl-useradd:43
+msgid "(relative to the user suffix)"
+msgstr "(ユーザサフィックスに依存)"
+
+#: bin/asl-samba-useradd:33 bin/asl-samba-userdel:21 bin/asl-userdel:42
+#: bin/asl-groupdel:27 bin/asl-samba-computeradd:33 bin/asl-useradd:144
+#: bin/asl-samba-groupmod:29 bin/asl-populate:60 bin/asl-groupmod:40
+#: bin/asl-samba-groupadd:21 bin/asl-purge:16 bin/asl-samba-groupdel:21
+#: bin/asl-groupadd:33
+msgid "need root authority."
+msgstr "ルート権限が必要です。"
+
+#: bin/asl-samba-useradd:57
+msgid "illegal user name: %s"
+msgstr "不正なユーザ名: %s"
+
+#: bin/asl-samba-useradd:62
+msgid "user already exists: %s"
+msgstr "すでに存在するユーザです: %s"
+
+#: bin/asl-samba-useradd:75 bin/asl-samba-computeradd:78 bin/asl-useradd:224
+msgid "UID already exists: %s"
+msgstr "すでに存在するUID番号です: %s"
+
+#: bin/asl-samba-userdel:40 bin/asl-passwd:52 bin/asl-usershow:27
+msgid "user doesn't exist: %s"
+msgstr "ユーザが存在しません: %s"
+
+#: bin/asl-userdel:16 bin/asl-useradd:51 bin/asl-samba-usermod:15
+#: bin/asl-usermod:44
+msgid "is a Windows Workstation"
+msgstr "Windowsワークステーション"
+
+#: bin/asl-userdel:17 bin/asl-useradd:52 bin/asl-samba-usermod:16
+#: bin/asl-usermod:45
+msgid "(otherwise, Windows user)"
+msgstr "(そうでない場合はWindowsユーザ)"
+
+#: bin/asl-userdel:21
+msgid "remove home directory"
+msgstr "ホームディレクトリを削除"
+
+#: bin/asl-userdel:27
+msgid "do interactively"
+msgstr "対話的に行う"
+
+#: bin/asl-userdel:62 bin/asl-useradd:169 bin/asl-samba-usermod:48
+#: bin/asl-usermod:162
+msgid "computer"
+msgstr "コンピュータ"
+
+#: bin/asl-userdel:65 bin/asl-useradd:173 bin/asl-samba-usermod:51
+#: bin/asl-usermod:166
+msgid "user"
+msgstr "ユーザ"
+
+#: bin/asl-userdel:73 bin/asl-samba-usermod:59 bin/asl-usermod:170
+msgid "%s doesn't exist: %s"
+msgstr "%sが存在しません: %s"
+
+#: bin/asl-groupdel:14
+msgid "force delete group"
+msgstr "強制的にグループを削除"
+
+#: bin/asl-samba-computeradd:57
+msgid "illegal computer name: %s"
+msgstr "不正なコンピュータ名: %s"
+
+#: bin/asl-samba-computeradd:62
+msgid "computer already exists: %s"
+msgstr "コンピュータがすでに存在します: %s"
+
+#: bin/asl-passwd:17
+msgid "update samba password"
+msgstr "Sambaのパスワードを更新"
+
+#: bin/asl-passwd:23
+msgid "update UNIX password"
+msgstr "UNIXのパスワードを更新"
+
+#: bin/asl-passwd:41
+msgid "do nothing."
+msgstr "何もしません。"
+
+#: bin/asl-passwd:58
+msgid "Enter your current password: "
+msgstr "現在のパスワードを入力してください: "
+
+#: bin/asl-passwd:68
+msgid "password doesn't match."
+msgstr "パスワードが合っていません。"
+
+#: bin/asl-passwd:75
+msgid "New password: "
+msgstr "新しいパスワード: "
+
+#: bin/asl-passwd:76
+msgid "Retype new password: "
+msgstr "新しいパスワードをもう一度入力してください: "
+
+#: bin/asl-passwd:79
+msgid "New passwords don't match."
+msgstr "新しいパスワードが合っていません。"
+
+#: bin/asl-useradd:54 bin/asl-usermod:60
+msgid "uid"
+msgstr "UID番号"
+
+#: bin/asl-useradd:55 bin/asl-samba-usermod:19
+msgid "gid"
+msgstr "GID番号"
+
+#: bin/asl-useradd:57 bin/asl-usermod:68
+msgid "supplementary groups (comma separated)"
+msgstr "補助グループ(コンマ区切り)"
+
+#: bin/asl-useradd:61
+msgid "create a group for the user"
+msgstr "ユーザ用のグループを作成する"
+
+#: bin/asl-useradd:64
+msgid "set the GECOS field for the new user account"
+msgstr "新しいユーザアカウントのGECOSフィールドを設定する"
+
+#: bin/asl-useradd:65 bin/asl-usermod:74
+msgid "shell"
+msgstr "シェル"
+
+#: bin/asl-useradd:66 bin/asl-usermod:75
+msgid "given name"
+msgstr "名前"
+
+#: bin/asl-useradd:68 bin/asl-usermod:77
+msgid "common name"
+msgstr "共通名"
+
+#: bin/asl-useradd:69 bin/asl-usermod:78
+msgid "surname"
+msgstr "性"
+
+#: bin/asl-useradd:72 bin/asl-usermod:50
+msgid "home directory"
+msgstr "ホームディレクトリ"
+
+#: bin/asl-useradd:74
+msgid "permission of home directory"
+msgstr "ホームディレクトリのパーミッション"
+
+#: bin/asl-useradd:76
+msgid "setup home directory"
+msgstr "ホームディレクトリを設定する"
+
+#: bin/asl-useradd:79
+msgid "skeleton directory"
+msgstr "ホームディレクトリの基にするディレクトリ"
+
+#: bin/asl-useradd:82
+msgid "wait TIME seconds before exiting"
+msgstr "終了する前にTIME秒待つ"
+
+#: bin/asl-useradd:86 bin/asl-usermod:81
+msgid "For samba accounts:"
+msgstr "Sambaアカウント用:"
+
+#: bin/asl-useradd:88 bin/asl-usermod:83
+msgid "expire date"
+msgstr "失効日"
+
+#: bin/asl-useradd:92 bin/asl-usermod:87
+msgid "can change password"
+msgstr "パスワードを変更できるようにする"
+
+#: bin/asl-useradd:96 bin/asl-usermod:91
+msgid "must change password"
+msgstr "パスワードを変更しなければいけないようにする"
+
+#: bin/asl-useradd:100 bin/asl-usermod:95
+msgid "sambaHomePath"
+msgstr "sambaHomePath"
+
+#: bin/asl-useradd:101 bin/asl-usermod:96
+msgid "(SMB home share, like '\\\\PDC\\user'"
+msgstr "(SMBホーム共有。例: '\\\\PDC\\user')"
+
+#: bin/asl-useradd:105 bin/asl-usermod:100
+msgid "sambaHomeDrive"
+msgstr "sambaHomeDrive"
+
+#: bin/asl-useradd:106 bin/asl-usermod:101
+msgid "(letter associated with home share, like 'H:')"
+msgstr "(ホーム共有に関連付ける文字。例: 'H:')"
+
+#: bin/asl-useradd:110 bin/asl-usermod:105
+msgid "sambaLogonScript"
+msgstr "sambaLogonScript"
+
+#: bin/asl-useradd:111 bin/asl-usermod:106
+msgid "(DOS script to execute on login)"
+msgstr "(ログイン時に実行するDOSスクリプト)"
+
+#: bin/asl-useradd:115 bin/asl-usermod:110
+msgid "sambaProfilePath"
+msgstr "sambaProfilePath"
+
+#: bin/asl-useradd:116 bin/asl-usermod:111
+msgid "(profile directory, like '\\\\PDC\\profiles\\user')"
+msgstr "(プロファイルディレクトリ。例: '\\\\PDC\\profiles\\user')"
+
+#: bin/asl-useradd:120 bin/asl-usermod:116
+msgid "sambaAcctFlags"
+msgstr "sambaAcctFlags"
+
+#: bin/asl-useradd:121 bin/asl-usermod:117
+msgid "(samba account control bits, like '[NDHTUMWSLXI]')"
+msgstr "(Sambaのアカウント制御ビット。例: '[NDHTUMWSLXI]')"
+
+#: bin/asl-useradd:177
+msgid "illegal %s name: %s"
+msgstr "不正な%s名: %s"
+
+#: bin/asl-useradd:182 bin/asl-usermod:314
+msgid "%s already exists: %s"
+msgstr "すでに存在する%sです: %s"
+
+#: bin/asl-samba-groupmod:15 bin/asl-groupmod:26
+msgid "add members (comma delimited)"
+msgstr "メンバーを追加する(コンマ区切り)"
+
+#: bin/asl-samba-groupmod:17 bin/asl-groupmod:28
+msgid "delete members (comma delimited)"
+msgstr "メンバーを削除する(コンマ区切り)"
+
+#: bin/asl-samba-groupmod:56
+msgid "there are duplicated members in adding and deleting members: %s"
+msgstr "追加用メンバーと削除用メンバーに重複しているメンバーがいます: %s"
+
+#: bin/asl-samba-usermod:65 bin/asl-usermod:176
+msgid "Enter your password: "
+msgstr "あなたのパスワードを入力してください: "
+
+#: bin/asl-samba-usermod:74 bin/asl-usermod:185
+msgid "password isn't match."
+msgstr "パスワードが合っていません。"
+
+#: bin/asl-populate:30
+msgid "first uid number to allocate"
+msgstr "最初に割り当てるUID番号"
+
+#: bin/asl-populate:33
+msgid "first gid number to allocate"
+msgstr "最初に割り当てるGID番号"
+
+#: bin/asl-populate:36
+msgid "administrator login name"
+msgstr "管理者のログイン名"
+
+#: bin/asl-populate:39
+msgid "administrator's uid number"
+msgstr "管理者のUID番号"
+
+#: bin/asl-populate:42
+msgid "administrator's gid number"
+msgstr "管理者のGID番号"
+
+#: bin/asl-populate:45
+msgid "guest login name"
+msgstr "ゲストのログイン名"
+
+#: bin/asl-populate:48
+msgid "guest's uid number"
+msgstr "ゲストのUID番号"
+
+#: bin/asl-populate:51
+msgid "guest's gid number"
+msgstr "ゲストのGID番号"
+
+#: bin/asl-populate:54
+msgid "export LDIF file"
+msgstr "LDIFファイルを出力する"
+
+#: bin/asl-populate:76
+msgid "Password for %s: "
+msgstr "%sのパスワード: "
+
+#: bin/asl-populate:78
+msgid "Retype password for %s: "
+msgstr "%sのパスワードを再入力してください:"
+
+#: bin/asl-populate:81
+msgid "Passwords don't match."
+msgstr "パスワードが合っていません。"
+
+#: bin/asl-groupmod:19
+msgid "gid can be non unique"
+msgstr "GID番号の重複を許可する"
+
+#: bin/asl-groupmod:24
+msgid "new group name"
+msgstr "新しいグループ名"
+
+#: bin/asl-groupmod:79
+msgid "there is duplicated member in adding and deleting members: %s"
+msgid_plural "there are duplicated members in adding and deleting members: %s"
+msgstr[0] "追加用メンバーと削除用メンバーに重複しているメンバーがいます: %s"
+msgstr[1] "追加用メンバーと削除用メンバーに重複しているメンバーがいます: %s"
+
+#: bin/asl-groupmod:117 bin/asl-samba-groupadd:36 bin/asl-groupadd:48
+msgid "group already exists: %s"
+msgstr "すでに存在するグループです: %s"
+
+#: bin/asl-usermod:48
+msgid "gecos"
+msgstr "GECOS"
+
+#: bin/asl-usermod:52
+msgid "move home directory"
+msgstr "ホームディレクトリを移動する"
+
+#: bin/asl-usermod:57
+msgid "new user name (cn and dn are updated)"
+msgstr "新しいユーザ名(CNとDNを更新)"
+
+#: bin/asl-usermod:62
+msgid "uid can be non unique "
+msgstr "UIDの重複を許可する"
+
+#: bin/asl-usermod:72
+msgid "replace supplementary groups "
+msgstr "補助グループを置き換える"
+
+#: bin/asl-usermod:119
+msgid "disable this user"
+msgstr "このユーザを無効にする"
+
+#: bin/asl-usermod:122
+msgid "enable this user"
+msgstr "このユーザを有効にする"
+
+#: bin/asl-usermod:240 bin/asl-usermod:244
+msgid "not implemented."
+msgstr "実装されていません。"
+
+#: bin/asl-groupadd:17
+msgid "group type"
+msgstr "グループの種類"
+
+#: bin/asl-groupadd:20
+msgid "print the gid number to stdout"
+msgstr "GID番号を標準出力に出力する"
