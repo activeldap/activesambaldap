@@ -323,3 +323,5 @@ LDAP管理ユーザのパスワードを設定しておく必要があります�
       SUBSTR caseExactIA5SubstringsMatch
 
 == 感謝
+
+  * Henrik Krög: バグを報告してくれました。

@@ -328,3 +328,5 @@ asl-populate, please confirm the following:
       SUBSTR caseExactIA5SubstringsMatch
 
 == Thanks
+
+  * Henrik Krög: He reported some bugs.
