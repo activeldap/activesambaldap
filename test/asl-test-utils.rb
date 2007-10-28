@@ -114,7 +114,7 @@ module AslTestUtils
       home_directory = config[:home_directory] || "/tmp/#{name}-#{Process.pid}"
       ensure_delete_user(name, home_directory) do
         password = config[:password] || "password"
-        uid_number = config[:uid_number] || "100000#{@user_index}"
+        uid_number = config[:uid_number] || (1000000 + @user_index)
         default_user_gid = @user_class.configuration[:default_user_gid]
         gid_number = config[:gid_number] || default_user_gid
         _wrap_assertion do
@@ -152,7 +152,7 @@ module AslTestUtils
       home_directory = config[:home_directory] || "/tmp/#{name}-#{Process.pid}"
       ensure_delete_computer(name, home_directory) do |name, home_directory|
         password = config[:password]
-        uid_number = config[:uid_number] || "100000#{@computer_index}"
+        uid_number = config[:uid_number] || (1000000 + @computer_index)
         default_computer_gid =
           @computer_class.configuration[:default_computer_gid]
         gid_number = config[:gid_number] || default_computer_gid
@@ -187,7 +187,7 @@ module AslTestUtils
       @group_index += 1
       name = config[:name] || "test-group#{@group_index}"
       ensure_delete_group(name) do
-        gid_number = config[:gid_number] || "200000#{@group_index}"
+        gid_number = config[:gid_number] || (2000000 + @group_index)
         group_type = config[:group_type] || "domain"
         _wrap_assertion do
           assert(!@group_class.exists?(name))

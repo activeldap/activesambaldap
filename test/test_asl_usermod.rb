@@ -351,7 +351,7 @@ class AslUserModTest < Test::Unit::TestCase
       assert_asl_usermod_successfully(user.uid, password, *args)
 
       new_user = @user_class.find(user.uid)
-      assert_equal(new_expire_date.to_i.to_s, new_user.samba_kickoff_time)
+      assert_equal(new_expire_date.to_i, new_user.samba_kickoff_time)
     end
   end
 
