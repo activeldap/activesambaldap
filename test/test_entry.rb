@@ -15,7 +15,7 @@ class EntryTest < Test::Unit::TestCase
     params = params.stringify_keys if stringify
     user = @user_class.create(params)
     assert(@user_class.exists?(name))
-    assert_equal(ActiveSambaLdap::Group::DOMAIN_USERS_RID.to_s,
+    assert_equal(ActiveSambaLdap::Group::DOMAIN_USERS_RID,
                  user.primary_group.gid_number)
   end
 end

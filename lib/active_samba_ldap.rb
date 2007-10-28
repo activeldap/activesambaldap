@@ -9,7 +9,7 @@ require_gem_if_need = Proc.new do |library_name, gem_name, *options|
 end
 
 required_active_ldap_version = ">= 0.8.4"
-require_gem_if_need.call("active_ldap", "ruby-activeldap",
+require_gem_if_need.call("active_ldap", "activeldap",
                          required_active_ldap_version)
 
 if Dependencies.respond_to?(:load_paths)

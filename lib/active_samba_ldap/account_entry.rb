@@ -144,7 +144,7 @@ module ActiveSambaLdap
                      Dir.glob(File.join(skel, "*")) -
                      [File.join(skel, "."), File.join(skel, "..")],
                      dest)
-      FileUtils.chown_R(uid_number, gid_number, dest)
+      FileUtils.chown_R(uid_number.to_s, gid_number.to_s, dest)
     end
 
     private

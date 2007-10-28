@@ -4,6 +4,10 @@
 
 $Id$
 
+== 0.0.5: 2007-XX-XX
+
+  * Supported Ruby/ActiveLdap 0.8.4.
+
 == 0.0.4: 2007-09-16
 
   * Supported Ruby/ActiveLdap 0.8.3.1.

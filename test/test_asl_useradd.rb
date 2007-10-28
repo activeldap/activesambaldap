@@ -442,7 +442,7 @@ class AslUserAddTest < Test::Unit::TestCase
       expire_date = Time.now + 60 * 24
       assert_asl_useradd_successfully(uid, "--expire-date", expire_date.iso8601)
       user = @user_class.find(uid)
-      assert_equal(expire_date.to_i.to_s, user.samba_kickoff_time)
+      assert_equal(expire_date.to_i, user.samba_kickoff_time)
     end
   end
 
