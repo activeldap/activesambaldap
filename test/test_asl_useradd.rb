@@ -149,7 +149,7 @@ class AslUserAddTest < Test::Unit::TestCase
             user = @user_class.find(uid)
             primary_group = @group_class.find(:first,
                                               :attribute => "gidNumber",
-                                              :value => user.gid_number.to_s)
+                                              :value => user.gid_number)
             groups = @group_class.find(:all,
                                        :attribute => "memberUid",
                                        :value => uid)
@@ -167,7 +167,7 @@ class AslUserAddTest < Test::Unit::TestCase
             computer = @computer_class.find(uid)
             primary_group = @group_class.find(:first,
                                               :attribute => "gidNumber",
-                                              :value => computer.gid_number.to_s)
+                                              :value => computer.gid_number)
             groups = @group_class.find(:all,
                                        :attribute => "memberUid",
                                        :value => uid)

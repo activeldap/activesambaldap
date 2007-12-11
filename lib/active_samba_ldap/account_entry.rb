@@ -121,7 +121,7 @@ module ActiveSambaLdap
 
     def change_uid_number(uid, allow_non_unique=false)
       check_unique_uid_number(uid) unless allow_non_unique
-      self.uid_number = Integer(uid).to_s
+      self.uid_number = Integer(uid)
     end
 
     def change_password(password)

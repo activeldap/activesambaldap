@@ -30,9 +30,7 @@ module ActiveSambaLdap
       end
 
       def find_by_gid_number(number)
-        attribute = "gidNumber"
-        value = Integer(number).to_s
-        find(:first, :filter => "(#{attribute}=#{value})")
+        find(:first, :filter => ["gidNumber", Integer(number)])
       end
 
       private
@@ -129,7 +127,7 @@ module ActiveSambaLdap
 
     def change_gid_number(gid, allow_non_unique=false)
       check_unique_gid_number(gid) unless allow_non_unique
-      self.gid_number = gid.to_s
+      self.gid_number = gid
     end
 
     def destroy(options={})
@@ -159,7 +157,7 @@ module ActiveSambaLdap
 
     def check_unique_gid_number(gid_number)
       ActiveSambaLdap::Base.restart_nscd do
-        if self.class.find_by_gid_number(Integer(gid_number))
+        if self.class.find_by_gid_number(gid_number)
           raise GidNumberAlreadyExists.new(gid_number)
         end
       end

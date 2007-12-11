@@ -34,7 +34,7 @@ asl-devel-ja@rubyforge.org
 
 == 依存ライブラリ
 
-  * ActiveLdap >= 0.9.0
+  * ActiveLdap >= 0.9.1
 
 == 使用法
 

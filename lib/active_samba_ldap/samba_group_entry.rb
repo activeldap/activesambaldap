@@ -102,7 +102,7 @@ module ActiveSambaLdap
     def change_gid_number(gid, allow_non_unique=false)
       result = super
       return result unless samba_available?
-      rid = self.class.gid2rid(gid_number.to_s)
+      rid = self.class.gid2rid(gid_number)
       change_sid(rid, allow_non_unique)
     end
 
