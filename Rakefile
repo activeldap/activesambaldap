@@ -61,7 +61,7 @@ project = Hoe.new("activesambaldap", ActiveSambaLdap::VERSION) do |p|
   p.rubyforge_name = "asl"
   p.full_name = "ActiveSambaLdap"
   p.summary = "Samba+LDAP administration tools"
-  p.extra_deps << ["ruby-activeldap", required_active_ldap_version]
+  p.extra_deps << ["activeldap", required_active_ldap_version]
   p.email = "kou@cozmixng.org"
   p.author = "Kouhei Sutou"
   p.url = "http://asl.rubyforge.org/"
