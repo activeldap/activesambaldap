@@ -1,8 +1,8 @@
 #!/usr/bin/env ruby
 
-$KCODE = 'u'
+$VERBOSE = true
 
-require "test/unit"
+$KCODE = 'u'
 
 top_dir = File.join(File.dirname(__FILE__), "..")
 # $LOAD_PATH.unshift(File.join(top_dir, "..", "ldap", "lib"))
@@ -10,6 +10,7 @@ top_dir = File.join(File.dirname(__FILE__), "..")
 $LOAD_PATH.unshift(File.join(top_dir, "..", "activeldap", "lib"))
 $LOAD_PATH.unshift(File.join(top_dir, "lib"))
 $LOAD_PATH.unshift(File.join(top_dir, "test"))
+$LOAD_PATH.unshift(File.join(top_dir, "test-unit-ext", "lib"))
 
 require 'test-unit-ext'
 
