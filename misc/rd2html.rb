@@ -34,7 +34,7 @@ Dir[File.join(top, "*.{ja,en}")].each do |f|
         x
       end
     end
-    output_base = File.basename(f).sub(/(ja|en)\z/, "html.\\1")
+    output_base = File.basename(f).downcase.sub(/(ja|en)\z/, "html.\\1")
     File.open(File.join(html_dir, output_base), "w") do |out|
       out.puts(`ruby #{args.flatten.join(' ')}`)
     end
