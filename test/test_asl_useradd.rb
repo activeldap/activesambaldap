@@ -116,7 +116,7 @@ class AslUserAddTest < Test::Unit::TestCase
   end
 
   def test_gid_number
-    make_dummy_group("test-group") do |group|
+    make_dummy_group(:name => "test-group") do |group|
       gid_number = group.gid_number
 
       ensure_delete_user("test-user") do |uid,|
