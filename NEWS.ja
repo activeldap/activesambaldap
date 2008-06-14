@@ -4,10 +4,10 @@
 
 $Id$
 
-== 0.0.6: 2008-XX-XX
+== 0.0.6: 2008-06-14
 
-  * Ruby/ActiveLdap 0.9.1対応。
-  * ...
+  * Ruby/ActiveLdap 1.0.0対応。
+  * ActiveSupport 2.1.0対応。
 
 == 0.0.5: 2007-11-19
 

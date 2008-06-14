@@ -37,7 +37,7 @@ asl-devel@rubyforge.org
 
 == Dependency libraries
 
-  * ActiveLdap >= 0.9.1
+  * ActiveLdap >= 1.0.0
 
 == Usage
 
