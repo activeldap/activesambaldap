@@ -6,7 +6,7 @@ $Id$
 
 == 0.0.6: 2008-06-15
 
-  * Supported Ruby/ActiveLdap 1.0.0.
+  * Supported ActiveLdap 1.0.1.
   * Supported ActiveSupport 2.1.0.
 
 == 0.0.5: 2007-11-19
