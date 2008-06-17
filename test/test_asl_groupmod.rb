@@ -225,7 +225,7 @@ class AslGroupModTest < Test::Unit::TestCase
 
   def test_duplicate_members
     make_dummy_group do |group|
-      format = _("there are duplicated members in " \
+      format = _("there is duplicated member in " \
                  "adding and deleting members: %s")
       assert_asl_groupmod_failed(group.cn,
                                  "#{format % 'user'}\n",
@@ -237,6 +237,8 @@ class AslGroupModTest < Test::Unit::TestCase
                                  "--add-members", "user1,user2,user3",
                                  "--delete-members", "user2")
 
+      format = _("there are duplicated members in " \
+                 "adding and deleting members: %s")
       assert_asl_groupmod_failed(group.cn,
                                  "#{format % 'user2, user3'}\n",
                                  "--add-members", "user1,user2,user3",
