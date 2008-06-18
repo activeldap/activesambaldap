@@ -56,6 +56,14 @@ class Hoe
   end
 end
 
+# For Hoe's no user friendly default behavior. :<
+File.open("README.txt", "w") {|file| file << "= Dummy README\n== XXX\n"}
+FileUtils.cp("NEWS.en", "History.txt")
+at_exit do
+  FileUtils.rm_f("README.txt")
+  FileUtils.rm_f("History.txt")
+end
+
 ENV["VERSION"] = ActiveSambaLdap::VERSION
 project = Hoe.new("activesambaldap", ActiveSambaLdap::VERSION) do |p|
   p.rubyforge_name = "asl"
@@ -75,16 +83,27 @@ project = Hoe.new("activesambaldap", ActiveSambaLdap::VERSION) do |p|
   p.summary, p.description, = whats_this.split(/\n\n+/, 3)
 end
 
+
+rdoc_main = "README.en"
+
 rdoc_task = nil
 if ObjectSpace.each_object(Rake::RDocTask) {|rdoc_task|} != 1
   puts "hoe may be changed"
 end
-rdoc_task.main = "README.en"
+rdoc_task.main = rdoc_main
 rdoc_task.options.delete("-d")
 rdoc_task.options << "--charset=UTF-8"
 rdoc_task.template = "kilmer"
 rdoc_task.rdoc_files -= project.bin_files
 rdoc_task.rdoc_files += project.bin_files.collect {|x| "#{x}.help"}
+rdoc_task.rdoc_files.reject! {|file| /\Atest-unit\// =~ file}
+
+rdoc_options = rdoc_task.option_list
+output_option_index = rdoc_options.index("-o")
+rdoc_options[output_option_index, 2] = nil
+project.spec.rdoc_options = rdoc_options
+project.spec.extra_rdoc_files = rdoc_task.rdoc_files
+
 
 project.bin_files.each do |bin|
   bin_help = "#{bin}.help"
