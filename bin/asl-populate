@@ -41,7 +41,7 @@ argv, opts, options = ActiveSambaLdap::Command.parse_options do |opts, options|
   opts.on("--administrator-gid=GID", Integer,
           _("administrator's gid number"),
           "(#{options.administrator_gid})") {|options.administrator_gid|}
-  opts.on("-g", "--guest=NAME",
+  opts.on("--guest=NAME",
           _("guest login name"),
           "(#{options.guest})") {|options.guest|}
   opts.on("--guest-uid=UID", Integer,
