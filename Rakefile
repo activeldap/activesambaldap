@@ -43,19 +43,6 @@ def cleanup_white_space(entry)
   entry.gsub(/(\A\n+|\n+\z)/, '') + "\n"
 end
 
-class Hoe
-  attr_accessor :full_name
-
-  alias_method :announcement_original, :announcement
-  def announcement
-    name_orig = name
-    self.name = full_name
-    announcement_original
-  ensure
-    self_name = name_orig
-  end
-end
-
 # For Hoe's no user friendly default behavior. :<
 File.open("README.txt", "w") {|file| file << "= Dummy README\n== XXX\n"}
 FileUtils.cp("NEWS.en", "History.txt")
@@ -65,22 +52,22 @@ at_exit do
 end
 
 ENV["VERSION"] = ActiveSambaLdap::VERSION
-project = Hoe.new("activesambaldap", ActiveSambaLdap::VERSION) do |p|
-  p.rubyforge_name = "asl"
-  p.full_name = "ActiveSambaLdap"
-  p.summary = "Samba+LDAP administration tools"
-  p.extra_deps << ["activeldap", required_active_ldap_version]
-  p.email = "kou@cozmixng.org"
-  p.author = "Kouhei Sutou"
-  p.url = "http://asl.rubyforge.org/"
-  p.rdoc_pattern = /^(lib|bin)|txt$|\.(en|ja)$/
+project = Hoe.spec("activesambaldap") do
+  self.version = ActiveSambaLdap::VERSION
+  self.rubyforge_name = "asl"
+  self.name = "ActiveSambaLdap"
+  self.summary = "Samba+LDAP administration tools"
+  self.extra_deps << ["activeldap", required_active_ldap_version]
+  self.email = ["kou@clear-code.com"]
+  self.author = "Kouhei Sutou"
+  self.url = "http://asl.rubyforge.org/"
 
   news_of_current_release = File.read("NEWS.en").split(/^==\s.*$/)[1]
-  p.changes = cleanup_white_space(news_of_current_release)
+  self.changes = cleanup_white_space(news_of_current_release)
 
   entries = File.read("README.en").split(/^==\s(.*)$/)
   whats_this = cleanup_white_space(entries[entries.index("What\'s this?") + 1])
-  p.summary, p.description, = whats_this.split(/\n\n+/, 3)
+  self.summary, self.description, = whats_this.split(/\n\n+/, 3)
 end
 
 
@@ -93,9 +80,9 @@ end
 rdoc_task.main = rdoc_main
 rdoc_task.options.delete("-d")
 rdoc_task.options << "--charset=UTF-8"
-rdoc_task.template = "kilmer"
-rdoc_task.rdoc_files -= project.bin_files
-rdoc_task.rdoc_files += project.bin_files.collect {|x| "#{x}.help"}
+rdoc_task.rdoc_files -= project.spec.executables
+rdoc_task.rdoc_files += project.spec.executables.collect {|x| "bin/#{x}.help"}
+rdoc_task.rdoc_files += project.spec.files.find_all {|x| /\.(en|ja)\z/ =~ x}
 rdoc_task.rdoc_files.reject! {|file| /\Atest-unit\// =~ file}
 
 rdoc_options = rdoc_task.option_list
@@ -104,8 +91,8 @@ rdoc_options[output_option_index, 2] = nil
 project.spec.rdoc_options = rdoc_options
 project.spec.extra_rdoc_files = rdoc_task.rdoc_files
 
-
-project.bin_files.each do |bin|
+project.spec.executables.each do |bin|
+  bin = "bin/#{bin}"
   bin_help = "#{bin}.help"
   File.open(bin_help, "w") do |f|
     lang = ENV["LANG"]
@@ -128,40 +115,6 @@ end
 
 desc "Distribute new release."
 task :dist => [:publish_docs, :release, :tag, :announce]
-
-# # fix Hoe's incorrect guess.
-# project.spec.executables.clear
-# project.bin_files = project.spec.files.grep(/^bin/)
-
-# fix Hoe's install and uninstall task.
-task(:install).instance_variable_get("@actions").clear
-task(:uninstall).instance_variable_get("@actions").clear
-
-task :install do
-  [
-   [project.lib_files, "lib", Hoe::RUBYLIB, 0444],
-   [project.bin_files, "bin", File.join(Hoe::PREFIX, 'bin'), 0555]
-  ].each do |files, prefix, dest, mode|
-    FileUtils.mkdir_p dest unless test ?d, dest
-    files.each do |file|
-      base = File.dirname(file.sub(/^#{prefix}#{File::SEPARATOR}/, ''))
-      _dest = File.join(dest, base)
-      FileUtils.mkdir_p _dest unless test ?d, _dest
-      install file, _dest, :mode => mode
-    end
-  end
-end
-
-desc 'Uninstall the package.'
-task :uninstall do
-  Dir.chdir Hoe::RUBYLIB do
-    rm_f project.lib_files.collect {|f| f.sub(/^lib#{File::SEPARATOR}/, '')}
-  end
-  Dir.chdir File.join(Hoe::PREFIX, 'bin') do
-    rm_f project.bin_files.collect {|f| f.sub(/^bin#{File::SEPARATOR}/, '')}
-  end
-end
-
 
 desc "Update *.po/*.pot files and create *.mo from *.po files"
 task :gettext => ["gettext:po:update", "gettext:mo:create"]
