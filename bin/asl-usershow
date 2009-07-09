@@ -17,7 +17,7 @@ else
   exit 1
 end
 
-ActiveSambaLdap::Base.establish_connection("reference")
+ActiveSambaLdap::Base.setup_connection("reference")
 
 class User < ActiveSambaLdap::User
   ldap_mapping

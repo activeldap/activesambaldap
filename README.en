@@ -155,21 +155,21 @@ getlocalsid' is invoked each time.
 The following options are available:
 
 : base
-   Same as the option of ActiveLdap::Base.establish_connection.
+   Same as the option of ActiveLdap::Base.setup_connection.
 : host
-   Same as the option of ActiveLdap::Base.establish_connection.
+   Same as the option of ActiveLdap::Base.setup_connection.
 : port
-   Same as the option of ActiveLdap::Base.establish_connection.
+   Same as the option of ActiveLdap::Base.setup_connection.
 : scope
-   Same as the option of ActiveLdap::Base.establish_connection.
+   Same as the option of ActiveLdap::Base.setup_connection.
 : bind_dn
-   Same as the option of ActiveLdap::Base.establish_connection.
+   Same as the option of ActiveLdap::Base.setup_connection.
 : password
-   Same as the option of ActiveLdap::Base.establish_connection.
+   Same as the option of ActiveLdap::Base.setup_connection.
 : method
-   Same as the option of ActiveLdap::Base.establish_connection.
+   Same as the option of ActiveLdap::Base.setup_connection.
 : allow_anonymous
-   Same as the option of ActiveLdap::Base.establish_connection.
+   Same as the option of ActiveLdap::Base.setup_connection.
 
 : sid
    SID(Security Identifier) of your Samba server.

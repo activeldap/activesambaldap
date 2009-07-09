@@ -31,7 +31,7 @@ class PasswordTest < Test::Unit::TestCase
     klass = Class.new(@user_class)
     assert_nothing_raised do
       configuration = reference_configuration.merge(:password_hash_type => type)
-      klass.establish_connection(configuration)
+      klass.setup_connection(configuration)
       klass.ldap_mapping
     end
     yield(klass, klass.configuration[:password_hash_type]) if block_given?
@@ -43,7 +43,7 @@ class PasswordTest < Test::Unit::TestCase
     klass = Class.new(@user_class)
     assert_raises(ActiveSambaLdap::InvalidConfigurationValueError) do
       configuration = reference_configuration.merge(:password_hash_type => type)
-      klass.establish_connection(configuration)
+      klass.setup_connection(configuration)
     end
   ensure
     klass.remove_connection

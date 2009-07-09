@@ -147,21 +147,21 @@ sidを設定しておかないと，毎回net getlocalsidをするため，効�
 設定可能なオプションは以下の通りです．
 
 : base
-   ActiveLdap::Base.establish_connectionのオプションと同じ．
+   ActiveLdap::Base.setup_connectionのオプションと同じ．
 : host
-   ActiveLdap::Base.establish_connectionのオプションと同じ．
+   ActiveLdap::Base.setup_connectionのオプションと同じ．
 : port
-   ActiveLdap::Base.establish_connectionのオプションと同じ．
+   ActiveLdap::Base.setup_connectionのオプションと同じ．
 : scope
-   ActiveLdap::Base.establish_connectionのオプションと同じ．
+   ActiveLdap::Base.setup_connectionのオプションと同じ．
 : bind_dn
-   ActiveLdap::Base.establish_connectionのオプションと同じ．
+   ActiveLdap::Base.setup_connectionのオプションと同じ．
 : password
-   ActiveLdap::Base.establish_connectionのオプションと同じ．
+   ActiveLdap::Base.setup_connectionのオプションと同じ．
 : method
-   ActiveLdap::Base.establish_connectionのオプションと同じ．
+   ActiveLdap::Base.setup_connectionのオプションと同じ．
 : allow_anonymous
-   ActiveLdap::Base.establish_connectionのオプションと同じ．
+   ActiveLdap::Base.setup_connectionのオプションと同じ．
 
 : sid
    SambaサーバのSID(Security Identifier)．

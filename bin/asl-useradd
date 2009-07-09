@@ -145,7 +145,7 @@ unless Process.uid.zero?
   exit 1
 end
 
-ActiveSambaLdap::Base.establish_connection("update")
+ActiveSambaLdap::Base.setup_connection("update")
 
 
 class User < ActiveSambaLdap::User

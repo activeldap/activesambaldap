@@ -14,7 +14,7 @@ ldap_configuration_file = File.join(RAILS_ROOT, 'config', 'ldap.yml')
 if File.exist?(ldap_configuration_file)
   ActiveSambaLdap::Base.configurations =
     ActiveSambaLdap::Configuration.read(ldap_configuration_file)
-  ActiveSambaLdap::Base.establish_connection
+  ActiveSambaLdap::Base.setup_connection
 else
   ActiveLdap::Base.class_eval do
     format = _("You should run 'script/generator scaffold_active_samba_ldap' " \

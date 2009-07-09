@@ -53,7 +53,7 @@ module AslTestUtils
   module Connection
     def setup
       super
-      ActiveSambaLdap::Base.establish_connection(update_configuration)
+      ActiveSambaLdap::Base.setup_connection(update_configuration)
     end
 
     def teardown
@@ -76,7 +76,7 @@ module AslTestUtils
 
     def teardown
       super
-      ActiveSambaLdap::Base.establish_connection(update_configuration)
+      ActiveSambaLdap::Base.setup_connection(update_configuration)
       ActiveSambaLdap::Base.purge
       ActiveSambaLdap::Base.load(@dumped_data)
     end

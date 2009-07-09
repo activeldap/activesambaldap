@@ -10,12 +10,12 @@ class AslUserShowTest < Test::Unit::TestCase
 
   def test_exist_user
     make_dummy_user do |user, password|
-      user.class.establish_connection("reference")
+      user.class.setup_connection("reference")
       begin
         user = user.class.find(user.uid)
         assert_equal([true, user.to_ldif, ""], run_command(user.uid))
       ensure
-        user.class.establish_connection("update")
+        user.class.setup_connection("update")
       end
     end
   end

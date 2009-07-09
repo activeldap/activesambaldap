@@ -23,7 +23,7 @@ class UserHomeDirectoryTest < Test::Unit::TestCase
     klass = Class.new(@user_class)
     assert_nothing_raised do
       config = reference_configuration.merge(:user_home_directory_mode => type)
-      klass.establish_connection(config)
+      klass.setup_connection(config)
       klass.ldap_mapping
     end
     yield(klass, klass.configuration[:user_home_directory_mode]) if block_given?
@@ -35,7 +35,7 @@ class UserHomeDirectoryTest < Test::Unit::TestCase
     klass = Class.new(@user_class)
     assert_raises(ActiveSambaLdap::InvalidConfigurationValueError) do
       config = reference_configuration.merge(:user_home_directory_mode => type)
-      klass.establish_connection(config)
+      klass.setup_connection(config)
     end
   ensure
     klass.remove_connection
