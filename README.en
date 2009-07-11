@@ -311,7 +311,7 @@ asl-purge and asl-password. Use --help options for more detail.
 
 You need to configure you smb.conf like the following if you
 want to administrate with
-((<Srvtools|URL:http://support.microsoft.com/kb/173673/>))
+Srvtools[http://support.microsoft.com/kb/173673/]
 from Windows or make Samba server domain controller.
 Use asl-samba-* for those propose.
 

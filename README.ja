@@ -301,10 +301,10 @@ asl-purge, asl-passwordを使って管理してください．各コマンド
 
 ==== smb.confの設定
 
-((<Srvtools|URL:http://support.microsoft.com/kb/173673/>))を
-使ってWindowsからユーザ管理を行いたい場合は，また，Sambaをド
-メインコントローラとして動作させたい場合は，以下のように
-smb.confを設定します．ここでは，asl-samba-*を使います．
+Srvtools[http://support.microsoft.com/kb/173673/]を使って
+Windowsからユーザ管理を行いたい場合は，また，Sambaをドメイン
+コントローラとして動作させたい場合は，以下のようにsmb.confを
+設定します．ここでは，asl-samba-*を使います．
 
 （ドメインコントローラとして動作させるけど，Srvtools でユー
 ザ管理を行わない場合はadd machine script以外のなんとかscript
