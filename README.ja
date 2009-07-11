@@ -1,5 +1,3 @@
-# -*- rd -*-
-
 = README.ja
 
 $Id$
@@ -8,7 +6,7 @@ $Id$
 
 ActiveSambaLdap
 
-== なにこれ？
+== 説明
 
 ActiveSambaLdapはSamba用LDAPエントリを管理するための
 ActiveRecord風なライブラリです．また，smbldap-toolsのような
@@ -16,25 +14,29 @@ ActiveRecord風なライブラリです．また，smbldap-toolsのような
 
 == 作者
 
-Kouhei Sutou <kou@cozmixng.org>
+Kouhei Sutou <tt><kou@clear-code.com></tt>
 
 == ライセンス
 
 Ruby's.
 
+== 依存ライブラリ
+
+* ActiveLdap >= 1.1.0
+
+== インストール
+
+  % sudo gem install activesambaldap
+
 == メーリングリスト
 
 asl-devel-ja@rubyforge.org
 
-((<URL:http://rubyforge.org/mailman/listinfo/asl-devel-ja/>))
+http://rubyforge.org/mailman/listinfo/asl-devel-ja/
 
 == リファレンスマニュアル
 
-((<URL:http://asl.rubyforge.org/activesambaldap/>))
-
-== 依存ライブラリ
-
-  * ActiveLdap >= 1.1.0
+http://asl.rubyforge.org/activesambaldap/
 
 == 使用法
 
@@ -90,10 +92,10 @@ asl-populateを使うとこうなります．
 ファイルで上書きされます．上記の例だと，以下の順序で読み込ま
 れていきます．
 
-  * /etc/activesambaldap/config.yaml
-  * /etc/activesambaldap/bind.yaml
-  * /home/kou/.activesambaldap.conf
-  * /home/kou/.activesambaldap.bind
+* /etc/activesambaldap/config.yaml
+* /etc/activesambaldap/bind.yaml
+* /home/kou/.activesambaldap.conf
+* /home/kou/.activesambaldap.bind
 
 config.yamlや*.confの後にbind.yamlや*.bindを読み込んでいるの
 はセキュリティ上の配慮です．ホスト名などの見られてもよい情報
@@ -146,108 +148,137 @@ sidを設定しておかないと，毎回net getlocalsidをするため，効�
 
 設定可能なオプションは以下の通りです．
 
-: base
+[_base_]
    ActiveLdap::Base.setup_connectionのオプションと同じ．
-: host
+[_host_]
    ActiveLdap::Base.setup_connectionのオプションと同じ．
-: port
+[_port_]
    ActiveLdap::Base.setup_connectionのオプションと同じ．
-: scope
+[_scope_]
    ActiveLdap::Base.setup_connectionのオプションと同じ．
-: bind_dn
+[_bind_dn_]
    ActiveLdap::Base.setup_connectionのオプションと同じ．
-: password
+[_password_]
    ActiveLdap::Base.setup_connectionのオプションと同じ．
-: method
+[_method_]
    ActiveLdap::Base.setup_connectionのオプションと同じ．
-: allow_anonymous
+[_allow_anonymous_]
    ActiveLdap::Base.setup_connectionのオプションと同じ．
 
-: sid
+[_sid_]
    SambaサーバのSID(Security Identifier)．
-: smb_conf
+[_smb_conf_]
    Sambaの設定ファイルsmb.confがあるパス．
-: samba_domain
+[_samba_domain_]
    Sambaサーバのドメイン
-: samba_netbios_name
+[_samba_netbios_name_]
    SambaサーバのNetBIOS名
 
-: password_hash_type
+[_password_hash_type_]
    LDAP上のパスワードをハッシュ化する時に使用するアルゴリズ
-   ム．指定できるのは:crypt, :md5, :smd5, :sha, :sshaで，デ
-   フォルトは:sshaです．
+   ム．指定できるの
+   は+:crypt+, +:md5+, +:smd5+, +:sha+, +:ssha+です。
 
    LDAP上のパスワードはSambaの認証時ではなく，UNIX上のユーザ
    の認証時に利用されます．
 
-: users_suffix
+   デフォルト: +:ssha+
+
+[_users_suffix_]
    LDAP上のユーザエントリを格納するツリー．baseからの相対パ
-   スを指定する．例: ou=Users
-: groups_suffix
+   スを指定する．
+
+   例: <tt>"ou=Users"</tt>
+
+[_groups_suffix_]
    LDAP上のグループエントリを格納するツリー．baseからの相対パ
-   スを指定する．例: ou=Groups
-: computers_suffix
+   スを指定する．
+
+   例: <tt>"ou=Groups"</tt>
+
+[_computers_suffix_]
    LDAP上のコンピュータエントリを格納するツリー．baseからの相対パ
-   スを指定する．例: ou=Computers
-: idmap_suffix
+   スを指定する．
+
+   例: <tt>"ou=Computers"</tt>
+
+[_idmap_suffix_]
    LDAP上のidmapエントリを格納するツリー．baseからの相対パ
-   スを指定する．例: ou=Idmap
+   スを指定する．
 
-: start_uid
+   例: <tt>"ou=Idmap"</tt>
+
+[_start_uid_]
    新しいユーザを作ったときに，はじめに使用するUID(User
-   Identifier)．以降のUIDは1ずつ増えていく．デフォルトは
-   10000．
+   Identifier)．以降のUIDは1ずつ増えていく．
 
-: start_gid
+   デフォルト: +10000+
+
+[_start_gid_]
    新しいユーザを作ったときに，はじめに使用するGID(Group
-   Identifier)．以降のGIDは1ずつ増えていく．デフォルトは
-   10000．
+   Identifier)．以降のGIDは1ずつ増えていく．
 
-: user_login_shell
-   新しく作成したユーザのログインシェル．デフォルトは
-   /bin/false．
-: user_home_directory
+   デフォルト: +10000+
+
+[_user_login_shell_]
+   新しく作成したユーザのログインシェル．
+
+   デフォルト: <tt>"/bin/false"</tt>
+
+[_user_home_directory_]
    新しく作成したユーザのホームディレクトリ．%Uはユーザ名に
-   置換される．デフォルトは/home/%U．
-: user_home_directory_mode
-   ユーザのホームディレクトリを作成する際に設定するパーミッ
-   ション用のモード．デフォルトは0755（8進数）．
+   置換される．
 
-: user_gecos
+   デフォルト: <tt>"/home/%U"</tt>
+
+[_user_home_directory_mode_]
+   ユーザのホームディレクトリを作成する際に設定するパーミッ
+   ション用のモード．
+
+   デフォルト: +0755+（8進数）
+
+[_user_gecos_]
    ユーザのGECOSフィールドの値．%Uはユーザ名に置換される．
 
-: user_home_unc
+[_user_home_unc_]
    Windowsから見たときのユーザのホームへのパス．
    UNC(Universal Naming Convention)で記述する．%Uはユーザ名
-   に置換される．デフォルトは\\SambaサーバのNetBIOS名\%U．
+   に置換される．
 
-: user_profile
+   デフォルト: <tt>"\\\\SambaサーバのNetBIOS名\\%U"</tt>
+
+[_user_profile_]
    ユーザプロファイルへのパス．
    UNC(Universal Naming Convention)で記述する．%Uはユーザ名
-   に置換される．デフォルトは\\SambaサーバのNetBIOS名\profiles\%U．
+   に置換される．
 
-: user_home_drive
-   ユーザのホームを割り当てるドライブ名．デフォルトはH:．
+   デフォルト: <tt>"\\\\SambaサーバのNetBIOS名\\profiles\\%U"</tt>
 
-: user_logon_script
+[_user_home_drive_]
+   ユーザのホームを割り当てるドライブ名．
+
+   デフォルト: <tt>"H:"</tt>
+
+[_user_logon_script_]
    ユーザがログオンしたときに実行するスクリプトファイル名．
-   デフォルトはlogon.bat．
 
-# : mail_domain
+   デフォルト: <tt>"logon.bat"</tt>
 
-: skeleton_directory
+[_skeleton_directory_]
    ユーザのホームディレクトリを作成する時に雛型とするディレ
-   クトリ．デフォルトは/etc/skel．
+   クトリ．
 
-: default_user_gid
-   デフォルトでユーザが所属するグループ．デフォルトはDomain
-   Usersグループ．
+   デフォルト: <tt>"/etc/skel"</tt>
 
-: default_computer_gid
-   デフォルトでコンピュータが所属するグループ．デフォルトは
-   Domain Computersグループ．
+[_default_user_gid_]
+   デフォルトでユーザが所属するグループ．
 
-# : default_max_password_age
+   デフォルト: <tt>"Domain Users"</tt>グループ
+
+[_default_computer_gid_]
+   デフォルトでコンピュータが所属するグループ．
+
+   デフォルト: <tt>"Domain Computers"</tt>グループ
 
 ==== 初期化
 
@@ -258,7 +289,7 @@ asl-populateを起動してLDAPサーバに基本的なエントリを追加し�
   % sudo asl-populate
 
 もし，root権限が無くても実行できるのであれば以下のようにする
-とよいでしょう((-root権限チェックは必要ないかもしれない-))．
+とよいでしょう．（root権限チェックは必要ないかもしれない）
 
   % fakeroot asl-populate
 
@@ -314,17 +345,17 @@ LDAP管理ユーザのパスワードを設定しておく必要があります�
 もし、asl-populateした後なのに上記のコマンドでひとつもグルー
 プがでない場合は以下のことを確認してください。
 
-  * samba.schemaが古くないか
+* samba.schemaが古くないか
 
-    sambaSIDのエントリに以下の設定がない場合は古い
-    samba.schemaである可能性があります。最新のものに更新して
-    ください。
+  sambaSIDのエントリに以下の設定がない場合は古い
+  samba.schemaである可能性があります。最新のものに更新して
+  ください。
 
-      SUBSTR caseExactIA5SubstringsMatch
+    SUBSTR caseExactIA5SubstringsMatch
 
 == 感謝
 
-  * Henrik Krög: バグを報告してくれました。
-  * Olivier DIRRENBERGER: バグを報告してくれました。
-  * Francesco Malvezzi: バグを報告してくれました。
-  * Kazuhiro NISHIYAMA: バグを報告してくれました。
+* Henrik Krög: バグを報告してくれました。
+* Olivier DIRRENBERGER: バグを報告してくれました。
+* Francesco Malvezzi: バグを報告してくれました。
+* Kazuhiro NISHIYAMA: バグを報告してくれました。

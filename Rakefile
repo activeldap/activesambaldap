@@ -66,7 +66,7 @@ project = Hoe.spec("activesambaldap") do
   self.changes = cleanup_white_space(news_of_current_release)
 
   entries = File.read("README.en").split(/^==\s(.*)$/)
-  whats_this = cleanup_white_space(entries[entries.index("What\'s this?") + 1])
+  whats_this = cleanup_white_space(entries[entries.index("Description") + 1])
   self.summary, self.description, = whats_this.split(/\n\n+/, 3)
 end
 
@@ -102,6 +102,18 @@ project.spec.executables.each do |bin|
   end
   at_exit do
     FileUtils.rm_f(bin_help)
+  end
+end
+
+task :docs do
+  css_file = "doc/rdoc.css"
+  css = File.read(css_file)
+  reset_spacing = Regexp.escape("*{ padding: 0; margin: 0; }")
+  customized_css = css.sub(/#{reset_spacing}/, '')
+  if css != customized_css
+    File.open(css_file, "w") do |output|
+      output.print(customized_css)
+    end
   end
 end
 

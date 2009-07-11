@@ -1,5 +1,3 @@
-# -*- rd -*-
-
 = README.en
 
 $Id$
@@ -8,7 +6,7 @@ $Id$
 
 ActiveSambaLdap
 
-== What's this?
+== Description
 
 ActiveSambaLdap is a library and a management tool for Samba +
 LDAP environment.
@@ -19,25 +17,29 @@ command-line tools to replace smbldap-tools written by Perl.
 
 == Author
 
-Kouhei Sutou <kou@cozmixng.org>
+Kouhei Sutou <tt><kou@clear-code.com></tt>
 
 == Licence
 
 Ruby's.
 
+== Dependency libraries
+
+* ActiveLdap >= 1.1.0
+
+== Install
+
+  % sudo gem install activesambaldap
+
 == Mailing list
 
 asl-devel@rubyforge.org
 
-((<URL:http://rubyforge.org/mailman/listinfo/asl-devel/>))
+http://rubyforge.org/mailman/listinfo/asl-devel/
 
 == Reference manual
 
-((<URL:http://asl.rubyforge.org/activesambaldap/>))
-
-== Dependency libraries
-
-  * ActiveLdap >= 1.1.0
+http://asl.rubyforge.org/activesambaldap/
 
 == Usage
 
@@ -96,10 +98,10 @@ below files. Configurations are overridden by latter
 configuration files. In the above example, configuration
 files are read by the following order:
 
-  * /etc/activesambaldap/config.yaml
-  * /etc/activesambaldap/bind.yaml
-  * /home/kou/.activesambaldap.conf
-  * /home/kou/.activesambaldap.bind
+* /etc/activesambaldap/config.yaml
+* /etc/activesambaldap/bind.yaml
+* /home/kou/.activesambaldap.conf
+* /home/kou/.activesambaldap.bind
 
 The reason why bind.yaml and *.bind are read after
 config.yaml and *.conf is for security. You should write
@@ -154,109 +156,138 @@ getlocalsid' is invoked each time.
 
 The following options are available:
 
-: base
+[_base_]
    Same as the option of ActiveLdap::Base.setup_connection.
-: host
+[_host_]
    Same as the option of ActiveLdap::Base.setup_connection.
-: port
+[_port_]
    Same as the option of ActiveLdap::Base.setup_connection.
-: scope
+[_scope_]
    Same as the option of ActiveLdap::Base.setup_connection.
-: bind_dn
+[_bind_dn_]
    Same as the option of ActiveLdap::Base.setup_connection.
-: password
+[_password_]
    Same as the option of ActiveLdap::Base.setup_connection.
-: method
+[_method_]
    Same as the option of ActiveLdap::Base.setup_connection.
-: allow_anonymous
+[_allow_anonymous_]
    Same as the option of ActiveLdap::Base.setup_connection.
 
-: sid
+[_sid_]
    SID(Security Identifier) of your Samba server.
-: smb_conf
+[_smb_conf_]
    The path of smb.conf for your Samba server.
-: samba_domain
+[_samba_domain_]
    Domain name of your Samba server.
-: samba_netbios_name
+[_samba_netbios_name_]
    NetBIOS name of your Samba server.
 
-: password_hash_type
+[_password_hash_type_]
    Algorithm for hashing password in LDAP. Available
-   algorithms are :crypt, :md5, :smd5, :sha and
-   :ssha. Default algorithm is :ssha.
+   algorithms are +:crypt+, +:md5+, +:smd5+, +:sha+ and
+   +:ssha+.
 
    Password in LDAP is used for recognition in UNIX not Samba.
 
-: users_suffix
-   Tree for user entries in LDAP. Specify relative path for
-   base. For example: ou=Users
-: groups_suffix
-   Tree for group entries in LDAP. Specify relative path for
-   base. For example: ou=Groups
-: computers_suffix
-   Tree for computer entries in LDAP. Specify relative path for
-   base. For example: ou=Computers
-: idmap_suffix
-   Tree for idmap entries in LDAP. Specify relative path for
-   base. For example: ou=Idmap
+   Default algorithm: +:ssha+
 
-: start_uid
+[_users_suffix_]
+   Tree for user entries in LDAP. Specify relative path for
+   base.
+
+   For example: <tt>"ou=Users"</tt>
+
+[_groups_suffix_]
+   Tree for group entries in LDAP. Specify relative path for
+   base.
+
+   For example: <tt>"ou=Groups"</tt>
+
+[_computers_suffix_]
+   Tree for computer entries in LDAP. Specify relative path for
+   base.
+
+   For example: <tt>"ou=Computers"</tt>
+
+[_idmap_suffix_]
+   Tree for idmap entries in LDAP. Specify relative path for
+   base.
+
+   For example: <tt>"ou=Idmap"</tt>
+
+[_start_uid_]
    UID (User Identifier) for making new user. Next new
    user's default UID is incremented after making new
-   user. Default is 10000.
+   user.
 
-: start_gid
+   Default: <tt>10000</tt>
+
+[_start_gid_]
    GID (Group Identifier) for making new group. Next new
    group's default GID is incremented after making new
-   group. Default is 10000.
+   group.
 
-: user_login_shell
-   Default login shell for new user. Default is /bin/false.
-: user_home_directory
+   Default: <tt>10000</tt>
+
+[_user_login_shell_]
+   Default login shell for new user.
+
+   Default: <tt>"/bin/false"</tt>
+
+[_user_home_directory_]
    Default home directory for new user. %U is substituted
-   with the user name. Default is /home/%U.
-: user_home_directory_mode
-   Default permission of user's home directory. Default is
-   0755 (octal notation).
+   with the user name.
 
-: user_gecos
+   Default: <tt>"/home/%U"<tt>
+[_user_home_directory_mode_]
+   Default permission of user's home directory.
+
+   Default: <tt>0755</tt> (octal notation)
+
+[_user_gecos_]
    Default GECOS field value for new user. %U is substituted
    with user name.
 
-: user_home_unc
+[_user_home_unc_]
    Default path for user's home in Windows. The path should
    be specified by UNC (Universal Naming Convention). %U is
-   substituted with user name. Default is "\\NetBIOS name
-   of your Samba server\%U".
+   substituted with user name.
 
-: user_profile
+   Default: <tt>"\\\\NetBIOS name of your Samba server\\%U"</tt>.
+
+[_user_profile_]
    Default path of user profile specified by
    UNC (Universal Naming Convention). %U is substituted by
-   the user name. Default is "\\NetBIOS name Samba
-   server\profiles\%U".
+   the user name.
 
-: user_home_drive
-   Default drive name of user's home. Default is H:.
+   Default: <tt>"\\\\NetBIOS name Samba server\\profiles\\%U"</tt>
 
-: user_logon_script
+[_user_home_drive_]
+   Default drive name of user's home.
+
+   Default: <tt>"H:"<tt>
+
+[_user_logon_script_]
    Default script name that is invoked when user
-   logon. Default is logon.bat.
+   logon.
 
-# : mail_domain
+   Default: <tt>"logon.bat"</tt>
 
-: skeleton_directory
+[_skeleton_directory_]
    Default skeleton directory for making user's home
-   directory. Default is /etc/skel.
+   directory.
 
-: default_user_gid
-   Default GID of group to which user belongs. Default is
-   'Domain Users' group.
+   Default: <tt>"/etc/skel"</tt>
 
-: default_computer_gid
-   Default GID of group to which computer belongs. Default
-   is 'Domain Computers' group.
+[_default_user_gid_]
+   Default GID of group to which user belongs.
 
-# : default_max_password_age
+   Default: <tt>"Domain Users"</tt> group
+
+[_default_computer_gid_]
+   Default GID of group to which computer belongs.
+
+   Default: <tt>"Domain Computers"</tt> group
 
 ==== Populate
 
@@ -267,7 +298,7 @@ with asl-*.
   % sudo asl-populate
 
 You can use the following command if you don't need to root
-authorization((-root authorization check may be needed...-)).
+authorization. (root authorization check may be needed...)
 
   % fakeroot asl-populate
 
@@ -319,17 +350,17 @@ You can list groups by the following command:
 If no groups listed by the above command after you execute
 asl-populate, please confirm the following:
 
-  * Is your samba.schema old?
+* Is your samba.schema old?
 
-    If your sambaSID entry in your samba.schema doesn't have
-    the following configuration, your samba.schema may be old.
-    Please update your samba.schema.
+  If your sambaSID entry in your samba.schema doesn't have
+  the following configuration, your samba.schema may be old.
+  Please update your samba.schema.
 
-      SUBSTR caseExactIA5SubstringsMatch
+    SUBSTR caseExactIA5SubstringsMatch
 
 == Thanks
 
-  * Henrik Krög: He reported some bugs.
-  * Olivier DIRRENBERGER: He reported a bug.
-  * Francesco Malvezzi: He reported some bugs.
-  * Kazuhiro NISHIYAMA: He reported some bugs.
+* Henrik Krög: He reported some bugs.
+* Olivier DIRRENBERGER: He reported a bug.
+* Francesco Malvezzi: He reported some bugs.
+* Kazuhiro NISHIYAMA: He reported some bugs.
