@@ -1,42 +1,40 @@
-# -*- rd -*-
-
 = NEWS.ja
 
 $Id$
 
 == 0.0.6: 2008-06-18
 
-  * ActiveLdap 1.0.1対応。
-  * ActiveSupport 2.1.0対応。
+* ActiveLdap 1.0.1対応。
+* ActiveSupport 2.1.0対応。
 
 == 0.0.5: 2007-11-19
 
-  * Ruby/ActiveLdap 0.9.0対応。
+* Ruby/ActiveLdap 0.9.0対応。
 
 == 0.0.4: 2007-09-16
 
-  * Ruby/ActiveLdap 0.8.3.1対応。
-  * Ruby-GetText-Package対応。
-  * scaffold_asl -> scaffold_active_samba_ldap
-  * Rails対応を強化。
+* Ruby/ActiveLdap 0.8.3.1対応。
+* Ruby-GetText-Package対応。
+* scaffold_asl -> scaffold_active_samba_ldap
+* Rails対応を強化。
 
 == 0.0.3: 2007-05-26
 
-  * Ruby/ActiveLDAPのRubyGems名を修正．
-  * Ruby/ActiveLDAP 0.8.2対応。
-  * ActiveSambaLdap::SambaUser,
-    ActiveSambaLdap::SambaComputer,
-    ActiveSambaLdap::SambaGroupを廃止し、
-    ActiveSambaLdap::User,
-    ActiveSambaLdap::Computer,
-    ActiveSambaLdap::Groupへ一本化。
+* Ruby/ActiveLDAPのRubyGems名を修正．
+* Ruby/ActiveLDAP 0.8.2対応。
+* ActiveSambaLdap::SambaUser,
+  ActiveSambaLdap::SambaComputer,
+  ActiveSambaLdap::SambaGroupを廃止し、
+  ActiveSambaLdap::User,
+  ActiveSambaLdap::Computer,
+  ActiveSambaLdap::Groupへ一本化。
 
 == 0.0.2: 2007-01-29
 
-  * ActiveSupport 1.4.0のサポート．
-  * Ruby/ActiveLDAPのRubyGems名を修正．
+* ActiveSupport 1.4.0のサポート．
+* Ruby/ActiveLDAPのRubyGems名を修正．
 
 == 0.0.1: 2006-11-17
 
-  * 最初のリリース．
+* 最初のリリース．
 

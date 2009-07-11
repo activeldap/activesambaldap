@@ -1,38 +1,36 @@
-# -*- rd -*-
-
 = NEWS.en
 
 $Id$
 
 == 0.0.6: 2008-06-18
 
-  * Supported ActiveLdap 1.0.1.
-  * Supported ActiveSupport 2.1.0.
+* Supported ActiveLdap 1.0.1.
+* Supported ActiveSupport 2.1.0.
 
 == 0.0.5: 2007-11-19
 
-  * Supported Ruby/ActiveLdap 0.9.0.
+* Supported Ruby/ActiveLdap 0.9.0.
 
 == 0.0.4: 2007-09-16
 
-  * Supported Ruby/ActiveLdap 0.8.3.1.
-  * Supported Ruby-GetText-Package.
-  * scaffold_asl -> scaffold_active_samba_ldap
-  * Improved Rails support.
+* Supported Ruby/ActiveLdap 0.8.3.1.
+* Supported Ruby-GetText-Package.
+* scaffold_asl -> scaffold_active_samba_ldap
+* Improved Rails support.
 
 == 0.0.3: 2007-05-26
 
-  * Fixed a typo of Ruby/ActiveLDAP's RubyGems name.
-  * Supported Ruby/AtiveLDAP 0.8.2.
-  * Integrated ActiveLdap::User, ActiveLdap::Computer and ActiveLdap::Group
-    with ActiveLdap::SambaUser, ActiveLdap::SambaComputer and
-    ActiveLdap::SambaGroup.
+* Fixed a typo of Ruby/ActiveLDAP's RubyGems name.
+* Supported Ruby/AtiveLDAP 0.8.2.
+* Integrated ActiveLdap::User, ActiveLdap::Computer and ActiveLdap::Group
+  with ActiveLdap::SambaUser, ActiveLdap::SambaComputer and
+  ActiveLdap::SambaGroup.
 
 == 0.0.2: 2007-01-29
 
-  * Supported ActiveSupport 1.4.0.
-  * Fixed a typo of Ruby/ActiveLDAP's RubyGems name.
+* Supported ActiveSupport 1.4.0.
+* Fixed a typo of Ruby/ActiveLDAP's RubyGems name.
 
 == 0.0.1: 2006-11-17
 
-  * Initial release.
+* Initial release.
