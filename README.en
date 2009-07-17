@@ -45,12 +45,7 @@ http://asl.rubyforge.org/activesambaldap/
 
 === Use with Rails
 
-First, install ActiveSambaLdap plugin for Rails. And modify
-the following URL because the URL is for trunk.
-
-  % script/plugin install svn://rubyforge.org/var/svn/asl/trunk/rails/plugin/active_samba_ldap
-
-Next, scaffold the environment of ActiveSambaLdap for Rails.
+Scaffold the environment of ActiveSambaLdap for Rails.
 
   % script/generate scaffold_active_samba_ldap
 
