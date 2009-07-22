@@ -2,6 +2,11 @@
 
 $Id$
 
+== 0.0.8: 20XX-XX-XX
+
+* [#26692] scaffold_active_samba_ldapがRails 2.2.2で動かない問題を修正
+  [Orlando Marquina]
+
 == 0.0.7: 2009-07-18
 
 * ActiveLdap 1.1.0対応。

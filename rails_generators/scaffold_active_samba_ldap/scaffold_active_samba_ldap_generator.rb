@@ -9,7 +9,7 @@ class ScaffoldActiveSambaLdapGenerator < Rails::Generator::Base
       end
 
       component = "samba"
-      controller_class_name = "#{Inflector.camelize(component)}Controller"
+      controller_class_name = "#{component.camelize}Controller"
       options = {:assigns => {:controller_class_name => controller_class_name}}
 
       m.template("#{component}_controller.rb",
