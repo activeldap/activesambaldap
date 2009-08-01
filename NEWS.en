@@ -6,6 +6,8 @@ $Id$
 
 * [#26692] scaffold_active_samba_ldap doesn't work with Rails 2.2.2.
   [Orlando Marquina]
+* [#26814] scaffold_active_samba_ldap generates wrong class name.
+  [Orlando Marquina]
 
 == 0.0.7: 2009-07-18
 
