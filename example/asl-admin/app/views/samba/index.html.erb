@@ -1,0 +1,17 @@
+<html>
+  <head>
+    <title>SambaController: <%= controller.action_name %></title>
+  </head>
+  <body>
+    <h1>Samba + LDAP Management</h1>
+    <ul>
+      <li>
+        <%= link_to "Populate Samba + LDAP environment",
+                     :action => :populate %>
+      </li>
+      <li>
+        <%= link_to "Purge Samba + LDAP environment", :action => :purge %>
+      </li>
+    </ul>
+  </body>
+</html>
