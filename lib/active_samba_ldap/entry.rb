@@ -28,9 +28,13 @@ module ActiveSambaLdap
         entry
       end
 
+      def samba4?
+        configuration[:samba4]
+      end
+
       private
       def default_classes
-        if configuration[:samba4]
+        if samba4?
           samba_object_classes
         else
           unix_object_classes
@@ -38,8 +42,8 @@ module ActiveSambaLdap
       end
 
       def default_recommended_classes
-        if configuration[:samba4]
-          unix_object_classes
+        if samba4?
+          []
         else
           samba_object_classes
         end
@@ -94,6 +98,10 @@ module ActiveSambaLdap
       end
     end
 
+    def samba4?
+      self.class.samba4?
+    end
+
     def unix_available?
       (unix_object_classes - classes).empty?
     end
@@ -112,7 +120,7 @@ module ActiveSambaLdap
 
     private
     def assert_unix_available
-      return unless self.class.configuration[:samba4]
+      return unless samba4?
       unless unix_available?
         raise NotUnixAavialableError.new(self)
       end

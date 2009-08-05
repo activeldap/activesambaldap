@@ -34,7 +34,11 @@ module ActiveSambaLdap
       end
 
       def unix_object_classes
-        ["posixGroup"]
+        if samba4?
+          samba_object_classes
+        else
+          ["posixGroup"]
+        end
       end
 
       private

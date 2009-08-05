@@ -32,7 +32,7 @@ module ActiveSambaLdap
 
     module ClassMethods
       def samba_object_classes
-        if configuration[:samba4]
+        if samba4?
           ["person", "organizationalPerson", "user"]
         else
           ["sambaSamAccount"]
@@ -199,7 +199,7 @@ module ActiveSambaLdap
 
     def enable
       assert_samba_available
-      if self.class.configuration[:samba4]
+      if samba4?
         self.user_account_control -=
           ActiveDirectory::UserAccountControl::ACCOUNT_DISABLE
       else
@@ -211,7 +211,7 @@ module ActiveSambaLdap
 
     def disable
       assert_samba_available
-      if self.class.configuration[:samba4]
+      if samba4?
         self.user_account_control +=
           ActiveDirectory::UserAccountControl::ACCOUNT_DISABLE
       else
@@ -231,7 +231,7 @@ module ActiveSambaLdap
 
     def disabled?
       assert_samba_available
-      if self.class.configuration[:samba4]
+      if samba4?
         not (user_account_control &
              ActiveDirectory::UserAccountControl::ACCOUNT_DISABLE).zero?
       else

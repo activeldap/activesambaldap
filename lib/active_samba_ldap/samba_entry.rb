@@ -18,7 +18,7 @@ module ActiveSambaLdap
 
     private
     def assert_samba_available
-      return if self.class.configuration[:samba4]
+      return if samba4?
       unless samba_available?
         raise NotSambaAavialableError.new(self)
       end

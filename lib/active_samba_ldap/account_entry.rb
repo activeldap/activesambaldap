@@ -29,7 +29,11 @@ module ActiveSambaLdap
       end
 
       def unix_object_classes
-        ["inetOrgPerson", "posixAccount"]
+        if samba4?
+          samba_object_classes
+        else
+          ["inetOrgPerson", "posixAccount"]
+        end
       end
 
       private
@@ -49,7 +53,7 @@ module ActiveSambaLdap
       end
 
       def default_dn_attribute
-        if configuration[:samba4]
+        if samba4?
           "cn"
         else
           "uid"
