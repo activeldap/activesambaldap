@@ -33,6 +33,10 @@ module ActiveSambaLdap
         find(:first, :filter => ["gidNumber", Integer(number)])
       end
 
+      def unix_object_classes
+        ["posixGroup"]
+      end
+
       private
       def default_options
         {
@@ -50,10 +54,6 @@ module ActiveSambaLdap
           :primary_users_class => default_user_class,
           :primary_computers_class => default_computer_class,
         }
-      end
-
-      def unix_object_classes
-        ["posixGroup"]
       end
 
       def default_user_class

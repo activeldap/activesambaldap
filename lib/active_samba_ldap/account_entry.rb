@@ -28,6 +28,10 @@ module ActiveSambaLdap
         find(:first, :filter => "(#{attribute}=#{value})")
       end
 
+      def unix_object_classes
+        ["inetOrgPerson", "posixAccount"]
+      end
+
       private
       def default_options
         {
@@ -54,10 +58,6 @@ module ActiveSambaLdap
 
       def default_group_class
         "Group"
-      end
-
-      def unix_object_classes
-        ["inetOrgPerson", "posixAccount"]
       end
 
       def primary_group_options(options)
