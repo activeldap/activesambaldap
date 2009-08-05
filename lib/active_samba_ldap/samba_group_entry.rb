@@ -145,7 +145,7 @@ module ActiveSambaLdap
     end
 
     def set_object_category
-      _base = ActiveSambaLdap.base
+      _base = ActiveSambaLdap::Base.base
       self.object_category = "cn=Group,cn=Schema,cn=Configuration,#{_base}"
     end
   end
