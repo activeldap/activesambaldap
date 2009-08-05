@@ -58,8 +58,12 @@ module ActiveSambaLdap
     }
 
     module ClassMethods
-      def samba_object_class
-        "sambaGroupMapping"
+      def samba_object_classes
+        if configuration[:samba4]
+          []
+        else
+          ["sambaGroupMapping"]
+        end
       end
 
       def gid2rid(gid)
@@ -82,11 +86,6 @@ module ActiveSambaLdap
 
       def start_rid
         gid2rid(start_gid)
-      end
-
-      private
-      def default_recommended_classes
-        super + [samba_object_class]
       end
     end
 

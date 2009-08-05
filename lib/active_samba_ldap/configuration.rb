@@ -99,7 +99,9 @@ module ActiveSambaLdap
                        skeleton_directory
 
                        default_user_gid default_computer_gid
-                       default_max_password_age)
+                       default_max_password_age
+
+                       samba4)
 
         class << self
           def required_variables
@@ -206,16 +208,33 @@ module ActiveSambaLdap
         end
 
         def users_suffix
-          retrieve_value_from_smb_conf(/ldap\s+user\s+suffix/i) || "ou=Users"
+          suffix = retrieve_value_from_smb_conf(/ldap\s+user\s+suffix/i)
+          return suffix if suffix
+          if self[:samba4]
+            "cn=Users"
+          else
+            "ou=Users"
+          end
         end
 
         def groups_suffix
-          retrieve_value_from_smb_conf(/ldap\s+group\s+suffix/i) || "ou=Groups"
+          suffix = retrieve_value_from_smb_conf(/ldap\s+group\s+suffix/i)
+          return suffix if suffix
+          if self[:samba4]
+            "cn=Groups"
+          else
+            "ou=Groups"
+          end
         end
 
         def computers_suffix
-          retrieve_value_from_smb_conf(/ldap\s+machine\s+suffix/i) ||
+          suffix = retrieve_value_from_smb_conf(/ldap\s+machine\s+suffix/i)
+          return suffix if suffix
+          if self[:samba4]
+            "cn=Computers"
+          else
             "ou=Computers"
+          end
         end
 
         def idmap_suffix
@@ -299,6 +318,15 @@ module ActiveSambaLdap
 
         def normalize_password_hash_type(type)
           type.to_s.downcase.to_sym
+        end
+
+        def samba4
+          smb_conf = self[:smb_conf]
+          if smb_conf and /^\s*server\s*role\s*=/ =~ File.read(smb_conf)
+            true
+          else
+            false
+          end
         end
 
         AVAILABLE_HASH_TYPES = [:crypt, :md5, :smd5, :sha, :ssha]

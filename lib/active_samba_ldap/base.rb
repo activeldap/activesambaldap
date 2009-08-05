@@ -112,6 +112,14 @@ module ActiveSambaLdap
     end
   end
 
+  class NotUnixAavialableError < Error
+    attr_reader :object
+    def initialize(object)
+      @object = object
+      super(_("%s is not UNIX available") % [object.inspect])
+    end
+  end
+
   class Base < ActiveLdap::Base
     include Reloadable
 

@@ -43,5 +43,6 @@ Rails::Initializer.run do |config|
   # config.i18n.load_path += Dir[Rails.root.join('my', 'locales', '*.{rb,yml}')]
   # config.i18n.default_locale = :de
 
+  config.log_level = :debug
   config.log_path = Logger::LogDevice.new(config.log_path)
 end

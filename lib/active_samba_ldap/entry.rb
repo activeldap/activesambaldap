@@ -29,6 +29,22 @@ module ActiveSambaLdap
       end
 
       private
+      def default_classes
+        if configuration[:samba4]
+          samba_object_classes
+        else
+          unix_object_classes
+        end
+      end
+
+      def default_recommended_classes
+        if configuration[:samba4]
+          unix_object_classes
+        else
+          samba_object_classes
+        end
+      end
+
       def ensure_ou(dn)
         return if dn.nil?
         dn_value, ou = dn.split(/,/, 2)
@@ -75,6 +91,30 @@ module ActiveSambaLdap
           pool = options[:pool] = pool_class.find(samba_domain)
         end
         pool
+      end
+    end
+
+    def unix_available?
+      (unix_object_classes - classes).empty?
+    end
+
+    def remove_unix_availability
+      remove_class(*unix_object_classes)
+    end
+
+    def ensure_unix_availability
+      add_class(*unix_object_classes)
+    end
+
+    def unix_object_classes
+      self.class.unix_object_classes
+    end
+
+    private
+    def assert_unix_available
+      return unless self.class.configuration[:samba4]
+      unless unix_available?
+        raise NotUnixAavialableError.new(self)
       end
     end
   end

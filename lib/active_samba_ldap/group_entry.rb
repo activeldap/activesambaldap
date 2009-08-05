@@ -52,12 +52,8 @@ module ActiveSambaLdap
         }
       end
 
-      def default_classes
-        ["top", "posixGroup"]
-      end
-
-      def default_recommended_classes
-        []
+      def unix_object_classes
+        ["posixGroup"]
       end
 
       def default_user_class

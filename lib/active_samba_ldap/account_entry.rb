@@ -31,7 +31,7 @@ module ActiveSambaLdap
       private
       def default_options
         {
-          :dn_attribute => "uid",
+          :dn_attribute => default_dn_attribute,
           :ldap_scope => :sub,
           :primary_group_class => default_group_class,
           :primary_group_foreign_key => "gidNumber",
@@ -44,16 +44,20 @@ module ActiveSambaLdap
         }
       end
 
+      def default_dn_attribute
+        if configuration[:samba4]
+          "cn"
+        else
+          "uid"
+        end
+      end
+
       def default_group_class
         "Group"
       end
 
-      def default_classes
-        ["top", "inetOrgPerson", "posixAccount"]
-      end
-
-      def default_recommended_classes
-        []
+      def unix_object_classes
+        ["inetOrgPerson", "posixAccount"]
       end
 
       def primary_group_options(options)

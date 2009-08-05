@@ -29,8 +29,12 @@ module ActiveSambaLdap
     ACCOUNT_FLAGS_RE = /\A\[([NDHTUMWSLXI ]+)\]\z/
 
     module ClassMethods
-      def samba_object_class
-        "sambaSamAccount"
+      def samba_object_classes
+        if configuration[:samba4]
+          ["person", "organizationalPerson", "user"]
+        else
+          ["sambaSamAccount"]
+        end
       end
 
       def uid2rid(uid)
@@ -56,10 +60,6 @@ module ActiveSambaLdap
       end
 
       private
-      def default_recommended_classes
-        super + [samba_object_class]
-      end
-
       def primary_group_options(options)
         super.merge(:extend => PrimaryGroupProxy)
       end

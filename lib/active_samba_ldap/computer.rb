@@ -15,6 +15,7 @@ module ActiveSambaLdap
     include AccountEntry
     include ComputerAccountEntry
     include SambaAccountEntry
+    include SambaComputerAccountEntry
 
     private
     def default_account_flags
