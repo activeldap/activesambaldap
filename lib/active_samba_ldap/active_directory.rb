@@ -59,7 +59,7 @@ module ActiveSambaLdap
                                "available: [:global, :domain_local, :universal]"
         end
         type |= SECURITY_ENABLED if security_enabled
-        [type].pack("L").unpack("l")
+        [type].pack("L").unpack("l")[0]
       end
     end
   end
