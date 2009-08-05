@@ -1,3 +1,5 @@
+require 'active_samba_ldap/active_directory'
+
 module ActiveSambaLdap
   module SambaAccountEntry
     def self.included(base)
@@ -197,19 +199,29 @@ module ActiveSambaLdap
 
     def enable
       assert_samba_available
-      if /D/ =~ samba_acct_flags.to_s
-        self.samba_acct_flags = samba_acct_flags.gsub(/D/, '')
+      if self.class.configuration[:samba4]
+        self.user_account_control -=
+          ActiveDirectory::UserAccountControl::ACCOUNT_DISABLE
+      else
+        if /D/ =~ samba_acct_flags.to_s
+          self.samba_acct_flags = samba_acct_flags.gsub(/D/, '')
+        end
       end
     end
 
     def disable
       assert_samba_available
-      flags = ""
-      if ACCOUNT_FLAGS_RE =~ samba_acct_flags.to_s
-        flags = $1
-        return if /D/ =~ flags
+      if self.class.configuration[:samba4]
+        self.user_account_control +=
+          ActiveDirectory::UserAccountControl::ACCOUNT_DISABLE
+      else
+        flags = ""
+        if ACCOUNT_FLAGS_RE =~ samba_acct_flags.to_s
+          flags = $1
+          return if /D/ =~ flags
+        end
+        self.samba_acct_flags = "[D#{flags}]"
       end
-      self.samba_acct_flags = "[D#{flags}]"
     end
 
     def enabled?
@@ -219,7 +231,12 @@ module ActiveSambaLdap
 
     def disabled?
       assert_samba_available
-      (/D/ =~ samba_acct_flags.to_s) ? true : false
+      if self.class.configuration[:samba4]
+        not (user_account_control &
+             ActiveDirectory::UserAccountControl::ACCOUNT_DISABLE).zero?
+      else
+        (/D/ =~ samba_acct_flags.to_s) ? true : false
+      end
     end
   end
 end
