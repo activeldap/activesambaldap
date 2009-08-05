@@ -59,8 +59,8 @@ module ActiveSambaLdap
 
     module ClassMethods
       def samba_object_classes
-        if configuration[:samba4]
-          []
+        if samba4?
+          ["group"]
         else
           ["sambaGroupMapping"]
         end

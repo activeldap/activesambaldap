@@ -221,7 +221,7 @@ module ActiveSambaLdap
           suffix = retrieve_value_from_smb_conf(/ldap\s+group\s+suffix/i)
           return suffix if suffix
           if self[:samba4]
-            "cn=Groups"
+            "cn=Users"
           else
             "ou=Groups"
           end
