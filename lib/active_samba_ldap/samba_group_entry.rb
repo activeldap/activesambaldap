@@ -129,14 +129,24 @@ module ActiveSambaLdap
     def change_type(type)
       assert_samba_available
       normalized_type = type.to_s.downcase
-      if TYPES.has_key?(normalized_type)
-        type = TYPES[normalized_type]
-      elsif TYPES.values.include?(type.to_i)
-        # pass
+      if samba4?
+        self.group_type = ActiveDirectory::GroupType.resolve(normalized_type)
       else
-        raise ArgumentError, _("invalid type: %s") % type
+        if TYPES.has_key?(normalized_type)
+          type = TYPES[normalized_type]
+        elsif TYPES.values.include?(type.to_i)
+          # pass
+        else
+          # TODO: add available values
+          raise ArgumentError, _("invalid type: %s") % type
+        end
+        self.samba_group_type = type.to_s
       end
-      self.samba_group_type = type.to_s
+    end
+
+    def set_object_category
+      _base = ActiveSambaLdap.base
+      self.object_category = "cn=Group,cn=Schema,cn=Configuration,#{_base}"
     end
   end
 end

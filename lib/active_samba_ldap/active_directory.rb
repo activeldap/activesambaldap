@@ -35,5 +35,32 @@ module ActiveSambaLdap
       PASSWORD_EXPIRED = 0x800000
       TRUSTED_TO_AUTH_FOR_DELEGATION = 0x1000000
     end
+
+    module GroupType
+      GLOBAL_GROUP = 0x2
+      DOMAIN_LOCAL_GROUP = 0x4
+      UNIVERSAL_GROUP = 0x8
+
+      SECURITY_ENABLED = 0x80000000
+
+      module_function
+      def resolve(name, security_enabled=true)
+        type = 0
+        case name.to_s
+        when "global"
+          type = GLOBAL_GROUP
+        when /\Adomain[-_]local\z/
+          type = DOMAIN_LOCAL_GROUP
+        when "universal"
+          type = UNIVERSAL_GROUP
+        else
+          # TODO: I18N
+          raise ArgumentError, "unknown group type: #{name.inspect}: " +
+                               "available: [:global, :domain_local, :universal]"
+        end
+        type |= SECURITY_ENABLED if security_enabled
+        type
+      end
+    end
   end
 end
