@@ -1,3 +1,4 @@
+p 1
 class ScaffoldActiveSambaLdapGenerator < Rails::Generator::Base
   def manifest
     record do |m|
@@ -18,8 +19,8 @@ class ScaffoldActiveSambaLdapGenerator < Rails::Generator::Base
                  File.join("app", "helpers", "#{component}_helper.rb"))
       m.directory(File.join("app", "views", component))
       %w(index populate purge).each do |action|
-        m.template("#{component}_#{action}.rhtml",
-                   File.join("app", "views", component, "#{action}.rhtml"),
+        m.template("#{component}_#{action}.html.erb",
+                   File.join("app", "views", component, "#{action}.html.erb"),
                    options)
       end
     end
