@@ -12,6 +12,7 @@ $Id$
 == 0.0.7: 2009-07-18
 
 * Supported ActiveLdap 1.1.0.
+* Supported gem plugin.
 
 == 0.0.6: 2008-06-18
 
