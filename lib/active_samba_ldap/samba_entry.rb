@@ -12,7 +12,7 @@ module ActiveSambaLdap
       add_class(*samba_object_classes)
     end
 
-    def samba_object_class
+    def samba_object_classes
       self.class.samba_object_classes
     end
 
