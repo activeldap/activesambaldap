@@ -17,4 +17,7 @@ $LOAD_PATH.unshift(File.join(top_dir, "test"))
 
 ARGV.unshift("--priority")
 
-exit Test::Unit::AutoRunner.run(true)
+require 'timeout'
+Test::Unit::ErrorHandler::NOT_PASS_THROUGH_EXCEPTIONS << Timeout::Error
+
+exit Test::Unit::AutoRunner.run(true, File.join(top_dir, "test"))
