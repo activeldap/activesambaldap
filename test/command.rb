@@ -59,9 +59,14 @@ module Command
     in_r.close unless in_r.closed?
     out_w.close unless out_w.closed?
     err_w.close unless err_w.closed?
-    Timeout.timeout(5) do
-      pid, status = Process.waitpid2(pid)
-      [status.exited? && status.exitstatus.zero?, out_r.read, err_r.read]
+    begin
+      Timeout.timeout(10) do
+        pid, status = Process.waitpid2(pid)
+        [status.exited? && status.exitstatus.zero?, out_r.read, err_r.read]
+      end
+    rescue Timeout::Error
+      Process.kill(:KILL, pid)
+      [false, out_r.read, err_r.read, "killed"]
     end
   end
 end

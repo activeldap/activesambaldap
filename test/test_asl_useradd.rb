@@ -67,7 +67,7 @@ class AslUserAddTest < Test::Unit::TestCase
         assert(user_class.exists?(uid))
 
         user = user_class.find(uid)
-        assert_match(/\Auid=#{uid},ou=#{ou},/, user.dn)
+        assert_match(/\Auid=#{uid},ou=#{ou},/, user.dn.to_s)
       end
 
       assert(ou_class.exists?(ou))
@@ -91,7 +91,7 @@ class AslUserAddTest < Test::Unit::TestCase
         assert(computer_class.exists?(uid))
 
         computer = computer_class.find(uid)
-        assert_match(/\Auid=#{Regexp.escape(uid)},ou=#{ou},/, computer.dn)
+        assert_match(/\Auid=#{Regexp.escape(uid)},ou=#{ou},/, computer.dn.to_s)
       end
 
       assert(ou_class.exists?(ou))

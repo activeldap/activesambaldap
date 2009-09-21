@@ -95,6 +95,7 @@ module ActiveSambaLdap
         end
 
         def ensure_container_base(dn, target_name, klass, ignore_base=false)
+          dn = dn.to_s if dn.is_a?(ActiveLdap::DN)
           entries = []
           suffixes = []
           dn.split(/,/).reverse_each do |suffix|
