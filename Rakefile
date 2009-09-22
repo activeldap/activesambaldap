@@ -55,7 +55,6 @@ ENV["VERSION"] = ActiveSambaLdap::VERSION
 project = Hoe.spec("activesambaldap") do
   self.version = ActiveSambaLdap::VERSION
   self.rubyforge_name = "asl"
-  self.name = "ActiveSambaLdap"
   self.summary = "Samba+LDAP administration tools"
   self.extra_deps << ["activeldap", required_active_ldap_version]
   self.email = ["kou@clear-code.com"]
