@@ -45,7 +45,13 @@ http://asl.rubyforge.org/activesambaldap/
 
 === Use with Rails
 
-Scaffold the environment of ActiveSambaLdap for Rails.
+First, load ActiveSambaLdap gem.
+
+Add the following line into config/environment.rb:
+
+  config.gem "activesambaldap", :lib => "active_samba_ldap"
+
+Next, scaffold the environment of ActiveSambaLdap for Rails.
 
   % script/generate scaffold_active_samba_ldap
 

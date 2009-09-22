@@ -42,7 +42,13 @@ http://asl.rubyforge.org/activesambaldap/
 
 === Railsと使う
 
-Rails用ActiveSambaLdap環境を構築します．
+まず、ActiveSambaLdapのgemを読み込みます。
+
+config/environment.rbに以下を追加してください。
+
+  config.gem "activesambaldap", :lib => "active_samba_ldap"
+
+次に、Rails用ActiveSambaLdap環境を構築します．
 
   % script/generate scaffold_active_samba_ldap
 
