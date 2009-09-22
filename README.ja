@@ -22,7 +22,7 @@ Ruby's.
 
 == 依存ライブラリ
 
-* ActiveLdap >= 1.1.0
+* ActiveLdap >= 1.2.0
 
 == インストール
 
