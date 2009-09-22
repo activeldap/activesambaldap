@@ -152,7 +152,7 @@ namespace :gettext do
       files += Dir.glob("bin/asl*")
       GetText.update_pofiles("active-samba-ldap",
                              files,
-                             "Ruby/ActiveSambaLdap #{ActiveSambaLdap::VERSION}")
+                             "ActiveSambaLdap #{ActiveSambaLdap::VERSION}")
     end
   end
 

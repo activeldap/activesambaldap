@@ -1,14 +1,14 @@
-# Japanese translations for Ruby/ActiveSambaLdap.
+# Japanese translations for ActiveSambaLdap.
 # Copyright (C) 2007-2009 Kouhei Sutou
-# This file is distributed under the same license as the Ruby/ActiveSambaLdap
+# This file is distributed under the same license as the ActiveSambaLdap
 # package.
 # Kouhei Sutou <kou@clear-code.com>, 2007.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Ruby/ActiveSambaLdap 0.0.7\n"
-"POT-Creation-Date: 2007-09-16 22:47+0900\n"
-"PO-Revision-Date: 2009-07-11 09:41+0900\n"
+"Project-Id-Version: ActiveSambaLdap 0.0.8\n"
+"POT-Creation-Date: 2009-09-22 14:42+0900\n"
+"PO-Revision-Date: 2009-09-22 14:42+0900\n"
 "Last-Translator: Kouhei Sutou <kou@clear-code.com>\n"
 "Language-Team: Japanese\n"
 "MIME-Version: 1.0\n"
@@ -36,7 +36,7 @@ msgstr "このメッセージを表示"
 msgid "Show version"
 msgstr "バージョンを表示"
 
-#: lib/active_samba_ldap/entry.rb:39
+#: lib/active_samba_ldap/entry.rb:59
 msgid "%s must be only ou"
 msgstr "%sはouだけでなくてはいけません"
 
@@ -95,15 +95,19 @@ msgstr "%sの値'%s'が不正です: %s"
 msgid "%s is not Samba available"
 msgstr "%sはSambaで利用できません"
 
-#: lib/active_samba_ldap/configuration.rb:310
+#: lib/active_samba_ldap/base.rb:119
+msgid "%s is not UNIX available"
+msgstr "%sはUNIXで利用できません"
+
+#: lib/active_samba_ldap/configuration.rb:338
 msgid "must be in %s"
 msgstr "%sの中になければいけません"
 
-#: lib/active_samba_ldap/samba_group_entry.rb:138
+#: lib/active_samba_ldap/samba_group_entry.rb:141
 msgid "invalid type: %s"
 msgstr "不正な種類: %s"
 
-#: rails/plugin/active_samba_ldap/init.rb:10
+#: rails/init.rb:12
 msgid ""
 "You should run 'script/generator scaffold_active_samba_ldap' to make %s."
 msgstr ""
@@ -334,7 +338,7 @@ msgstr "(Sambaのアカウント制御ビット。例: '[NDHTUMWSLXI]')"
 msgid "illegal %s name: %s"
 msgstr "不正な%s名: %s"
 
-#: bin/asl-useradd:182 bin/asl-usermod:308
+#: bin/asl-useradd:182 bin/asl-usermod:309
 msgid "%s already exists: %s"
 msgstr "すでに存在する%sです: %s"
 
@@ -452,7 +456,7 @@ msgstr "このユーザを無効にする"
 msgid "enable this user"
 msgstr "このユーザを有効にする"
 
-#: bin/asl-usermod:234 bin/asl-usermod:238
+#: bin/asl-usermod:235 bin/asl-usermod:239
 msgid "not implemented."
 msgstr "実装されていません。"
 
