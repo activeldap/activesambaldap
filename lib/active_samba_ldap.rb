@@ -8,7 +8,7 @@ require_gem_if_need = Proc.new do |library_name, gem_name, *options|
   end
 end
 
-required_active_ldap_version = ">= 1.2.0"
+required_active_ldap_version = ">= 1.2.2"
 require_gem_if_need.call("active_ldap", "activeldap",
                          required_active_ldap_version)
 
