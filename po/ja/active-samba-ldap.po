@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ActiveSambaLdap 0.0.8\n"
 "POT-Creation-Date: 2009-09-22 14:42+0900\n"
-"PO-Revision-Date: 2009-09-22 14:42+0900\n"
+"PO-Revision-Date: 2010-09-11 11:44+0900\n"
 "Last-Translator: Kouhei Sutou <kou@clear-code.com>\n"
 "Language-Team: Japanese\n"
 "MIME-Version: 1.0\n"
@@ -256,7 +256,7 @@ msgstr "共通名"
 
 #: bin/asl-useradd:69 bin/asl-usermod:78
 msgid "surname"
-msgstr "性"
+msgstr "姓"
 
 #: bin/asl-useradd:72 bin/asl-usermod:50
 msgid "home directory"
