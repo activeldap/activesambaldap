@@ -40,7 +40,7 @@ Gem::Specification.new do |spec|
   entries = File.read("README.en").split(/^==\s(.*)$/)
   whats_this = clean_white_space.call(entries[entries.index("Description") + 1])
   spec.summary, spec.description, = whats_this.split(/\n\n+/, 3)
-  spec.license = "LGPLv2 or later"
+  spec.license = "LGPLv2.1 or later"
 
   spec.add_dependency("activeldap")
 
