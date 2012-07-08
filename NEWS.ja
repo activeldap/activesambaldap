@@ -2,6 +2,11 @@
 
 $Id$
 
+== 0.1.0: 2012-07-08
+
+* [#29610] ActiveLdap 3.1.1対応。 [Piotr Romanczuk]
+* ライセンスをRubyライセンスからLGPLv2.1またはそれ以降のバージョンに変更。
+
 == 0.0.8: 2009-09-22
 
 * [#26692] scaffold_active_samba_ldapがRails 2.2.2で動かない問題を修正

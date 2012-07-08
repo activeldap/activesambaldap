@@ -2,6 +2,11 @@
 
 $Id$
 
+== 0.1.0: 2012-07-08
+
+* [#29610] Supported ActiveLdap 3.1.1 [Piotr Romanczuk]
+* Changed license from Ruby's to LGPLv2.1 or later.
+
 == 0.0.8: 2009-09-22
 
 * [#26692] scaffold_active_samba_ldap doesn't work with Rails 2.2.2.
