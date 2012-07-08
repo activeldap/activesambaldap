@@ -18,7 +18,9 @@ Kouhei Sutou <tt><kou@clear-code.com></tt>
 
 == ライセンス
 
-Ruby's.
+LGPL 2.1またはそれ以降のバージョン。詳細はlicense/lgpl-2.1.txtを見てください。
+
+（Kouhei Sutouは受け付けたパッチも含めてライセンスを変更する権利があります。）
 
 == 依存ライブラリ
 
